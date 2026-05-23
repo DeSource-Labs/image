@@ -1,0 +1,37 @@
+{
+  "name": "@desource/svelte-image",
+  "version": "0.1.0",
+  "description": "Svelte and SvelteKit components for Desource Image.",
+  "type": "module",
+  "sideEffects": false,
+  "svelte": "./dist/index.js",
+  "files": ["dist", "README.md"],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "svelte": "./dist/index.js",
+      "import": "./dist/index.js"
+    },
+    "./Image.svelte": {
+      "types": "./dist/Image.svelte.d.ts",
+      "svelte": "./dist/Image.svelte",
+      "import": "./dist/Image.svelte"
+    },
+    "./Picture.svelte": {
+      "types": "./dist/Picture.svelte.d.ts",
+      "svelte": "./dist/Picture.svelte",
+      "import": "./dist/Picture.svelte"
+    }
+  },
+  "scripts": {
+    "build": "svelte-package",
+    "check": "svelte-package && svelte-check --tsconfig ./tsconfig.json"
+  },
+  "peerDependencies": {
+    "@desource/image-core": "^0.1.0",
+    "svelte": "^5.0.0"
+  },
+  "devDependencies": {
+    "@desource/image-core": "workspace:*"
+  }
+}

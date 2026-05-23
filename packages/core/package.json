@@ -1,0 +1,19 @@
+{
+  "name": "@desource/image-core",
+  "version": "0.1.0",
+  "description": "Framework-agnostic image URL, srcset, picture, provider, preset, alias, and placeholder helpers.",
+  "type": "module",
+  "sideEffects": false,
+  "files": ["dist", "README.md"],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  }
+}

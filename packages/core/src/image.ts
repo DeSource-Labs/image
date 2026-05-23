@@ -1,0 +1,331 @@
+import type {
+  GeneratedSrcset,
+  ImageAttrs,
+  ImageConfig,
+  ImageFormat,
+  ImageInput,
+  ImageModifiers,
+  ImagePreloadLink,
+  ImageProviderInput,
+  ImageProviderResult,
+  ImageProvider,
+  ImagePreset,
+  PictureAttrs,
+  PictureSource,
+  ResolvedImageConfig
+} from './types.js';
+import { resolveImageConfig } from './config.js';
+import { generateDensities, generateSizes, parseDensities } from './sizes.js';
+import { resolveAlias, validateSource } from './source.js';
+import { clampQuality, mergeModifiers, mimeForFormat, toNumber } from './utils.js';
+
+interface ResolvedInput {
+  src: string;
+  originalSrc: string;
+  alt?: string;
+  width?: number;
+  height?: number;
+  sizes?: string;
+  quality?: number;
+  format?: ImageFormat | readonly ImageFormat[];
+  formats?: readonly ImageFormat[];
+  fallbackFormat?: ImageFormat;
+  provider: string;
+  modifiers: ImageModifiers;
+  densities?: ImageInput['densities'];
+  loading?: ImageInput['loading'];
+  decoding?: ImageInput['decoding'];
+  fetchpriority?: ImageInput['fetchpriority'];
+  priority?: boolean;
+  placeholder?: ImageInput['placeholder'];
+  placeholderClass?: string;
+}
+
+export function resolvePreset(name: string | undefined, config: ImageConfig | ResolvedImageConfig = {}): ImagePreset | undefined {
+  if (!name) {
+    return undefined;
+  }
+
+  const resolved = 'providers' in config && 'providerOptions' in config
+    ? config as ResolvedImageConfig
+    : resolveImageConfig(config);
+  return resolved.presets[name];
+}
+
+export function getImage(input: ImageInput, config: ImageConfig | ResolvedImageConfig = {}): ImageProviderResult {
+  const resolvedConfig = ensureConfig(config);
+  const resolved = resolveInput(input, resolvedConfig);
+  const validation = validateSource(resolved.src, resolvedConfig);
+
+  if (!validation.valid) {
+    if (resolvedConfig.onInvalidSource === 'throw') {
+      throw new Error(validation.reason);
+    }
+
+    if (resolvedConfig.onInvalidSource === 'warn') {
+      warn(validation.reason);
+    }
+
+    return { url: resolved.src, isOptimized: false };
+  }
+
+  const provider = getProvider(resolved.provider, resolvedConfig);
+  const providerInput = toProviderInput(resolved);
+  return provider.getImage(providerInput, resolvedConfig.providerOptions[provider.name]);
+}
+
+export function generateSrcset(input: ImageInput, config: ImageConfig | ResolvedImageConfig = {}): GeneratedSrcset {
+  const resolvedConfig = ensureConfig(config);
+  const resolved = resolveInput(input, resolvedConfig);
+
+  if (resolved.sizes) {
+    const generated = generateSizes({
+      width: resolved.width,
+      sizes: resolved.sizes,
+      screens: resolvedConfig.screens,
+      providerSizes: resolvedConfig.providerSizes,
+      densities: parseDensities(resolved.densities, resolvedConfig.densities)
+    });
+    const srcset = generated.widths
+      .map((width) => {
+        const height = scaledHeight(resolved.width, resolved.height, width);
+        const url = getImage({ ...input, width, height, sizes: undefined }, resolvedConfig).url;
+        return `${url} ${width}w`;
+      })
+      .join(', ');
+
+    return {
+      srcset: srcset || undefined,
+      sizes: generated.sizes,
+      widths: generated.widths,
+      descriptor: 'w'
+    };
+  }
+
+  if (resolved.width) {
+    const densities = generateDensities({
+      width: resolved.width,
+      height: resolved.height,
+      densities: resolved.densities,
+      fallback: resolvedConfig.densities
+    });
+    const srcset = densities
+      .map((entry) => {
+        const url = getImage({ ...input, width: entry.width, height: entry.height, sizes: undefined }, resolvedConfig).url;
+        return `${url} ${entry.density}x`;
+      })
+      .join(', ');
+
+    return {
+      srcset: srcset || undefined,
+      widths: densities.map((entry) => entry.width).filter((value): value is number => value !== undefined),
+      descriptor: 'x'
+    };
+  }
+
+  return {
+    widths: [],
+    descriptor: 'x'
+  };
+}
+
+export function generatePictureSources(input: ImageInput, config: ImageConfig | ResolvedImageConfig = {}): PictureSource[] {
+  const resolvedConfig = ensureConfig(config);
+  const resolved = resolveInput(input, resolvedConfig);
+  const formats = pictureFormats(input, resolved, resolvedConfig);
+
+  return formats.map((format) => {
+    const generated = generateSrcset({ ...input, format }, resolvedConfig);
+    const fallbackUrl = generated.srcset ?? getImage({ ...input, format }, resolvedConfig).url;
+    return {
+      type: mimeForFormat(format),
+      srcset: fallbackUrl,
+      sizes: generated.sizes
+    };
+  });
+}
+
+export function getImageAttrs(input: ImageInput, config: ImageConfig | ResolvedImageConfig = {}): ImageAttrs {
+  const resolvedConfig = ensureConfig(config);
+  const resolved = resolveInput(input, resolvedConfig);
+  const srcset = generateSrcset(input, resolvedConfig);
+  const widthForSrc = srcset.descriptor === 'w' ? srcset.widths.at(-1) : resolved.width;
+  const heightForSrc = scaledHeight(resolved.width, resolved.height, widthForSrc);
+  const result = getImage({ ...input, width: widthForSrc, height: heightForSrc, sizes: undefined }, resolvedConfig);
+  const priority = Boolean(resolved.priority);
+  const placeholderSrc = resolvePlaceholder(resolved, resolvedConfig);
+
+  return stripUndefined({
+    src: result.url,
+    srcset: srcset.srcset,
+    sizes: srcset.sizes,
+    width: resolved.width,
+    height: resolved.height,
+    alt: resolved.alt,
+    loading: priority ? 'eager' : resolved.loading,
+    decoding: priority ? 'sync' : (resolved.decoding ?? 'async'),
+    fetchpriority: priority ? 'high' : resolved.fetchpriority,
+    placeholderSrc,
+    placeholderClass: placeholderSrc ? (resolved.placeholderClass ?? 'ds-image-placeholder') : undefined,
+    isOptimized: result.isOptimized
+  });
+}
+
+export function getPictureAttrs(input: ImageInput, config: ImageConfig | ResolvedImageConfig = {}): PictureAttrs {
+  const resolvedConfig = ensureConfig(config);
+  const fallbackFormat = input.fallbackFormat;
+  const fallbackConfig: ResolvedImageConfig = {
+    ...resolvedConfig,
+    format: fallbackFormat
+  };
+
+  return {
+    sources: generatePictureSources(input, resolvedConfig),
+    img: getImageAttrs({ ...input, format: fallbackFormat, formats: undefined }, fallbackConfig)
+  };
+}
+
+export function getImagePreloadLink(input: ImageInput, config: ImageConfig | ResolvedImageConfig = {}): ImagePreloadLink {
+  const attrs = getImageAttrs({ ...input, priority: true }, config);
+  return stripUndefined({
+    rel: 'preload' as const,
+    as: 'image' as const,
+    href: attrs.src,
+    imagesrcset: attrs.srcset,
+    imagesizes: attrs.sizes,
+    fetchpriority: attrs.fetchpriority
+  });
+}
+
+function resolveInput(input: ImageInput, config: ResolvedImageConfig): ResolvedInput {
+  const preset = resolvePreset(input.preset, config);
+  const componentModifiers = input.modifiers;
+  const modifiers = mergeModifiers(
+    preset?.modifiers,
+    componentModifiers,
+    compactModifiers({
+      fit: input.fit ?? preset?.fit,
+      position: input.position ?? preset?.position,
+      background: input.background ?? preset?.background
+    })
+  );
+  const quality = clampQuality(input.quality)
+    ?? modifierQuality(componentModifiers)
+    ?? preset?.quality
+    ?? modifierQuality(preset?.modifiers)
+    ?? config.quality;
+  const format = input.format ?? preset?.format ?? config.format;
+  const src = resolveAlias(input.src, config.aliases);
+
+  return stripUndefined({
+    src,
+    originalSrc: input.src,
+    alt: input.alt,
+    width: toNumber(input.width) ?? preset?.width,
+    height: toNumber(input.height) ?? preset?.height,
+    sizes: input.sizes ?? preset?.sizes,
+    quality,
+    format,
+    formats: input.formats,
+    fallbackFormat: input.fallbackFormat,
+    provider: input.provider ?? preset?.provider ?? config.provider,
+    modifiers,
+    densities: input.densities ?? preset?.densities,
+    loading: input.loading ?? preset?.loading ?? 'lazy',
+    decoding: input.decoding ?? preset?.decoding,
+    fetchpriority: input.fetchpriority ?? preset?.fetchpriority,
+    priority: input.priority ?? preset?.priority,
+    placeholder: input.placeholder ?? preset?.placeholder,
+    placeholderClass: input.placeholderClass ?? preset?.placeholderClass
+  });
+}
+
+function toProviderInput(input: ResolvedInput): ImageProviderInput {
+  const format = Array.isArray(input.format) ? input.format[0] : input.format;
+  return stripUndefined({
+    src: input.src,
+    width: input.width,
+    height: input.height,
+    quality: input.quality,
+    format,
+    modifiers: input.modifiers
+  });
+}
+
+function resolvePlaceholder(input: ResolvedInput, config: ResolvedImageConfig): string | undefined {
+  const placeholder = input.placeholder;
+  if (!placeholder) {
+    return undefined;
+  }
+
+  if (typeof placeholder === 'string') {
+    return placeholder;
+  }
+
+  const [width = 40, height, quality = 30, blur = 8] = Array.isArray(placeholder) ? placeholder : [];
+  return getImage({
+    src: input.originalSrc,
+    provider: input.provider,
+    width,
+    height,
+    quality,
+    format: Array.isArray(input.format) ? input.format[0] : input.format,
+    modifiers: {
+      ...input.modifiers,
+      blur
+    }
+  }, config).url;
+}
+
+function pictureFormats(input: ImageInput, resolved: ResolvedInput, config: ResolvedImageConfig): ImageFormat[] {
+  const explicit = input.formats ?? (Array.isArray(input.format) ? input.format : undefined);
+  const fromConfig = Array.isArray(config.format) ? config.format : undefined;
+  const fromResolved = Array.isArray(resolved.format) ? resolved.format : undefined;
+  return [...new Set([...(explicit ?? fromResolved ?? fromConfig ?? [])])];
+}
+
+function getProvider(name: string, config: ResolvedImageConfig): ImageProvider {
+  const provider = config.providers[name];
+  if (!provider) {
+    throw new Error(`Unknown image provider "${name}". Register it in image config providers.`);
+  }
+
+  return provider;
+}
+
+function ensureConfig(config: ImageConfig | ResolvedImageConfig): ResolvedImageConfig {
+  return isResolvedConfig(config)
+    ? config
+    : resolveImageConfig(config);
+}
+
+function isResolvedConfig(config: ImageConfig | ResolvedImageConfig): config is ResolvedImageConfig {
+  return 'providerOptions' in config && 'providers' in config && 'providerSizes' in config;
+}
+
+function scaledHeight(originalWidth: number | undefined, originalHeight: number | undefined, width: number | undefined): number | undefined {
+  if (!originalWidth || !originalHeight || !width) {
+    return originalHeight;
+  }
+
+  return Math.round((originalHeight / originalWidth) * width);
+}
+
+function modifierQuality(modifiers: ImageModifiers | undefined): number | undefined {
+  const value = modifiers?.quality ?? modifiers?.q;
+  return typeof value === 'boolean' ? undefined : clampQuality(value);
+}
+
+function compactModifiers(modifiers: ImageModifiers): ImageModifiers {
+  return Object.fromEntries(Object.entries(modifiers).filter(([, value]) => value !== undefined));
+}
+
+function stripUndefined<T extends Record<string, unknown>>(value: T): T {
+  return Object.fromEntries(Object.entries(value).filter(([, entry]) => entry !== undefined)) as T;
+}
+
+function warn(message: string | undefined): void {
+  if (message && typeof console !== 'undefined') {
+    console.warn(`[desource/image] ${message}`);
+  }
+}
