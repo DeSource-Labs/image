@@ -16,3 +16,4 @@ coverage
 *.bak
 *.tmp
 nuxt_image
+.nuxt
