@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
   cloudinaryProvider,
+  detectImageProvider,
   generatePictureSources,
   generateSizes,
   generateSrcset,
@@ -21,18 +22,18 @@ describe('sizes and densities', () => {
   it('parses Nuxt-like responsive sizes', () => {
     const parsed = parseSizes('100vw md:50vw lg:400px');
 
-    expect(parsed?.sizes).toBe('(min-width: 1024px) 400px, (min-width: 768px) 50vw, 100vw');
+    expect(parsed?.sizes).toBe('(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 400px');
   });
 
-  it('generates width candidates without exceeding intrinsic width', () => {
+  it('generates Nuxt-like size candidates from responsive sizes and densities', () => {
     const generated = generateSizes({
       width: 1100,
       sizes: '100vw md:1100px',
       providerSizes: [320, 640, 768, 1024, 1280, 1536]
     });
 
-    expect(generated.sizes).toBe('(min-width: 768px) 1100px, 100vw');
-    expect(generated.widths).toEqual([320, 640, 768, 1024, 1100]);
+    expect(generated.sizes).toBe('(max-width: 767px) 100vw, 1100px');
+    expect(generated.widths).toEqual([1, 2, 1100, 2200]);
   });
 
   it('parses density syntaxes', () => {
@@ -129,6 +130,18 @@ describe('aliases, validation and merge order', () => {
 });
 
 describe('providers', () => {
+  it('detects deployment providers automatically', () => {
+    vi.stubEnv('VERCEL', '1');
+    expect(detectImageProvider()).toBe('vercel');
+    vi.unstubAllEnvs();
+
+    vi.stubEnv('NETLIFY', 'true');
+    expect(detectImageProvider()).toBe('netlify');
+    vi.unstubAllEnvs();
+
+    expect(detectImageProvider()).toBe('ipx');
+  });
+
   it('generates Vercel local and remote URLs', () => {
     const config = resolveImageConfig({
       provider: 'vercel',
@@ -157,7 +170,22 @@ describe('providers', () => {
       position: 'center',
       background: 'fff',
       modifiers: { blur: 8 }
-    }, config).url).toBe('/_ipx/bg_fff,blur_8,f_webp,fit_cover,h_400,pos_center,q_70,w_800/hero.png');
+    }, config).url).toBe('/_ipx/s_800x400&f_webp&q_70&fit_cover&pos_center&b_fff&blur_8/hero.png');
+  });
+
+  it('defaults to Nuxt-like local IPX URLs', () => {
+    const attrs = getImageAttrs({
+      src: '/img/1.png',
+      quality: 75,
+      sizes: '100vw md:1100px',
+      format: 'webp',
+      loading: 'lazy'
+    });
+
+    expect(attrs.src).toBe('/_ipx/w_2200&f_webp&q_75/img/1.png');
+    expect(attrs.fallbackSrc).toBe('/img/1.png');
+    expect(attrs.sizes).toBe('(max-width: 767px) 100vw, 1100px');
+    expect(attrs.srcset).toContain('/_ipx/w_1100&f_webp&q_75/img/1.png 1100w');
   });
 
   it('generates Cloudinary URLs', () => {
@@ -206,9 +234,9 @@ describe('attrs and picture output', () => {
       providerSizes: [320, 640, 768, 1024, 1280]
     });
 
-    expect(attrs.src).toBe('/_vercel/image?url=%2Fhero.png&w=1100&q=75');
-    expect(attrs.srcset).toContain('320w');
-    expect(attrs.sizes).toBe('(min-width: 768px) 1100px, 100vw');
+    expect(attrs.src).toBe('/_vercel/image?url=%2Fhero.png&w=2200&q=75');
+    expect(attrs.srcset).toContain('1100w');
+    expect(attrs.sizes).toBe('(max-width: 767px) 100vw, 1100px');
     expect(attrs.loading).toBe('eager');
     expect(attrs.fetchpriority).toBe('high');
     expect(attrs.placeholderSrc).toBe('/_vercel/image?url=%2Fhero.png&w=32&q=20');
@@ -228,8 +256,8 @@ describe('attrs and picture output', () => {
     });
 
     expect(picture.sources.map((source) => source.type)).toEqual(['image/avif', 'image/webp']);
-    expect(picture.sources[0]?.srcset).toContain('320w');
-    expect(picture.img.src).toBe('/_vercel/image?url=%2Fhero.png&w=800&q=75');
+    expect(picture.sources[0]?.srcset).toContain('1w');
+    expect(picture.img.src).toBe('/_vercel/image?url=%2Fhero.png&w=2&q=75');
   });
 
   it('generates picture sources directly', () => {

@@ -1,22 +1,45 @@
-import { AngularNodeAppEngine, createNodeRequestHandler, isMainModule, writeResponseToNodeResponse } from '@angular/ssr/node';
+import { CommonEngine, createNodeRequestHandler, isMainModule } from '@angular/ssr/node';
+import { createDsImageMiddleware } from '@desource/angular-image/server';
 import express from 'express';
-import { dirname, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import bootstrap from './main.server.js';
 
 const serverDistFolder = dirname(fileURLToPath(import.meta.url));
 const browserDistFolder = resolve(serverDistFolder, '../browser');
+const indexHtml = join(serverDistFolder, 'index.server.html');
 const app = express();
-const angularApp = new AngularNodeAppEngine();
+const commonEngine = new CommonEngine({
+  allowedHosts: ['localhost', '127.0.0.1', '::1']
+});
+
+app.use(createDsImageMiddleware({
+  dirs: [browserDistFolder]
+}));
 
 app.use(express.static(browserDistFolder, {
-  maxAge: '1y',
+  maxAge: '0',
   index: false,
   redirect: false
 }));
 
 app.use((req, res, next) => {
-  angularApp.handle(req)
-    .then((response) => response ? writeResponseToNodeResponse(response, res) : next())
+  const protocol = req.protocol;
+  const host = req.get('host');
+
+  if (!host) {
+    res.status(400).send('Missing host header');
+    return;
+  }
+
+  commonEngine
+    .render({
+      bootstrap,
+      documentFilePath: indexHtml,
+      publicPath: browserDistFolder,
+      url: `${protocol}://${host}${req.originalUrl}`
+    })
+    .then((html) => res.send(html))
     .catch(next);
 });
 

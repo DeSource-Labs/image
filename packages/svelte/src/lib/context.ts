@@ -3,11 +3,11 @@ import { resolveImageConfig, type ImageConfig, type ResolvedImageConfig } from '
 
 const IMAGE_CONFIG_KEY = Symbol('desource-image-config');
 
-export function createImageConfig(config: ImageConfig): ResolvedImageConfig {
+export function createImageConfig(config: ImageConfig = {}): ResolvedImageConfig {
   return resolveImageConfig(config);
 }
 
-export function setImageConfig(config: ImageConfig | ResolvedImageConfig): ResolvedImageConfig {
+export function setImageConfig(config: ImageConfig | ResolvedImageConfig = {}): ResolvedImageConfig {
   const resolved = isResolvedImageConfig(config)
     ? config
     : resolveImageConfig(config);

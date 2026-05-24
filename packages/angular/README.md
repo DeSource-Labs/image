@@ -5,59 +5,63 @@ Angular components for Desource Image.
 ## Install
 
 ```sh
-pnpm add @desource/angular-image @desource/image-core
+pnpm add @desource/angular-image
 ```
 
 Peer dependencies support Angular `^19.0.0 || ^20.0.0 || ^21.0.0`. The package is built with Angular 21.2.12 and uses standalone signal-input components.
 
-## Configure
+For Angular SSR, install the optimizer middleware in `src/server.ts` before static files and SSR rendering:
 
 ```ts
-import { type ApplicationConfig, provideZonelessChangeDetection } from '@angular/core';
-import { provideDsImage } from '@desource/angular-image';
-import { vercelProvider } from '@desource/image-core';
+import { createDsImageMiddleware } from '@desource/angular-image/server';
 
-export const appConfig: ApplicationConfig = {
-  providers: [
-    provideZonelessChangeDetection(),
-    provideDsImage({
-      provider: 'vercel',
-      providers: {
-        vercel: vercelProvider()
-      },
-      quality: 75,
-      format: ['avif', 'webp'],
-      screens: {
-        sm: 640,
-        md: 768,
-        lg: 1024,
-        xl: 1280,
-        '2xl': 1536
-      }
-    })
-  ]
-};
+app.use(createDsImageMiddleware({
+  dirs: [browserDistFolder]
+}));
 ```
 
-`provideDsVercelImage(config)` is also available as a small convenience wrapper.
+Also externalize the server subpath in `angular.json` so Angular does not bundle the Sharp-based optimizer into `server.mjs`:
 
-## Image
+```json
+{
+  "externalDependencies": ["@desource/angular-image/server"]
+}
+```
 
-```html
-<ds-image
-  src="/my_image.png"
-  alt="Hero"
-  width="2200"
-  height="1200"
-  quality="75"
-  sizes="100vw md:1100px"
-  format="webp"
-  loading="eager"
-  fetchpriority="high"
-/>
+## Use
+
+```ts
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { DsImageComponent } from '@desource/angular-image';
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [DsImageComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <ds-image
+      src="/img/hero.jpg"
+      alt="Background"
+      quality="75"
+      sizes="100vw md:1100px"
+      format="webp"
+      loading="lazy"
+    />
+  `
+})
+export class AppComponent {}
+```
+
+This produces a Nuxt-like local URL:
+
+```txt
+/_ipx/w_2200&f_webp&q_75/img/hero.jpg
 ```
 
 `priority` sets `loading="eager"`, `fetchpriority="high"`, and `decoding="sync"`.
+
+No image provider config is required for the common path. `provideDsImage(config)`, `provideDsVercelImage(config)`, and `provideDsIpxImage(config)` are optional when you want explicit providers, aliases, presets, or validation policy.
 
 ## Picture
 
@@ -79,14 +83,12 @@ This renders `<source type="image/avif">`, `<source type="image/webp">`, and a f
 ### Vercel
 
 ```ts
-provideDsImage({
-  provider: 'vercel',
-  providers: {
-    vercel: vercelProvider()
-  },
-  domains: ['images.unsplash.com']
-});
+import { provideDsVercelImage } from '@desource/angular-image';
+
+provideDsVercelImage();
 ```
+
+Automatic provider detection uses Vercel when `VERCEL`, `VERCEL_URL`, `NEXT_PUBLIC_VERCEL_URL`, or a `.vercel.app` host is detected. Vercel output uses `/_vercel/image?url=%2Fimg%2Fhero.jpg&w=2200&q=75`. Vercel formats are selected from platform config and request headers, so the provider does not add an explicit `format` query parameter.
 
 Vercel project config should include compatible `images.sizes`, `images.qualities`, `images.formats`, `images.localPatterns`, `images.remotePatterns` or `domains`, and `minimumCacheTTL`.
 
@@ -161,4 +163,4 @@ Angular components have a custom-element host, so the package sets `display: con
 
 ## SSR Notes
 
-All URLs and attributes are computed from pure core helpers. Placeholder loaded state starts as not loaded on both server and client to avoid hydration mismatch. Automatic preload link injection is not implemented yet; use `getImagePreloadLink` from core for a custom Angular SSR integration.
+All URLs and attributes are computed from pure core helpers. Placeholder loaded state starts as not loaded on both server and client to avoid hydration mismatch. `createDsImageMiddleware()` serves the local `/_ipx` optimizer endpoint for Angular SSR. Automatic preload link injection is not implemented yet; use `getImagePreloadLink` from core for a custom Angular SSR integration.

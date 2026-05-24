@@ -35,25 +35,17 @@ Provider factories:
 ## Example
 
 ```ts
-import { getImageAttrs, vercelProvider } from '@desource/image-core';
+import { getImageAttrs } from '@desource/image-core';
 
 const attrs = getImageAttrs(
   {
-    src: '/hero.png',
-    width: 2200,
-    height: 1200,
+    src: '/img/hero.jpg',
+    quality: 75,
     sizes: '100vw md:1100px',
     format: 'webp',
-    priority: true
-  },
-  {
-    provider: 'vercel',
-    providers: {
-      vercel: vercelProvider()
-    },
-    quality: 75
+    loading: 'lazy'
   }
 );
 ```
 
-Core functions are pure and do not depend on Angular, Svelte, Vercel, Sharp, or browser globals.
+By default this emits Nuxt-like IPX URLs such as `/_ipx/w_2200&f_webp&q_75/img/hero.jpg`. The default provider is `auto`: local/non-detected runtimes use IPX, Vercel runtimes use Vercel, and Netlify runtimes use Netlify. Core functions are pure and do not depend on Angular, Svelte, Vercel, Sharp, or browser globals. Framework packages provide the local optimizer endpoint integration.

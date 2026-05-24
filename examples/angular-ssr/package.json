@@ -3,8 +3,11 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "prebuild": "pnpm --filter @desource/image-core build && pnpm --filter @desource/angular-image build",
     "build": "ng build",
-    "serve:ssr": "node dist/angular-ssr/server/server.mjs"
+    "serve:ssr": "pnpm build && node dist/angular-ssr/server/server.mjs",
+    "serve:ssr:built": "node dist/angular-ssr/server/server.mjs",
+    "dev": "pnpm serve:ssr"
   },
   "dependencies": {
     "@angular/common": "21.2.12",

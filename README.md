@@ -29,7 +29,8 @@ This is an original implementation. Nuxt Image is used as a product/API referenc
 | Provider-generated placeholders | Yes | Yes | Yes |
 | SSR deterministic output | Yes | Angular SSR compatible | SvelteKit SSR compatible |
 | Automatic preload injection | Helper only | Extension point | Extension point |
-| Server-side IPX transformer endpoint | Not included | Not included | Documented in example |
+| Auto provider selection | Yes | Yes | Yes |
+| Local IPX optimizer endpoint | URL builder only | SSR middleware | Vite dev/preview plugin |
 
 ## Comparison
 
@@ -46,69 +47,93 @@ Unpic is a strong cross-framework image component library. Desource Image is clo
 ## Install
 
 ```sh
-pnpm add @desource/image-core
 pnpm add @desource/angular-image
+# or
 pnpm add @desource/svelte-image
 ```
 
-Install the framework package you need. `@desource/image-core` is a peer dependency of both framework packages.
+Install the framework package you need. `@desource/image-core` is installed transitively and remains available for direct helper imports when needed.
 
 ## Angular Quick Start
 
-```ts
-import { provideDsImage } from '@desource/angular-image';
-import { vercelProvider } from '@desource/image-core';
+Add the dependency:
 
-export const appConfig = {
-  providers: [
-    provideDsImage({
-      provider: 'vercel',
-      providers: {
-        vercel: vercelProvider()
-      },
-      quality: 75,
-      format: ['avif', 'webp'],
-      aliases: {
-        unsplash: 'https://images.unsplash.com'
-      },
-      domains: ['images.unsplash.com']
-    })
-  ]
-};
+```sh
+pnpm add @desource/angular-image
 ```
 
-```html
-<ds-image
-  src="/hero.png"
-  alt="Hero"
-  width="2200"
-  height="1200"
-  sizes="100vw md:1100px"
-  quality="75"
-  format="webp"
-  priority
-/>
+For Angular SSR, install the image middleware in `src/server.ts`:
+
+```ts
+import { CommonEngine, createNodeRequestHandler, isMainModule } from '@angular/ssr/node';
+import { createDsImageMiddleware } from '@desource/angular-image/server';
+import express from 'express';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import bootstrap from './main.server.js';
+
+const serverDistFolder = dirname(fileURLToPath(import.meta.url));
+const browserDistFolder = resolve(serverDistFolder, '../browser');
+const indexHtml = join(serverDistFolder, 'index.server.html');
+const app = express();
+const commonEngine = new CommonEngine();
+
+app.use(createDsImageMiddleware({ dirs: [browserDistFolder] }));
+app.use(express.static(browserDistFolder, { maxAge: '0', index: false, redirect: false }));
+```
+
+Then use the component:
+
+```ts
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { DsImageComponent } from '@desource/angular-image';
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [DsImageComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <ds-image
+      src="/img/hero.jpg"
+      alt="Background"
+      quality="75"
+      sizes="100vw md:1100px"
+      format="webp"
+      loading="lazy"
+    />
+  `
+})
+export class AppComponent {}
+```
+
+Default local output is Nuxt/IPX-like:
+
+```txt
+/_ipx/w_2200&f_webp&q_75/img/hero.jpg
 ```
 
 ## Svelte Quick Start
 
-```svelte
-<script lang="ts">
-  import { setImageConfig } from '@desource/svelte-image';
-  import { vercelProvider } from '@desource/image-core';
+Add the dependency:
 
-  setImageConfig({
-    provider: 'vercel',
-    providers: {
-      vercel: vercelProvider()
-    },
-    quality: 75,
-    format: ['avif', 'webp']
-  });
-</script>
-
-<slot />
+```sh
+pnpm add @desource/svelte-image
 ```
+
+Add the SvelteKit/Vite integration:
+
+```ts
+import { desourceImage } from '@desource/svelte-image/vite';
+import { sveltekit } from '@sveltejs/kit/vite';
+import { defineConfig } from 'vite';
+
+export default defineConfig({
+  plugins: [desourceImage(), sveltekit()]
+});
+```
+
+Then use the component:
 
 ```svelte
 <script lang="ts">
@@ -116,16 +141,25 @@ export const appConfig = {
 </script>
 
 <Image
-  src="/hero.png"
-  alt="Hero"
-  width={2200}
-  height={1200}
-  sizes="100vw md:1100px"
+  src="/img/hero.jpg"
+  alt="Background"
   quality={75}
+  sizes="100vw md:1100px"
   format="webp"
-  priority
+  loading="lazy"
 />
 ```
+
+Svelte components also default to the same IPX-like output.
+
+Provider selection is automatic:
+
+- Local/non-detected runtime: `ipx`
+- Vercel runtime or `.vercel.app` host: `vercel`
+- Netlify runtime or `.netlify.app` host: `netlify`
+- Explicit override: `DESOURCE_IMAGE_PROVIDER`, `PUBLIC_DESOURCE_IMAGE_PROVIDER`, or `VITE_DESOURCE_IMAGE_PROVIDER`
+
+Local development uses the first-party IPX integration above. Vercel and Netlify deployments automatically switch to their platform image providers when their environment variables or hostnames are present.
 
 ## Providers
 
@@ -179,9 +213,9 @@ The Vercel provider emits:
 /_vercel/image?url=<encoded-source>&w=<width>&q=<quality>
 ```
 
-Local public assets such as `/hero.png` and remote URLs are supported. Vercel requires a width, so `src` falls back to the original source if no width can be inferred.
+Local public assets such as `/hero.png` and remote URLs are supported. Vercel chooses AVIF/WebP from deployment config and request headers; the provider intentionally follows Nuxt/Vercel by not adding an explicit format query parameter.
 
-Use matching Vercel image config:
+For stricter Vercel projects, use matching Vercel image config:
 
 ```json
 {
@@ -209,10 +243,15 @@ Use matching Vercel image config:
 `ipxProvider({ path: '/_ipx' })` emits Nuxt/IPX-like URLs with modifiers:
 
 ```txt
-/_ipx/f_webp,q_75,w_800/hero.png
+/_ipx/w_2200&f_webp&q_75/img/hero.jpg
 ```
 
-This package currently ships the URL builder only. A real deployment must provide the server endpoint at the configured path and run the image transformation there. The `examples/sveltekit-node-ipx` README describes the expected endpoint wiring.
+The framework packages include first-party integration points for this endpoint:
+
+- SvelteKit: `desourceImage()` in `vite.config.ts` registers the dev/preview optimizer.
+- Angular SSR: `createDsImageMiddleware()` registers the optimizer in the SSR server.
+
+Production deployments on Vercel or Netlify can use automatic provider detection instead of IPX. A custom Node deployment that wants IPX in production should install the same middleware in its HTTP server.
 
 ## Responsive Sizes
 
@@ -237,7 +276,7 @@ Default screens:
 }
 ```
 
-When `sizes` is present, the library generates width descriptors. Without `sizes`, a known `width` generates density descriptors from `densities`.
+When `sizes` is present, the library follows Nuxt Image’s responsive variant model: breakpoints become max-width media conditions and candidate widths are multiplied by configured densities. Without `sizes`, a known `width` generates density descriptors from `densities`.
 
 ## Quality Order
 
@@ -283,6 +322,5 @@ pnpm install
 pnpm build
 pnpm test
 pnpm --filter @desource/example-angular-ssr build
-pnpm --filter @desource/example-sveltekit-vercel build
-pnpm --filter @desource/example-sveltekit-node-ipx build
+pnpm --filter @desource/example-sveltekit build
 ```

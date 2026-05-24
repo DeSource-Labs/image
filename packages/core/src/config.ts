@@ -15,7 +15,7 @@ export const DEFAULT_PROVIDER_SIZES = [320, 480, 640, 768, 960, 1024, 1280, 1536
 
 export function resolveImageConfig(config: ImageConfig = {}): ResolvedImageConfig {
   return {
-    provider: config.provider ?? 'none',
+    provider: config.provider ?? 'auto',
     quality: config.quality,
     format: config.format,
     screens: { ...DEFAULT_SCREENS, ...config.screens },
@@ -30,6 +30,43 @@ export function resolveImageConfig(config: ImageConfig = {}): ResolvedImageConfi
     providerSizes: config.providerSizes ? [...config.providerSizes] : [...DEFAULT_PROVIDER_SIZES],
     onInvalidSource: config.onInvalidSource ?? 'warn'
   };
+}
+
+export function detectImageProvider(): string {
+  const env = runtimeEnv();
+  const forced = env['DESOURCE_IMAGE_PROVIDER'] ?? env['PUBLIC_DESOURCE_IMAGE_PROVIDER'] ?? env['VITE_DESOURCE_IMAGE_PROVIDER'];
+
+  if (forced) {
+    return forced;
+  }
+
+  if (env['VERCEL'] || env['NEXT_PUBLIC_VERCEL_URL'] || env['VERCEL_URL'] || isVercelHost()) {
+    return 'vercel';
+  }
+
+  if (env['NETLIFY'] || isNetlifyHost()) {
+    return 'netlify';
+  }
+
+  return 'ipx';
+}
+
+function runtimeEnv(): Record<string, string | undefined> {
+  const candidate = globalThis as typeof globalThis & {
+    process?: {
+      env?: Record<string, string | undefined>;
+    };
+  };
+
+  return candidate.process?.env ?? {};
+}
+
+function isVercelHost(): boolean {
+  return typeof globalThis.location !== 'undefined' && /\.vercel\.app$/i.test(globalThis.location.hostname);
+}
+
+function isNetlifyHost(): boolean {
+  return typeof globalThis.location !== 'undefined' && /\.netlify\.app$/i.test(globalThis.location.hostname);
 }
 
 export function createImageContext(config: ImageConfig = {}): ImageContext {

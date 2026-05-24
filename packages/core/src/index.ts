@@ -34,6 +34,7 @@ export {
   DEFAULT_PROVIDER_SIZES,
   DEFAULT_SCREENS,
   createImageContext,
+  detectImageProvider,
   resolveImageConfig
 } from './config.js';
 

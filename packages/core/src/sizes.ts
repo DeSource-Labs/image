@@ -39,9 +39,10 @@ export function parseSizes(input: string | undefined, screens: Record<string, nu
       }
 
       const screen = match[1];
+      const screenWidth = screen ? screens[screen] ?? Number.parseInt(screen, 10) : undefined;
       return {
         screen,
-        minWidth: screen ? screens[screen] : undefined,
+        minWidth: Number.isFinite(screenWidth) ? screenWidth : undefined,
         size: match[2] ?? ''
       };
     })
@@ -54,7 +55,7 @@ export function parseSizes(input: string | undefined, screens: Record<string, nu
   return {
     input,
     entries,
-    sizes: toSizesAttribute(entries)
+    sizes: toSizesAttribute(entries, screens)
   };
 }
 
@@ -79,22 +80,12 @@ export function generateSizes(options: {
     };
   }
 
-  const hasViewportSize = parsed.entries.some((entry) => /vw$/.test(entry.size));
-  const fixedPixels = parsed.entries.map((entry) => pixelValue(entry.size)).filter((value): value is number => value !== undefined);
-  const largestFixed = fixedPixels.length > 0 ? Math.max(...fixedPixels) : undefined;
-  const cap = options.width ?? (hasViewportSize ? Math.max(...providerSizes) : largestFixed);
-
-  const candidates = providerSizes.filter((size) => !cap || size <= cap);
-  if (largestFixed) {
-    candidates.push(largestFixed);
-  }
-
-  if (options.width) {
-    candidates.push(options.width);
-  }
+  const densities = options.densities ?? [1, 2];
+  const variants = getSizeVariants(parsed.entries, options.screens ?? DEFAULT_SCREENS);
+  const candidates = variants.flatMap((variant) => densities.map((density) => Math.round(variant.width * density)));
 
   return {
-    sizes: parsed.sizes,
+    sizes: toNuxtSizesAttribute(variants),
     widths: uniqueSorted(candidates.length > 0 ? candidates : providerSizes)
   };
 }
@@ -113,20 +104,66 @@ export function generateDensities(options: {
   }));
 }
 
-function toSizesAttribute(entries: ParsedSizes['entries']): string {
-  const defaults = entries.filter((entry) => !entry.screen);
-  const conditional = entries
-    .filter((entry) => entry.screen && entry.minWidth !== undefined)
-    .sort((a, b) => (b.minWidth ?? 0) - (a.minWidth ?? 0));
-  const fallback = defaults.at(-1)?.size ?? conditional.at(-1)?.size ?? '100vw';
-
-  return [
-    ...conditional.map((entry) => `(min-width: ${entry.minWidth}px) ${entry.size}`),
-    fallback
-  ].join(', ');
+interface SizeVariant {
+  size: string;
+  screenMaxWidth: number;
+  width: number;
 }
 
-function pixelValue(value: string): number | undefined {
-  const match = /^(\d+(?:\.\d+)?)px$/.exec(value);
-  return match ? toNumber(match[1]) : undefined;
+function toSizesAttribute(entries: ParsedSizes['entries'], screens: Record<string, number>): string {
+  return toNuxtSizesAttribute(getSizeVariants(entries, screens));
+}
+
+function getSizeVariants(entries: ParsedSizes['entries'], screens: Record<string, number>): SizeVariant[] {
+  return entries
+    .map((entry) => {
+      const screenMaxWidth = entry.screen ? screens[entry.screen] ?? Number.parseInt(entry.screen, 10) : 1;
+      const normalizedSize = normalizeSize(entry.size);
+      const width = normalizedSize ? widthFromSize(normalizedSize, screenMaxWidth) : undefined;
+
+      if (!screenMaxWidth || !normalizedSize || !width) {
+        return undefined;
+      }
+
+      return {
+        size: normalizedSize,
+        screenMaxWidth,
+        width
+      };
+    })
+    .filter((entry): entry is SizeVariant => entry !== undefined)
+    .sort((a, b) => a.screenMaxWidth - b.screenMaxWidth);
+}
+
+function toNuxtSizesAttribute(variants: SizeVariant[]): string {
+  if (variants.length === 0) {
+    return '100vw';
+  }
+
+  return variants.map((variant, index) => {
+    const next = variants[index + 1];
+    return next ? `(max-width: ${next.screenMaxWidth - 1}px) ${variant.size}` : variant.size;
+  }).join(', ');
+}
+
+function normalizeSize(value: string): string | undefined {
+  if (/^\d+$/.test(value)) {
+    return `${value}px`;
+  }
+
+  if (value.endsWith('px') || value.endsWith('vw')) {
+    return value;
+  }
+
+  return undefined;
+}
+
+function widthFromSize(size: string, screenMaxWidth: number): number | undefined {
+  if (size.endsWith('vw')) {
+    const percent = toNumber(size.slice(0, -2));
+    return percent ? Math.round((percent / 100) * screenMaxWidth) : undefined;
+  }
+
+  const pixels = /^(\d+(?:\.\d+)?)px$/.exec(size)?.[1];
+  return pixels ? toNumber(pixels) : undefined;
 }

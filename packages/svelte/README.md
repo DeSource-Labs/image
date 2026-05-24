@@ -5,36 +5,22 @@ Svelte 5 and SvelteKit components for Desource Image.
 ## Install
 
 ```sh
-pnpm add @desource/svelte-image @desource/image-core
+pnpm add @desource/svelte-image
 ```
 
-## Configure
+Add the SvelteKit integration in `vite.config.ts`:
 
-Set config in a root Svelte/SvelteKit layout:
+```ts
+import { desourceImage } from '@desource/svelte-image/vite';
+import { sveltekit } from '@sveltejs/kit/vite';
+import { defineConfig } from 'vite';
 
-```svelte
-<script lang="ts">
-  import { setImageConfig } from '@desource/svelte-image';
-  import { vercelProvider } from '@desource/image-core';
-
-  setImageConfig({
-    provider: 'vercel',
-    providers: {
-      vercel: vercelProvider()
-    },
-    quality: 75,
-    format: ['avif', 'webp'],
-    aliases: {
-      unsplash: 'https://images.unsplash.com'
-    },
-    domains: ['images.unsplash.com']
-  });
-
-  let { children } = $props();
-</script>
-
-{@render children()}
+export default defineConfig({
+  plugins: [desourceImage(), sveltekit()]
+});
 ```
+
+This registers the local `/_ipx` optimizer for SvelteKit dev and preview. It is the SvelteKit equivalent of adding `@nuxt/image` to `nuxt.config`.
 
 ## Image
 
@@ -44,19 +30,24 @@ Set config in a root Svelte/SvelteKit layout:
 </script>
 
 <Image
-  src="/my_image.png"
-  alt="Hero"
-  width={2200}
-  height={1200}
+  src="/img/hero.jpg"
+  alt="Background"
   quality={75}
   sizes="100vw md:1100px"
   format="webp"
-  loading="eager"
-  fetchpriority="high"
+  loading="lazy"
 />
 ```
 
+This produces a Nuxt-like local URL:
+
+```txt
+/_ipx/w_2200&f_webp&q_75/img/hero.jpg
+```
+
 `priority` sets `loading="eager"`, `fetchpriority="high"`, and `decoding="sync"`.
+
+No provider config is required for the common path. Add `setImageConfig(config)` in a root layout only when you need explicit providers, aliases, presets, validation rules, or global defaults.
 
 ## Picture
 
@@ -79,12 +70,12 @@ The component renders native `<picture>` and `<img>` elements with no wrapper.
 
 ## SvelteKit on Vercel
 
-Use `vercelProvider()` and ensure Vercel image config allows the widths, qualities, formats, local paths, and remote hosts you generate:
+Automatic provider detection uses Vercel when `VERCEL`, `VERCEL_URL`, `NEXT_PUBLIC_VERCEL_URL`, or a `.vercel.app` host is detected. For stricter Vercel projects, ensure image config allows the widths, qualities, formats, local paths, and remote hosts you generate:
 
 ```json
 {
   "images": {
-    "sizes": [320, 640, 768, 1024, 1280, 1536, 2200],
+    "sizes": [1, 2, 320, 640, 768, 1024, 1100, 1280, 1536, 2200],
     "qualities": [50, 60, 70, 75, 80, 90],
     "formats": ["image/avif", "image/webp"],
     "localPatterns": [{ "pathname": "/**" }],
@@ -100,22 +91,11 @@ Use `vercelProvider()` and ensure Vercel image config allows the widths, qualiti
 }
 ```
 
-The `examples/sveltekit-vercel` app includes this in `vercel.json`.
+## SvelteKit With IPX
 
-## SvelteKit Node with IPX URLs
+The default provider emits IPX-style URLs. `desourceImage()` answers those URLs locally and returns transformed bytes, for example WebP output for `format="webp"`.
 
-```ts
-import { ipxProvider } from '@desource/image-core';
-
-setImageConfig({
-  provider: 'ipx',
-  providers: {
-    ipx: ipxProvider({ path: '/_ipx' })
-  }
-});
-```
-
-This emits IPX-style URLs. The first pass does not include an optimizer endpoint; add a SvelteKit server route at `/_ipx/[...path]` and perform server-only image transformation there.
+No `src/routes/_ipx` route is needed.
 
 ## Presets
 

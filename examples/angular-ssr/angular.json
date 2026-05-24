@@ -17,6 +17,7 @@
             "ssr": {
               "entry": "src/server.ts"
             },
+            "externalDependencies": ["@desource/angular-image/server"],
             "tsConfig": "tsconfig.app.json",
             "assets": [
               {

@@ -59,6 +59,7 @@ type NativeAttrs = Record<string, string | number | boolean | null | undefined>;
       [attr.usemap]="usemap()"
       [attr.data-testid]="dataTestid()"
       (load)="loaded.set(true)"
+      (error)="handleError($event)"
     />
   `
 })
@@ -134,6 +135,16 @@ export class DsImageComponent {
 
   readonly imageStyle = computed(() => styleWithPlaceholder(this.style(), this.attrs().placeholderSrc, this.loaded()));
 
+  handleError(event: Event): void {
+    const image = event.target;
+
+    if (!(image instanceof HTMLImageElement)) {
+      return;
+    }
+
+    this.applyFallback(image);
+  }
+
   constructor() {
     effect(() => {
       const image = this.imageRef()?.nativeElement;
@@ -149,5 +160,36 @@ export class DsImageComponent {
         }
       }
     });
+
+    effect(() => {
+      const image = this.imageRef()?.nativeElement;
+      const fallbackSrc = this.attrs().fallbackSrc;
+
+      if (!image || !fallbackSrc || typeof globalThis.setTimeout === 'undefined') {
+        return;
+      }
+
+      const check = () => {
+        if (image.complete && image.naturalWidth === 0) {
+          this.applyFallback(image);
+        }
+      };
+
+      globalThis.setTimeout(check, 0);
+      globalThis.setTimeout(check, 300);
+    });
+  }
+
+  private applyFallback(image: HTMLImageElement): void {
+    const fallbackSrc = this.attrs().fallbackSrc;
+
+    if (!fallbackSrc || image.dataset['dsFallbackApplied'] === 'true') {
+      return;
+    }
+
+    image.dataset['dsFallbackApplied'] = 'true';
+    image.removeAttribute('srcset');
+    image.removeAttribute('sizes');
+    image.src = fallbackSrc;
   }
 }

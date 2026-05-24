@@ -109,23 +109,7 @@ export function ipxProvider(options: IpxProviderOptions = {}): ImageProvider<Ipx
         return { url: input.src, isOptimized: false };
       }
 
-      const params = appendProviderModifiers(
-        {
-          w: input.width,
-          h: input.height,
-          q: input.quality,
-          f: normalizeFormat(input.format),
-          fit: input.modifiers?.fit,
-          pos: input.modifiers?.position,
-          bg: input.modifiers?.background,
-          blur: input.modifiers?.blur
-        },
-        input.modifiers,
-        ['fit', 'position', 'background', 'blur']
-      );
-      const modifierSegment = stableModifiers(params)
-        .map(([key, value]) => `${key}_${encodeURIComponent(String(value))}`)
-        .join(',');
+      const modifierSegment = ipxModifierSegment(input);
       const sourceSegment = encodeRemoteOrPath(stripLeadingSlash(input.src));
       const path = providerOptions.path ?? defaults.path;
       return {
@@ -134,6 +118,44 @@ export function ipxProvider(options: IpxProviderOptions = {}): ImageProvider<Ipx
       };
     }
   };
+}
+
+function ipxModifierSegment(input: ImageProviderInput): string {
+  const reserved = new Set(['width', 'height', 'w', 'h', 'resize', 'quality', 'q', 'format', 'f', 'fit', 'position', 'background', 'blur']);
+  const operations: Array<[string, Exclude<ModifierValue, undefined | null>]> = [];
+
+  if (input.width && input.height) {
+    operations.push(['s', `${input.width}x${input.height}`]);
+  } else {
+    if (input.width) {
+      operations.push(['w', input.width]);
+    }
+
+    if (input.height) {
+      operations.push(['h', input.height]);
+    }
+  }
+
+  pushOperation(operations, 'f', normalizeFormat(input.format) ?? input.modifiers?.format ?? input.modifiers?.f);
+  pushOperation(operations, 'q', input.quality ?? input.modifiers?.quality ?? input.modifiers?.q);
+  pushOperation(operations, 'fit', input.modifiers?.fit);
+  pushOperation(operations, 'pos', input.modifiers?.position);
+  pushOperation(operations, 'b', input.modifiers?.background);
+  pushOperation(operations, 'blur', input.modifiers?.blur);
+
+  for (const [key, value] of stableModifiers(input.modifiers)) {
+    if (!reserved.has(key)) {
+      operations.push([key, value]);
+    }
+  }
+
+  return operations.map(([key, value]) => `${encodeURIComponent(key)}_${encodeURIComponent(String(value))}`).join('&') || '_';
+}
+
+function pushOperation(operations: Array<[string, Exclude<ModifierValue, undefined | null>]>, key: string, value: ModifierValue): void {
+  if (value !== undefined && value !== null && value !== false && value !== '') {
+    operations.push([key, value]);
+  }
 }
 
 export function cloudinaryProvider(options: CloudinaryProviderOptions = {}): ImageProvider<CloudinaryProviderOptions> {

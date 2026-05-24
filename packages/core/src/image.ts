@@ -14,7 +14,7 @@ import type {
   PictureSource,
   ResolvedImageConfig
 } from './types.js';
-import { resolveImageConfig } from './config.js';
+import { detectImageProvider, resolveImageConfig } from './config.js';
 import { generateDensities, generateSizes, parseDensities } from './sizes.js';
 import { resolveAlias, validateSource } from './source.js';
 import { clampQuality, mergeModifiers, mimeForFormat, toNumber } from './utils.js';
@@ -159,6 +159,7 @@ export function getImageAttrs(input: ImageInput, config: ImageConfig | ResolvedI
     src: result.url,
     srcset: srcset.srcset,
     sizes: srcset.sizes,
+    fallbackSrc: result.url !== resolved.src ? resolved.src : undefined,
     width: resolved.width,
     height: resolved.height,
     alt: resolved.alt,
@@ -285,9 +286,10 @@ function pictureFormats(input: ImageInput, resolved: ResolvedInput, config: Reso
 }
 
 function getProvider(name: string, config: ResolvedImageConfig): ImageProvider {
-  const provider = config.providers[name];
+  const providerName = name === 'auto' ? detectImageProvider() : name;
+  const provider = config.providers[providerName];
   if (!provider) {
-    throw new Error(`Unknown image provider "${name}". Register it in image config providers.`);
+    throw new Error(`Unknown image provider "${providerName}". Register it in image config providers.`);
   }
 
   return provider;

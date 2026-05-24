@@ -4,7 +4,7 @@
     "rootDir": "src",
     "outDir": "dist",
     "tsBuildInfoFile": "dist/.tsbuildinfo",
-    "types": ["svelte"]
+    "types": ["svelte", "node"]
   },
   "include": ["src/**/*.ts", "src/**/*.svelte", "svelte.config.js"],
   "exclude": ["dist"]

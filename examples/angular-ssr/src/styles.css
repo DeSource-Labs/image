@@ -6,36 +6,13 @@ body {
 }
 
 main {
-  display: grid;
-  gap: 32px;
   max-width: 1120px;
   margin: 0 auto;
   padding: 48px 20px;
 }
 
-.hero,
-.grid {
-  display: grid;
-  gap: 16px;
-}
-
-.hero img,
-.grid img {
+img {
   width: 100%;
   height: auto;
   border-radius: 8px;
-}
-
-.grid {
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-}
-
-.avatar {
-  max-width: 96px;
-  border-radius: 999px;
-}
-
-.blur {
-  filter: blur(12px);
-  transition: filter 180ms ease;
 }

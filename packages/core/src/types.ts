@@ -145,6 +145,7 @@ export interface ImageAttrs {
   src: string;
   srcset?: string;
   sizes?: string;
+  fallbackSrc?: string;
   width?: number;
   height?: number;
   alt?: string;

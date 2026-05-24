@@ -5,7 +5,7 @@
   "packageManager": "pnpm@10.20.0",
   "scripts": {
     "build": "pnpm --filter @desource/image-core build && pnpm --filter @desource/svelte-image build && pnpm --filter @desource/angular-image build",
-    "build:examples": "pnpm build && pnpm --filter @desource/example-angular-ssr build && pnpm --filter @desource/example-sveltekit-vercel build && pnpm --filter @desource/example-sveltekit-node-ipx build",
+    "build:examples": "pnpm build && pnpm --filter @desource/example-angular-ssr build && pnpm --filter @desource/example-sveltekit build",
     "test": "pnpm --filter @desource/image-core test",
     "typecheck": "pnpm --filter @desource/image-core build && pnpm --filter @desource/image-core typecheck && pnpm --filter @desource/angular-image typecheck && pnpm --filter @desource/svelte-image check"
   },
@@ -17,11 +17,11 @@
     "@angular/platform-browser": "21.2.12",
     "@angular/platform-server": "21.2.12",
     "@angular/ssr": "21.2.12",
-    "@sveltejs/adapter-node": "5.5.4",
-    "@sveltejs/adapter-vercel": "6.3.3",
+    "@sveltejs/adapter-auto": "7.0.1",
     "@sveltejs/kit": "2.61.0",
     "@sveltejs/package": "2.5.7",
     "@sveltejs/vite-plugin-svelte": "7.1.2",
+    "@types/node": "25.9.1",
     "rxjs": "^7.8.2",
     "svelte": "5.55.9",
     "svelte-check": "4.4.8",

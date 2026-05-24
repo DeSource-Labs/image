@@ -21,6 +21,10 @@
       "types": "./dist/Picture.svelte.d.ts",
       "svelte": "./dist/Picture.svelte",
       "import": "./dist/Picture.svelte"
+    },
+    "./vite": {
+      "types": "./dist/vite.d.ts",
+      "import": "./dist/vite.js"
     }
   },
   "scripts": {
@@ -28,8 +32,17 @@
     "check": "svelte-package && svelte-check --tsconfig ./tsconfig.json"
   },
   "peerDependencies": {
-    "@desource/image-core": "^0.1.0",
-    "svelte": "^5.0.0"
+    "svelte": "^5.0.0",
+    "vite": "^6.0.0 || ^7.0.0 || ^8.0.0"
+  },
+  "peerDependenciesMeta": {
+    "vite": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "@desource/image-core": "workspace:*",
+    "ipx": "^3.1.1"
   },
   "devDependencies": {
     "@desource/image-core": "workspace:*"
