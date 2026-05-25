@@ -157,9 +157,36 @@ Provider selection is automatic:
 - Local/non-detected runtime: `ipx`
 - Vercel runtime or `.vercel.app` host: `vercel`
 - Netlify runtime or `.netlify.app` host: `netlify`
-- Explicit override: `DESOURCE_IMAGE_PROVIDER`, `PUBLIC_DESOURCE_IMAGE_PROVIDER`, or `VITE_DESOURCE_IMAGE_PROVIDER`
+- Explicit override: `DESOURCE_IMAGE_PROVIDER`, `PUBLIC_DESOURCE_IMAGE_PROVIDER`, `VITE_DESOURCE_IMAGE_PROVIDER`, or `NUXT_IMAGE_PROVIDER`
 
 Local development uses the first-party IPX integration above. Vercel and Netlify deployments automatically switch to their platform image providers when their environment variables or hostnames are present.
+
+## Nuxt-Style Helper
+
+Core exports a callable helper similar to Nuxt Image’s `$img`:
+
+```ts
+import { createImage } from '@desource/image-core';
+
+const $img = createImage({
+  presets: {
+    avatar: {
+      width: 96,
+      height: 96,
+      quality: 80
+    }
+  }
+});
+
+$img('/img/hero.jpg', { width: 800, format: 'webp', quality: 75 });
+$img.getSizes('/img/hero.jpg', {
+  sizes: '100vw md:1100px',
+  modifiers: { format: 'webp', quality: 75 }
+});
+($img.avatar as typeof $img)('/user.png');
+```
+
+Svelte exposes this as `useImage()`. Angular exposes the same helper through `DsImageService.create()`.
 
 ## Providers
 
@@ -263,6 +290,12 @@ sm:100vw md:50vw lg:400px
 100vw md:1100px
 ```
 
+Object syntax is also supported for Nuxt-style utilities:
+
+```ts
+{ '1px': '100vw', md: '1100px' }
+```
+
 Default screens:
 
 ```ts
@@ -277,6 +310,12 @@ Default screens:
 ```
 
 When `sizes` is present, the library follows Nuxt Image’s responsive variant model: breakpoints become max-width media conditions and candidate widths are multiplied by configured densities. Without `sizes`, a known `width` generates density descriptors from `densities`.
+
+Nuxt-style standard modifiers are promoted automatically:
+
+```ts
+$img('/hero.png', { width: 800, format: 'webp', quality: 75 });
+```
 
 ## Quality Order
 

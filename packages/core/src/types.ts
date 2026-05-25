@@ -5,9 +5,11 @@ export type ImageDecoding = 'async' | 'sync' | 'auto';
 export type ImageFetchPriority = 'high' | 'low' | 'auto';
 export type ImagePlaceholder = boolean | string | readonly [number, number?, number?, number?];
 export type DensityInput = string | number | readonly number[];
+export type SizesInput = string | Record<string, string | number>;
 export type ModifierValue = string | number | boolean | null | undefined;
 export type ImageModifiers = Record<string, ModifierValue>;
 export type InvalidSourceStrategy = 'throw' | 'warn' | 'passthrough';
+export type ImagePreload = boolean | { fetchPriority?: ImageFetchPriority };
 
 export interface RemotePattern {
   protocol?: 'http' | 'https' | string;
@@ -44,7 +46,7 @@ export interface ImagePreset {
   provider?: string;
   width?: number;
   height?: number;
-  sizes?: string;
+  sizes?: SizesInput;
   densities?: DensityInput;
   quality?: number;
   format?: ImageFormat | readonly ImageFormat[];
@@ -58,6 +60,7 @@ export interface ImagePreset {
   decoding?: ImageDecoding;
   fetchpriority?: ImageFetchPriority;
   priority?: boolean;
+  preload?: ImagePreload;
 }
 
 export interface ImageConfig {
@@ -91,11 +94,12 @@ export interface ImageInput {
   alt?: string;
   width?: number | string;
   height?: number | string;
-  sizes?: string;
+  sizes?: SizesInput;
   quality?: number | string;
   format?: ImageFormat | readonly ImageFormat[];
   formats?: readonly ImageFormat[];
   fallbackFormat?: ImageFormat;
+  legacyFormat?: ImageFormat;
   fit?: ImageFit;
   position?: string;
   background?: string;
@@ -107,6 +111,7 @@ export interface ImageInput {
   decoding?: ImageDecoding;
   fetchpriority?: ImageFetchPriority;
   priority?: boolean;
+  preload?: ImagePreload;
   placeholder?: ImagePlaceholder;
   placeholderClass?: string;
 }
@@ -118,7 +123,7 @@ export interface ParsedSizeEntry {
 }
 
 export interface ParsedSizes {
-  input: string;
+  input: SizesInput;
   entries: ParsedSizeEntry[];
   sizes: string;
 }
@@ -188,4 +193,30 @@ export interface ImageContext {
   getImageAttrs(input: ImageInput): ImageAttrs;
   getPictureAttrs(input: ImageInput): PictureAttrs;
   getPreloadLink(input: ImageInput): ImagePreloadLink;
+}
+
+export interface ImageOptions {
+  provider?: string;
+  preset?: string;
+  densities?: DensityInput;
+  modifiers?: ImageModifiers;
+  sizes?: SizesInput;
+}
+
+export interface ImageSizes {
+  srcset: string;
+  sizes?: string;
+  src?: string;
+  widths: number[];
+}
+
+export interface DesourceImage {
+  (source: string, modifiers?: ImageModifiers, options?: ImageOptions): string;
+  options: ResolvedImageConfig;
+  getImage(source: string, options?: ImageOptions): ImageProviderResult;
+  getSizes(source: string, options?: ImageOptions): ImageSizes;
+  getAttrs(input: ImageInput): ImageAttrs;
+  getPicture(input: ImageInput): PictureAttrs;
+  getPreloadLink(input: ImageInput): ImagePreloadLink;
+  [preset: string]: unknown;
 }

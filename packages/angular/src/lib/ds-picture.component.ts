@@ -21,10 +21,12 @@ import {
   type ImageLoading,
   type ImageModifiers,
   type ImagePlaceholder,
+  type ImagePreload,
+  type SizesInput,
   getPictureAttrs
 } from '@desource/image-core';
 import { DS_IMAGE_CONFIG } from './config.js';
-import { coerceBoolean, coerceNumber, coercePlaceholder, mergeClassNames, stripUndefined, styleWithPlaceholder } from './coercion.js';
+import { coerceBoolean, coerceNumber, coercePlaceholder, coercePreload, mergeClassNames, stripUndefined, styleWithPlaceholder } from './coercion.js';
 
 type NativeAttrs = Record<string, string | number | boolean | null | undefined>;
 
@@ -81,11 +83,12 @@ export class DsPictureComponent {
   readonly alt = input<string>('');
   readonly width = input<number | undefined, unknown>(undefined, { transform: coerceNumber });
   readonly height = input<number | undefined, unknown>(undefined, { transform: coerceNumber });
-  readonly sizes = input<string | undefined>();
+  readonly sizes = input<SizesInput | undefined>();
   readonly quality = input<number | undefined, unknown>(undefined, { transform: coerceNumber });
   readonly format = input<ImageFormat | readonly ImageFormat[] | undefined>();
   readonly formats = input<readonly ImageFormat[] | undefined>();
   readonly fallbackFormat = input<ImageFormat | undefined>();
+  readonly legacyFormat = input<ImageFormat | undefined>();
   readonly fit = input<ImageFit | undefined>();
   readonly position = input<string | undefined>();
   readonly background = input<string | undefined>();
@@ -97,6 +100,7 @@ export class DsPictureComponent {
   readonly decoding = input<ImageDecoding | undefined>();
   readonly fetchpriority = input<ImageFetchPriority | undefined>();
   readonly priority = input<boolean, unknown>(false, { transform: coerceBoolean });
+  readonly preload = input<ImagePreload | undefined, unknown>(undefined, { transform: coercePreload });
   readonly placeholder = input<ImagePlaceholder | undefined, unknown>(undefined, { transform: coercePlaceholder });
   readonly placeholderClass = input<string | undefined>();
 
@@ -124,6 +128,7 @@ export class DsPictureComponent {
     format: this.format(),
     formats: this.formats(),
     fallbackFormat: this.fallbackFormat(),
+    legacyFormat: this.legacyFormat(),
     fit: this.fit(),
     position: this.position(),
     background: this.background(),
@@ -135,6 +140,7 @@ export class DsPictureComponent {
     decoding: this.decoding(),
     fetchpriority: this.fetchpriority(),
     priority: this.priority(),
+    preload: this.preload(),
     placeholder: this.placeholder(),
     placeholderClass: this.placeholderClass()
   }));

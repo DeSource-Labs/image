@@ -59,7 +59,7 @@ This produces a Nuxt-like local URL:
 /_ipx/w_2200&f_webp&q_75/img/hero.jpg
 ```
 
-`priority` sets `loading="eager"`, `fetchpriority="high"`, and `decoding="sync"`.
+`priority` or Nuxt-style `preload` sets `loading="eager"`, `fetchpriority="high"` when requested, and `decoding="sync"`.
 
 No image provider config is required for the common path. `provideDsImage(config)`, `provideDsVercelImage(config)`, and `provideDsIpxImage(config)` are optional when you want explicit providers, aliases, presets, or validation policy.
 
@@ -78,6 +78,24 @@ No image provider config is required for the common path. `provideDsImage(config
 
 This renders `<source type="image/avif">`, `<source type="image/webp">`, and a fallback `<img>`.
 
+Nuxt-style comma-separated formats and `legacyFormat` are also supported:
+
+```html
+<ds-picture src="/hero.png" alt="Hero" format="avif,webp" legacyFormat="jpg" />
+```
+
+## Helper Service
+
+```ts
+import { inject } from '@angular/core';
+import { DsImageService } from '@desource/angular-image';
+
+const $img = inject(DsImageService).create();
+const hero = $img('/img/hero.jpg', { width: 800, format: 'webp', quality: 75 });
+```
+
+The helper matches the core Nuxt-style callable API with `getImage`, `getSizes`, `getAttrs`, `getPicture`, `getPreloadLink`, and preset shortcut methods.
+
 ## Providers
 
 ### Vercel
@@ -88,7 +106,7 @@ import { provideDsVercelImage } from '@desource/angular-image';
 provideDsVercelImage();
 ```
 
-Automatic provider detection uses Vercel when `VERCEL`, `VERCEL_URL`, `NEXT_PUBLIC_VERCEL_URL`, or a `.vercel.app` host is detected. Vercel output uses `/_vercel/image?url=%2Fimg%2Fhero.jpg&w=2200&q=75`. Vercel formats are selected from platform config and request headers, so the provider does not add an explicit `format` query parameter.
+Automatic provider detection uses Vercel when `VERCEL`, `VERCEL_URL`, `NEXT_PUBLIC_VERCEL_URL`, a `.vercel.app` host, or server-rendered Vercel image URLs are detected. Vercel output uses `/_vercel/image?url=%2Fimg%2Fhero.jpg&w=2200&q=75`. Vercel formats are selected from platform config and request headers, so the provider does not add an explicit `format` query parameter.
 
 Vercel project config should include compatible `images.sizes`, `images.qualities`, `images.formats`, `images.localPatterns`, `images.remotePatterns` or `domains`, and `minimumCacheTTL`.
 

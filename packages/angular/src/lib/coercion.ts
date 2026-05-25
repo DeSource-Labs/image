@@ -1,4 +1,4 @@
-import type { ImagePlaceholder } from '@desource/image-core';
+import type { ImagePlaceholder, ImagePreload } from '@desource/image-core';
 
 export function coerceNumber(value: unknown): number | undefined {
   if (value === null || value === undefined || value === '') {
@@ -27,6 +27,22 @@ export function coercePlaceholder(value: unknown): ImagePlaceholder | undefined 
   }
 
   return String(value);
+}
+
+export function coercePreload(value: unknown): ImagePreload | undefined {
+  if (value === null || value === undefined || value === false || value === 'false') {
+    return undefined;
+  }
+
+  if (value === '' || value === true || value === 'true') {
+    return true;
+  }
+
+  if (typeof value === 'object') {
+    return value as ImagePreload;
+  }
+
+  return undefined;
 }
 
 export function stripUndefined<T extends Record<string, unknown>>(value: T): T {

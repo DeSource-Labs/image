@@ -2,6 +2,8 @@ import type { ImageConfig, ImageContext, ImageInput, ImagePreloadLink, ImageProv
 import { createDefaultProviders } from './providers.js';
 import { getImage, getImageAttrs, getImagePreloadLink, getPictureAttrs } from './image.js';
 
+declare const __DESOURCE_IMAGE_PROVIDER__: string | undefined;
+
 export const DEFAULT_SCREENS: Record<string, number> = {
   xs: 320,
   sm: 640,
@@ -34,10 +36,18 @@ export function resolveImageConfig(config: ImageConfig = {}): ResolvedImageConfi
 
 export function detectImageProvider(): string {
   const env = runtimeEnv();
-  const forced = env['DESOURCE_IMAGE_PROVIDER'] ?? env['PUBLIC_DESOURCE_IMAGE_PROVIDER'] ?? env['VITE_DESOURCE_IMAGE_PROVIDER'];
+  const forced = env['DESOURCE_IMAGE_PROVIDER']
+    ?? env['PUBLIC_DESOURCE_IMAGE_PROVIDER']
+    ?? env['VITE_DESOURCE_IMAGE_PROVIDER']
+    ?? env['NUXT_IMAGE_PROVIDER'];
 
   if (forced) {
     return forced;
+  }
+
+  const rendered = detectRenderedProvider();
+  if (rendered) {
+    return rendered;
   }
 
   if (env['VERCEL'] || env['NEXT_PUBLIC_VERCEL_URL'] || env['VERCEL_URL'] || isVercelHost()) {
@@ -57,8 +67,20 @@ function runtimeEnv(): Record<string, string | undefined> {
       env?: Record<string, string | undefined>;
     };
   };
+  const compiled = compiledProvider();
 
-  return candidate.process?.env ?? {};
+  return {
+    ...(candidate.process?.env ?? {}),
+    ...(compiled ? { PUBLIC_DESOURCE_IMAGE_PROVIDER: compiled } : {})
+  };
+}
+
+function compiledProvider(): string | undefined {
+  try {
+    return typeof __DESOURCE_IMAGE_PROVIDER__ === 'undefined' ? undefined : __DESOURCE_IMAGE_PROVIDER__;
+  } catch {
+    return undefined;
+  }
 }
 
 function isVercelHost(): boolean {
@@ -67,6 +89,27 @@ function isVercelHost(): boolean {
 
 function isNetlifyHost(): boolean {
   return typeof globalThis.location !== 'undefined' && /\.netlify\.app$/i.test(globalThis.location.hostname);
+}
+
+function detectRenderedProvider(): string | undefined {
+  if (typeof globalThis.document === 'undefined') {
+    return undefined;
+  }
+
+  const document = globalThis.document;
+  if (document.querySelector('img[src^="/_vercel/image"],source[srcset^="/_vercel/image"]')) {
+    return 'vercel';
+  }
+
+  if (document.querySelector('img[src^="/.netlify/images"],source[srcset^="/.netlify/images"]')) {
+    return 'netlify';
+  }
+
+  if (document.querySelector('img[src^="/_ipx/"],source[srcset^="/_ipx/"]')) {
+    return 'ipx';
+  }
+
+  return undefined;
 }
 
 export function createImageContext(config: ImageConfig = {}): ImageContext {

@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
   cloudinaryProvider,
+  createImage,
   detectImageProvider,
   generatePictureSources,
   generateSizes,
@@ -23,6 +24,12 @@ describe('sizes and densities', () => {
     const parsed = parseSizes('100vw md:50vw lg:400px');
 
     expect(parsed?.sizes).toBe('(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 400px');
+  });
+
+  it('parses Nuxt-like object sizes', () => {
+    const parsed = parseSizes({ '1px': '100vw', md: '1100px' });
+
+    expect(parsed?.sizes).toBe('(max-width: 767px) 100vw, 1100px');
   });
 
   it('generates Nuxt-like size candidates from responsive sizes and densities', () => {
@@ -127,6 +134,10 @@ describe('aliases, validation and merge order', () => {
       providers: { vercel: vercelProvider({ defaultQuality: 50 }) }
     }).url).toContain('q=50');
   });
+
+  it('throws clear errors for unknown presets', () => {
+    expect(() => getImage({ src: '/user.png', preset: 'missing' })).toThrow(/Unknown image preset/);
+  });
 });
 
 describe('providers', () => {
@@ -171,6 +182,22 @@ describe('providers', () => {
       background: 'fff',
       modifiers: { blur: 8 }
     }, config).url).toBe('/_ipx/s_800x400&f_webp&q_70&fit_cover&pos_center&b_fff&blur_8/hero.png');
+  });
+
+  it('honors Nuxt-style standard modifiers', () => {
+    const config = resolveImageConfig({
+      provider: 'ipx',
+      providers: { ipx: ipxProvider() }
+    });
+
+    expect(getImage({
+      src: '/hero.png',
+      modifiers: {
+        width: 800,
+        format: 'webp',
+        quality: 75
+      }
+    }, config).url).toBe('/_ipx/w_800&f_webp&q_75/hero.png');
   });
 
   it('defaults to Nuxt-like local IPX URLs', () => {
@@ -242,6 +269,21 @@ describe('attrs and picture output', () => {
     expect(attrs.placeholderSrc).toBe('/_vercel/image?url=%2Fhero.png&w=32&q=20');
   });
 
+  it('supports Nuxt-style preload alias', () => {
+    const attrs = getImageAttrs({
+      src: '/hero.png',
+      width: 800,
+      preload: { fetchPriority: 'high' }
+    }, {
+      provider: 'ipx',
+      providers: { ipx: ipxProvider() }
+    });
+
+    expect(attrs.loading).toBe('eager');
+    expect(attrs.fetchpriority).toBe('high');
+    expect(attrs.decoding).toBe('sync');
+  });
+
   it('generates picture sources for avif and webp with fallback img', () => {
     const picture = getPictureAttrs({
       src: '/hero.png',
@@ -258,6 +300,23 @@ describe('attrs and picture output', () => {
     expect(picture.sources.map((source) => source.type)).toEqual(['image/avif', 'image/webp']);
     expect(picture.sources[0]?.srcset).toContain('1w');
     expect(picture.img.src).toBe('/_vercel/image?url=%2Fhero.png&w=2&q=75');
+  });
+
+  it('supports comma-separated picture formats and legacyFormat alias', () => {
+    const picture = getPictureAttrs({
+      src: '/hero.png',
+      width: 800,
+      sizes: '100vw',
+      format: 'avif,webp',
+      legacyFormat: 'jpg'
+    }, {
+      provider: 'ipx',
+      providers: { ipx: ipxProvider() },
+      providerSizes: [320, 800]
+    });
+
+    expect(picture.sources.map((source) => source.type)).toEqual(['image/avif', 'image/webp']);
+    expect(picture.img.src).toContain('f_jpeg');
   });
 
   it('generates picture sources directly', () => {
@@ -289,5 +348,24 @@ describe('attrs and picture output', () => {
     expect(picture.sources[1]?.srcset).toContain('f_webp');
     expect(picture.img.src).not.toContain('f_avif');
     expect(picture.img.src).not.toContain('f_webp');
+  });
+
+  it('creates a Nuxt-style callable image helper', () => {
+    const $img = createImage({
+      provider: 'ipx',
+      providers: { ipx: ipxProvider() },
+      presets: {
+        avatar: {
+          width: 96,
+          height: 96,
+          quality: 80
+        }
+      }
+    });
+
+    expect($img('/hero.png', { width: 320, format: 'webp' })).toBe('/_ipx/w_320&f_webp/hero.png');
+    expect(($img.avatar as typeof $img)('/user.png')).toBe('/_ipx/s_96x96&q_80/user.png');
+    expect($img.getSizes('/hero.png', { sizes: '100vw md:1100px', modifiers: { format: 'webp' } }).src)
+      .toBe('/_ipx/w_2200&f_webp/hero.png');
   });
 });

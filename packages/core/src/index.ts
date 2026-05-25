@@ -1,5 +1,6 @@
 export type {
   DensityInput,
+  DesourceImage,
   GeneratedDensity,
   GeneratedSizes,
   GeneratedSrcset,
@@ -14,11 +15,13 @@ export type {
   ImageLoading,
   ImageModifiers,
   ImagePlaceholder,
+  ImagePreload,
   ImagePreloadLink,
   ImagePreset,
   ImageProvider,
   ImageProviderInput,
   ImageProviderResult,
+  ImageOptions,
   InvalidSourceStrategy,
   LocalPattern,
   ParsedSizeEntry,
@@ -27,6 +30,8 @@ export type {
   PictureSource,
   RemotePattern,
   ResolvedImageConfig,
+  ImageSizes,
+  SizesInput,
   SourceValidationResult
 } from './types.js';
 
@@ -37,6 +42,10 @@ export {
   detectImageProvider,
   resolveImageConfig
 } from './config.js';
+
+export {
+  createImage
+} from './factory.js';
 
 export {
   cloudflareProvider,

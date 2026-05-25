@@ -4,6 +4,11 @@ import type { Plugin } from 'vite';
 
 export interface DesourceImagePluginOptions {
   /**
+   * Concrete provider to bake into the client bundle. Defaults to deployment
+   * auto-detection, matching Nuxt Image's module-time provider resolution.
+   */
+  provider?: string;
+  /**
    * URL prefix used by the IPX provider.
    *
    * Keep this aligned with `ipxProvider({ path })` when customizing the core
@@ -38,6 +43,13 @@ export function desourceImage(options: DesourceImagePluginOptions = {}): Plugin 
 
   return {
     name: 'desource-image',
+    config() {
+      return {
+        define: {
+          __DESOURCE_IMAGE_PROVIDER__: JSON.stringify(options.provider ?? detectDeploymentProvider())
+        }
+      };
+    },
     configResolved(config) {
       root = config.root;
     },
@@ -80,6 +92,27 @@ export function desourceImage(options: DesourceImagePluginOptions = {}): Plugin 
       request.url = originalUrl;
     }
   }
+}
+
+function detectDeploymentProvider(): string {
+  const forced = process.env['DESOURCE_IMAGE_PROVIDER']
+    ?? process.env['PUBLIC_DESOURCE_IMAGE_PROVIDER']
+    ?? process.env['VITE_DESOURCE_IMAGE_PROVIDER']
+    ?? process.env['NUXT_IMAGE_PROVIDER'];
+
+  if (forced) {
+    return forced;
+  }
+
+  if (process.env['VERCEL'] || process.env['VERCEL_URL'] || process.env['NEXT_PUBLIC_VERCEL_URL']) {
+    return 'vercel';
+  }
+
+  if (process.env['NETLIFY']) {
+    return 'netlify';
+  }
+
+  return 'ipx';
 }
 
 async function createIpxHandler(root: string, options: DesourceImagePluginOptions): Promise<NodeImageHandler> {

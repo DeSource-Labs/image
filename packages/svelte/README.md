@@ -45,7 +45,7 @@ This produces a Nuxt-like local URL:
 /_ipx/w_2200&f_webp&q_75/img/hero.jpg
 ```
 
-`priority` sets `loading="eager"`, `fetchpriority="high"`, and `decoding="sync"`.
+`priority` or Nuxt-style `preload` sets `loading="eager"`, `fetchpriority="high"` when requested, and `decoding="sync"`.
 
 No provider config is required for the common path. Add `setImageConfig(config)` in a root layout only when you need explicit providers, aliases, presets, validation rules, or global defaults.
 
@@ -68,9 +68,28 @@ No provider config is required for the common path. Add `setImageConfig(config)`
 
 The component renders native `<picture>` and `<img>` elements with no wrapper.
 
+Nuxt-style comma-separated formats are also supported:
+
+```svelte
+<Picture src="/hero.png" alt="Hero" format="avif,webp" legacyFormat="jpg" />
+```
+
+## useImage
+
+```svelte
+<script lang="ts">
+  import { useImage } from '@desource/svelte-image';
+
+  const $img = useImage();
+  const hero = $img('/img/hero.jpg', { width: 800, format: 'webp', quality: 75 });
+</script>
+```
+
+`useImage()` returns the Nuxt-style callable helper with `getImage`, `getSizes`, `getAttrs`, `getPicture`, `getPreloadLink`, and preset shortcut methods.
+
 ## SvelteKit on Vercel
 
-Automatic provider detection uses Vercel when `VERCEL`, `VERCEL_URL`, `NEXT_PUBLIC_VERCEL_URL`, or a `.vercel.app` host is detected. For stricter Vercel projects, ensure image config allows the widths, qualities, formats, local paths, and remote hosts you generate:
+Automatic provider detection uses Vercel when `VERCEL`, `VERCEL_URL`, `NEXT_PUBLIC_VERCEL_URL`, or a `.vercel.app` host is detected. `desourceImage()` bakes the detected provider into the client bundle so SSR and hydration agree even on custom domains. For stricter Vercel projects, ensure image config allows the widths, qualities, formats, local paths, and remote hosts you generate:
 
 ```json
 {

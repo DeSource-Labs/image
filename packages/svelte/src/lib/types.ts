@@ -7,7 +7,9 @@ import type {
   ImageFormat,
   ImageLoading,
   ImageModifiers,
-  ImagePlaceholder
+  ImagePlaceholder,
+  ImagePreload,
+  SizesInput
 } from '@desource/image-core';
 
 type NativeImageAttrs = Omit<
@@ -29,7 +31,7 @@ export interface ImageComponentProps extends NativeImageAttrs {
   alt?: string;
   width?: number | string;
   height?: number | string;
-  sizes?: string;
+  sizes?: SizesInput;
   quality?: number | string;
   format?: ImageFormat | readonly ImageFormat[];
   fit?: ImageFit;
@@ -43,6 +45,7 @@ export interface ImageComponentProps extends NativeImageAttrs {
   decoding?: ImageDecoding;
   fetchpriority?: ImageFetchPriority;
   priority?: boolean;
+  preload?: ImagePreload;
   placeholder?: ImagePlaceholder;
   placeholderClass?: string;
 }
@@ -50,4 +53,5 @@ export interface ImageComponentProps extends NativeImageAttrs {
 export interface PictureComponentProps extends ImageComponentProps {
   formats?: readonly ImageFormat[];
   fallbackFormat?: ImageFormat;
+  legacyFormat?: ImageFormat;
 }

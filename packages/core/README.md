@@ -20,6 +20,7 @@ Core exports typed helpers for:
 - `getPictureAttrs`
 - `getImagePreloadLink`
 - `createImageContext`
+- `createImage`
 
 Provider factories:
 
@@ -35,7 +36,7 @@ Provider factories:
 ## Example
 
 ```ts
-import { getImageAttrs } from '@desource/image-core';
+import { createImage, getImageAttrs } from '@desource/image-core';
 
 const attrs = getImageAttrs(
   {
@@ -46,6 +47,13 @@ const attrs = getImageAttrs(
     loading: 'lazy'
   }
 );
+
+const $img = createImage();
+const url = $img('/img/hero.jpg', { width: 800, format: 'webp', quality: 75 });
+const sizes = $img.getSizes('/img/hero.jpg', {
+  sizes: '100vw md:1100px',
+  modifiers: { format: 'webp', quality: 75 }
+});
 ```
 
 By default this emits Nuxt-like IPX URLs such as `/_ipx/w_2200&f_webp&q_75/img/hero.jpg`. The default provider is `auto`: local/non-detected runtimes use IPX, Vercel runtimes use Vercel, and Netlify runtimes use Netlify. Core functions are pure and do not depend on Angular, Svelte, Vercel, Sharp, or browser globals. Framework packages provide the local optimizer endpoint integration.

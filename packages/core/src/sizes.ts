@@ -1,4 +1,4 @@
-import type { DensityInput, GeneratedDensity, GeneratedSizes, ParsedSizes } from './types.js';
+import type { DensityInput, GeneratedDensity, GeneratedSizes, ParsedSizes, SizesInput } from './types.js';
 import { DEFAULT_PROVIDER_SIZES, DEFAULT_SCREENS } from './config.js';
 import { toNumber, uniqueSorted } from './utils.js';
 
@@ -24,26 +24,36 @@ export function parseDensities(input: DensityInput | undefined, fallback: readon
   return uniqueSorted(fallback);
 }
 
-export function parseSizes(input: string | undefined, screens: Record<string, number> = DEFAULT_SCREENS): ParsedSizes | undefined {
-  if (!input?.trim()) {
+export function parseSizes(input: SizesInput | undefined, screens: Record<string, number> = DEFAULT_SCREENS): ParsedSizes | undefined {
+  if (input === undefined || input === null) {
     return undefined;
   }
 
-  const entries = input
-    .trim()
-    .split(/\s+/)
+  const rawEntries = typeof input === 'string'
+    ? input.trim().split(/[\s,]+/).filter(Boolean).map((token) => {
+        const match = /^([a-zA-Z0-9_-]+):(.+)$/.exec(token);
+        return match
+          ? [match[1] ?? '', match[2] ?? ''] as const
+          : [undefined, token] as const;
+      })
+    : Object.entries(input);
+
+  if (rawEntries.length === 0) {
+    return undefined;
+  }
+
+  const entries = rawEntries
     .map((token) => {
-      const match = /^([a-zA-Z0-9_-]+):(.+)$/.exec(token);
-      if (!match) {
-        return { size: token };
+      const [screen, size] = token;
+      if (!screen) {
+        return { size: String(size) };
       }
 
-      const screen = match[1];
       const screenWidth = screen ? screens[screen] ?? Number.parseInt(screen, 10) : undefined;
       return {
         screen,
         minWidth: Number.isFinite(screenWidth) ? screenWidth : undefined,
-        size: match[2] ?? ''
+        size: String(size)
       };
     })
     .filter((entry) => entry.size && (!entry.screen || entry.minWidth !== undefined));
@@ -61,7 +71,7 @@ export function parseSizes(input: string | undefined, screens: Record<string, nu
 
 export function generateSizes(options: {
   width?: number;
-  sizes?: string;
+  sizes?: SizesInput;
   screens?: Record<string, number>;
   providerSizes?: readonly number[];
   densities?: readonly number[];

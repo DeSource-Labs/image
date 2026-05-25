@@ -14,6 +14,7 @@
     format,
     formats,
     fallbackFormat,
+    legacyFormat,
     fit,
     position,
     background,
@@ -25,6 +26,7 @@
     decoding,
     fetchpriority,
     priority = false,
+    preload,
     placeholder,
     placeholderClass,
     class: className,
@@ -49,6 +51,7 @@
     format,
     formats,
     fallbackFormat,
+    legacyFormat,
     fit,
     position,
     background,
@@ -60,6 +63,7 @@
     decoding,
     fetchpriority,
     priority,
+    preload,
     placeholder,
     placeholderClass
   });

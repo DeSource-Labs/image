@@ -21,10 +21,12 @@ import {
   type ImageLoading,
   type ImageModifiers,
   type ImagePlaceholder,
+  type ImagePreload,
+  type SizesInput,
   getImageAttrs
 } from '@desource/image-core';
 import { DS_IMAGE_CONFIG } from './config.js';
-import { coerceBoolean, coerceNumber, coercePlaceholder, mergeClassNames, stripUndefined, styleWithPlaceholder } from './coercion.js';
+import { coerceBoolean, coerceNumber, coercePlaceholder, coercePreload, mergeClassNames, stripUndefined, styleWithPlaceholder } from './coercion.js';
 
 type NativeAttrs = Record<string, string | number | boolean | null | undefined>;
 
@@ -72,7 +74,7 @@ export class DsImageComponent {
   readonly alt = input<string>('');
   readonly width = input<number | undefined, unknown>(undefined, { transform: coerceNumber });
   readonly height = input<number | undefined, unknown>(undefined, { transform: coerceNumber });
-  readonly sizes = input<string | undefined>();
+  readonly sizes = input<SizesInput | undefined>();
   readonly quality = input<number | undefined, unknown>(undefined, { transform: coerceNumber });
   readonly format = input<ImageFormat | readonly ImageFormat[] | undefined>();
   readonly fit = input<ImageFit | undefined>();
@@ -86,6 +88,7 @@ export class DsImageComponent {
   readonly decoding = input<ImageDecoding | undefined>();
   readonly fetchpriority = input<ImageFetchPriority | undefined>();
   readonly priority = input<boolean, unknown>(false, { transform: coerceBoolean });
+  readonly preload = input<ImagePreload | undefined, unknown>(undefined, { transform: coercePreload });
   readonly placeholder = input<ImagePlaceholder | undefined, unknown>(undefined, { transform: coercePlaceholder });
   readonly placeholderClass = input<string | undefined>();
 
@@ -122,6 +125,7 @@ export class DsImageComponent {
     decoding: this.decoding(),
     fetchpriority: this.fetchpriority(),
     priority: this.priority(),
+    preload: this.preload(),
     placeholder: this.placeholder(),
     placeholderClass: this.placeholderClass()
   }));

@@ -23,6 +23,7 @@
     decoding,
     fetchpriority,
     priority = false,
+    preload,
     placeholder,
     placeholderClass,
     class: className,
@@ -56,6 +57,7 @@
     decoding,
     fetchpriority,
     priority,
+    preload,
     placeholder,
     placeholderClass
   });

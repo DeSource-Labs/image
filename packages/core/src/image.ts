@@ -9,7 +9,9 @@ import type {
   ImageProviderInput,
   ImageProviderResult,
   ImageProvider,
+  ImagePreload,
   ImagePreset,
+  SizesInput,
   PictureAttrs,
   PictureSource,
   ResolvedImageConfig
@@ -25,11 +27,12 @@ interface ResolvedInput {
   alt?: string;
   width?: number;
   height?: number;
-  sizes?: string;
+  sizes?: SizesInput;
   quality?: number;
   format?: ImageFormat | readonly ImageFormat[];
   formats?: readonly ImageFormat[];
   fallbackFormat?: ImageFormat;
+  legacyFormat?: ImageFormat;
   provider: string;
   modifiers: ImageModifiers;
   densities?: ImageInput['densities'];
@@ -37,6 +40,7 @@ interface ResolvedInput {
   decoding?: ImageInput['decoding'];
   fetchpriority?: ImageInput['fetchpriority'];
   priority?: boolean;
+  preload?: ImagePreload;
   placeholder?: ImageInput['placeholder'];
   placeholderClass?: string;
 }
@@ -49,7 +53,12 @@ export function resolvePreset(name: string | undefined, config: ImageConfig | Re
   const resolved = 'providers' in config && 'providerOptions' in config
     ? config as ResolvedImageConfig
     : resolveImageConfig(config);
-  return resolved.presets[name];
+  const preset = resolved.presets[name];
+  if (!preset) {
+    throw new Error(`Unknown image preset "${name}". Register it in image config presets.`);
+  }
+
+  return preset;
 }
 
 export function getImage(input: ImageInput, config: ImageConfig | ResolvedImageConfig = {}): ImageProviderResult {
@@ -174,7 +183,7 @@ export function getImageAttrs(input: ImageInput, config: ImageConfig | ResolvedI
 
 export function getPictureAttrs(input: ImageInput, config: ImageConfig | ResolvedImageConfig = {}): PictureAttrs {
   const resolvedConfig = ensureConfig(config);
-  const fallbackFormat = input.fallbackFormat;
+  const fallbackFormat = input.fallbackFormat ?? input.legacyFormat;
   const fallbackConfig: ResolvedImageConfig = {
     ...resolvedConfig,
     format: fallbackFormat
@@ -201,6 +210,9 @@ export function getImagePreloadLink(input: ImageInput, config: ImageConfig | Res
 function resolveInput(input: ImageInput, config: ResolvedImageConfig): ResolvedInput {
   const preset = resolvePreset(input.preset, config);
   const componentModifiers = input.modifiers;
+  const modifierWidth = modifierNumber(componentModifiers, 'width', 'w');
+  const modifierHeight = modifierNumber(componentModifiers, 'height', 'h');
+  const modifierFormatValue = modifierFormat(componentModifiers);
   const modifiers = mergeModifiers(
     preset?.modifiers,
     componentModifiers,
@@ -215,27 +227,30 @@ function resolveInput(input: ImageInput, config: ResolvedImageConfig): ResolvedI
     ?? preset?.quality
     ?? modifierQuality(preset?.modifiers)
     ?? config.quality;
-  const format = input.format ?? preset?.format ?? config.format;
+  const format = input.format ?? modifierFormatValue ?? preset?.format ?? modifierFormat(preset?.modifiers) ?? config.format;
   const src = resolveAlias(input.src, config.aliases);
+  const preload = input.preload ?? preset?.preload;
 
   return stripUndefined({
     src,
     originalSrc: input.src,
     alt: input.alt,
-    width: toNumber(input.width) ?? preset?.width,
-    height: toNumber(input.height) ?? preset?.height,
+    width: toNumber(input.width) ?? modifierWidth ?? preset?.width ?? modifierNumber(preset?.modifiers, 'width', 'w'),
+    height: toNumber(input.height) ?? modifierHeight ?? preset?.height ?? modifierNumber(preset?.modifiers, 'height', 'h'),
     sizes: input.sizes ?? preset?.sizes,
     quality,
     format,
     formats: input.formats,
     fallbackFormat: input.fallbackFormat,
+    legacyFormat: input.legacyFormat,
     provider: input.provider ?? preset?.provider ?? config.provider,
     modifiers,
     densities: input.densities ?? preset?.densities,
     loading: input.loading ?? preset?.loading ?? 'lazy',
     decoding: input.decoding ?? preset?.decoding,
-    fetchpriority: input.fetchpriority ?? preset?.fetchpriority,
-    priority: input.priority ?? preset?.priority,
+    fetchpriority: input.fetchpriority ?? preloadFetchPriority(preload) ?? preset?.fetchpriority,
+    priority: input.priority ?? preset?.priority ?? Boolean(preload),
+    preload,
     placeholder: input.placeholder ?? preset?.placeholder,
     placeholderClass: input.placeholderClass ?? preset?.placeholderClass
   });
@@ -279,10 +294,10 @@ function resolvePlaceholder(input: ResolvedInput, config: ResolvedImageConfig): 
 }
 
 function pictureFormats(input: ImageInput, resolved: ResolvedInput, config: ResolvedImageConfig): ImageFormat[] {
-  const explicit = input.formats ?? (Array.isArray(input.format) ? input.format : undefined);
-  const fromConfig = Array.isArray(config.format) ? config.format : undefined;
-  const fromResolved = Array.isArray(resolved.format) ? resolved.format : undefined;
-  return [...new Set([...(explicit ?? fromResolved ?? fromConfig ?? [])])];
+  const explicit = input.formats ?? splitFormats(input.format);
+  const fromConfig = splitFormats(config.format);
+  const fromResolved = splitFormats(resolved.format);
+  return [...new Set([...(explicit ?? fromResolved ?? fromConfig ?? ['webp'])])];
 }
 
 function getProvider(name: string, config: ResolvedImageConfig): ImageProvider {
@@ -316,6 +331,43 @@ function scaledHeight(originalWidth: number | undefined, originalHeight: number 
 function modifierQuality(modifiers: ImageModifiers | undefined): number | undefined {
   const value = modifiers?.quality ?? modifiers?.q;
   return typeof value === 'boolean' ? undefined : clampQuality(value);
+}
+
+function modifierFormat(modifiers: ImageModifiers | undefined): ImageFormat | undefined {
+  const value = modifiers?.format ?? modifiers?.f;
+  return typeof value === 'string' ? value as ImageFormat : undefined;
+}
+
+function modifierNumber(modifiers: ImageModifiers | undefined, ...keys: string[]): number | undefined {
+  for (const key of keys) {
+    const value = modifiers?.[key];
+    if (typeof value !== 'boolean') {
+      const parsed = toNumber(value);
+      if (parsed !== undefined) {
+        return parsed;
+      }
+    }
+  }
+  return undefined;
+}
+
+function preloadFetchPriority(preload: ImagePreload | undefined): ImageInput['fetchpriority'] {
+  return typeof preload === 'object' ? preload.fetchPriority : undefined;
+}
+
+function splitFormats(format: ImageFormat | readonly ImageFormat[] | undefined): ImageFormat[] | undefined {
+  if (!format) {
+    return undefined;
+  }
+
+  if (typeof format !== 'string') {
+    return Array.from(format).flatMap((entry) => splitFormats(entry) ?? []);
+  }
+
+  return format
+    .split(',')
+    .map((entry: string) => entry.trim())
+    .filter(Boolean) as ImageFormat[];
 }
 
 function compactModifiers(modifiers: ImageModifiers): ImageModifiers {
