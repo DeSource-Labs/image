@@ -89,7 +89,7 @@ Nuxt-style comma-separated formats are also supported:
 
 ## SvelteKit Deployment Providers
 
-Automatic provider detection uses:
+Automatic provider detection uses `std-env` first, matching Nuxt Image's provider detection, then keeps host/rendered-output fallbacks so SSR and hydration stay aligned:
 
 - `awsAmplify` when `AWS_AMPLIFY`, `AWS_APP_ID`, or an `.amplifyapp.com` host is detected.
 - `vercel` when `VERCEL`, `VERCEL_ENV`, `NOW_BUILDER`, `VERCEL_URL`, `NEXT_PUBLIC_VERCEL_URL`, or a `.vercel.app` host is detected.

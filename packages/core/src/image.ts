@@ -64,7 +64,10 @@ export function resolvePreset(name: string | undefined, config: ImageConfig | Re
 export function getImage(input: ImageInput, config: ImageConfig | ResolvedImageConfig = {}): ImageProviderResult {
   const resolvedConfig = ensureConfig(config);
   const resolved = resolveInput(input, resolvedConfig);
-  const validation = validateSource(resolved.src, resolvedConfig);
+  const providerName = resolveProviderName(resolved.provider);
+  const validation = allowsOpaqueSource(providerName, resolved.src)
+    ? { valid: true }
+    : validateSource(resolved.src, resolvedConfig);
 
   if (!validation.valid) {
     if (resolvedConfig.onInvalidSource === 'throw') {
@@ -78,7 +81,7 @@ export function getImage(input: ImageInput, config: ImageConfig | ResolvedImageC
     return { url: resolved.src, isOptimized: false };
   }
 
-  const { name, provider } = getProvider(resolved.provider, resolvedConfig);
+  const { name, provider } = getProvider(providerName, resolvedConfig);
   const providerInput = toProviderInput(resolved, resolvedConfig, name);
   return provider.getImage(providerInput, resolvedConfig.providerOptions[provider.name]);
 }
@@ -302,13 +305,25 @@ function pictureFormats(input: ImageInput, resolved: ResolvedInput, config: Reso
 }
 
 function getProvider(name: string, config: ResolvedImageConfig): { name: string; provider: ImageProvider } {
-  const providerName = name === 'auto' ? detectImageProvider() : name;
+  const providerName = resolveProviderName(name);
   const provider = config.providers[providerName];
   if (!provider) {
     throw new Error(`Unknown image provider "${providerName}". Register it in image config providers.`);
   }
 
   return { name: providerName, provider };
+}
+
+function resolveProviderName(name: string): string {
+  return name === 'auto' ? detectImageProvider() : name;
+}
+
+function allowsOpaqueSource(providerName: string, src: string): boolean {
+  if (src.startsWith('/') || /^[a-z][a-z0-9+.-]*:/i.test(src)) {
+    return false;
+  }
+
+  return ['cloudflareimages', 'github', 'hygraph', 'picsum', 'sanity', 'uploadcare'].includes(providerName);
 }
 
 function defaultWidthForProvider(providerName: string, config: ResolvedImageConfig): number | undefined {

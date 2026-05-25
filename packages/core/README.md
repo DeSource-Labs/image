@@ -24,9 +24,12 @@ Core exports typed helpers for:
 
 Provider factories:
 
+- `BUILT_IN_PROVIDER_NAMES`
+- `createBuiltInProviders`
 - `vercelProvider`
 - `awsAmplifyProvider`
 - `ipxProvider`
+- all Nuxt-compatible built-ins including Cloudinary, Imgix, ImageKit, Cloudflare, Cloudflare Images, Contentful, Directus, Sanity, Storyblok, Uploadcare, Unsplash, and more
 - `cloudinaryProvider`
 - `imgixProvider`
 - `imagekitProvider`
@@ -57,4 +60,6 @@ const sizes = $img.getSizes('/img/hero.jpg', {
 });
 ```
 
-By default this emits Nuxt-like IPX URLs such as `/_ipx/w_2200&f_webp&q_75/img/hero.jpg`. The default provider is `auto`: local/non-detected runtimes use IPX, AWS Amplify runtimes use AWS Amplify, Vercel runtimes use Vercel, and Netlify runtimes use Netlify. Core functions are pure and do not depend on Angular, Svelte, Vercel, Sharp, or browser globals. Framework packages provide the local optimizer endpoint integration.
+By default this emits Nuxt-like IPX URLs such as `/_ipx/w_2200&f_webp&q_75/img/hero.jpg`. The default provider is `auto`: local/non-detected runtimes use IPX, AWS Amplify runtimes use AWS Amplify, Vercel runtimes use Vercel, and Netlify runtimes use Netlify. Detection uses `std-env` first, plus framework-safe fallbacks for hydrated browser code.
+
+For bundle size, `resolveImageConfig()` only registers the default/auto providers. Import individual provider factories for app-specific providers, or use `createBuiltInProviders()` when you explicitly want every Nuxt-compatible built-in provider in a registry.

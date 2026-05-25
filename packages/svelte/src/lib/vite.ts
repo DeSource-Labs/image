@@ -1,5 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { resolve } from 'node:path';
+import { detectImageProvider } from '@desource/image-core';
 import type { Plugin } from 'vite';
 
 export interface DesourceImagePluginOptions {
@@ -46,7 +47,7 @@ export function desourceImage(options: DesourceImagePluginOptions = {}): Plugin 
     config() {
       return {
         define: {
-          __DESOURCE_IMAGE_PROVIDER__: JSON.stringify(options.provider ?? detectDeploymentProvider())
+          __DESOURCE_IMAGE_PROVIDER__: JSON.stringify(options.provider ?? detectImageProvider())
         }
       };
     },
@@ -92,31 +93,6 @@ export function desourceImage(options: DesourceImagePluginOptions = {}): Plugin 
       request.url = originalUrl;
     }
   }
-}
-
-function detectDeploymentProvider(): string {
-  const forced = process.env['DESOURCE_IMAGE_PROVIDER']
-    ?? process.env['PUBLIC_DESOURCE_IMAGE_PROVIDER']
-    ?? process.env['VITE_DESOURCE_IMAGE_PROVIDER']
-    ?? process.env['NUXT_IMAGE_PROVIDER'];
-
-  if (forced) {
-    return forced;
-  }
-
-  if (process.env['AWS_AMPLIFY'] || process.env['AWS_APP_ID']) {
-    return 'awsAmplify';
-  }
-
-  if (process.env['VERCEL'] || process.env['VERCEL_ENV'] || process.env['NOW_BUILDER'] || process.env['VERCEL_URL'] || process.env['NEXT_PUBLIC_VERCEL_URL']) {
-    return 'vercel';
-  }
-
-  if (process.env['NETLIFY'] || process.env['NETLIFY_LOCAL']) {
-    return 'netlify';
-  }
-
-  return 'ipx';
 }
 
 async function createIpxHandler(root: string, options: DesourceImagePluginOptions): Promise<NodeImageHandler> {

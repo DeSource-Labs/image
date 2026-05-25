@@ -20,7 +20,7 @@ This is an original implementation. Nuxt Image is used as a product/API referenc
 | Vercel provider | Yes | Yes | Yes |
 | AWS Amplify provider | Yes | Yes | Yes |
 | IPX URL builder | Yes | Yes | Yes |
-| Cloudinary, Imgix, ImageKit, Cloudflare, Netlify, none | Yes | Yes | Yes |
+| Nuxt-compatible built-in provider factories | Yes | Via core | Via core |
 | Responsive `sizes` parser | Yes | Yes | Yes |
 | Width `srcset` | Yes | Yes | Yes |
 | Density `srcset` | Yes | Yes | Yes |
@@ -153,7 +153,7 @@ Then use the component:
 
 Svelte components also default to the same IPX-like output.
 
-Provider selection is automatic:
+Provider selection is automatic and uses `std-env` first, matching Nuxt Image's deployment-provider detection:
 
 - Local/non-detected runtime: `ipx`
 - AWS Amplify runtime or `.amplifyapp.com` host: `awsAmplify`
@@ -192,20 +192,30 @@ Svelte exposes this as `useImage()`. Angular exposes the same helper through `Ds
 
 ## Providers
 
-Provider factories are exported from `@desource/image-core`:
+Provider factories are exported from `@desource/image-core`. The default registry is intentionally small for bundle size: `ipx`, `awsAmplify`, `vercel`, `netlify`, and `none`. Other Nuxt-compatible providers are tree-shakable factories; import only the provider you use, or call `createBuiltInProviders()` when you explicitly want the full registry.
 
 ```ts
 import {
+  BUILT_IN_PROVIDER_NAMES,
   awsAmplifyProvider,
-  vercelProvider,
-  ipxProvider,
+  createBuiltInProviders,
   cloudinaryProvider,
   imgixProvider,
-  imagekitProvider,
-  cloudflareProvider,
-  netlifyProvider,
-  noneProvider
+  ipxProvider,
+  vercelProvider
 } from '@desource/image-core';
+```
+
+Supported built-in provider names match Nuxt Image's `BuiltInProviders`: `aliyun`, `awsAmplify`, `bunny`, `builderio`, `caisy`, `cloudflare`, `cloudflareimages`, `cloudimage`, `cloudinary`, `contentful`, `directus`, `fastly`, `filerobot`, `flyimg`, `github`, `glide`, `gumlet`, `hygraph`, `imageengine`, `imagekit`, `imgix`, `ipx`, `ipxStatic`, `netlify`, `netlifyLargeMedia`, `netlifyImageCdn`, `picsum`, `prepr`, `none`, `prismic`, `sanity`, `shopify`, `storyblok`, `strapi`, `strapi5`, `supabase`, `twicpics`, `umbraco`, `unsplash`, `uploadcare`, `vercel`, `wagtail`, `weserv`, and `sirv`.
+
+To opt into the complete registry:
+
+```ts
+import { createBuiltInProviders } from '@desource/image-core';
+
+provideDsImage({
+  providers: createBuiltInProviders()
+});
 ```
 
 Custom providers implement:

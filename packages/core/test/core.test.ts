@@ -1,7 +1,10 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
+  BUILT_IN_PROVIDER_NAMES,
   awsAmplifyProvider,
   cloudinaryProvider,
+  createBuiltInProviders,
+  createDefaultProviders,
   createImage,
   detectImageProvider,
   generatePictureSources,
@@ -142,6 +145,20 @@ describe('aliases, validation and merge order', () => {
 });
 
 describe('providers', () => {
+  it('keeps default providers small and exposes every Nuxt-compatible built-in provider on demand', () => {
+    expect(Object.keys(createDefaultProviders()).sort()).toEqual([
+      'awsAmplify',
+      'ipx',
+      'ipxStatic',
+      'netlify',
+      'netlifyImageCdn',
+      'netlifyLargeMedia',
+      'none',
+      'vercel'
+    ].sort());
+    expect(Object.keys(createBuiltInProviders()).sort()).toEqual([...BUILT_IN_PROVIDER_NAMES].sort());
+  });
+
   it('detects deployment providers automatically', () => {
     vi.stubEnv('AWS_APP_ID', 'app-id');
     expect(detectImageProvider()).toBe('awsAmplify');
@@ -188,6 +205,21 @@ describe('providers', () => {
       .toBe('/_amplify/image?url=%2Fhero.png&w=800&q=75&format=webp');
     expect(getImage({ src: '/hero.png', format: 'webp' }, config).url)
       .toBe('/_amplify/image?url=%2Fhero.png&w=1536&q=100&format=webp');
+  });
+
+  it('generates URLs for additional built-in providers', () => {
+    const providers = createBuiltInProviders();
+
+    expect(getImage({ provider: 'unsplash', src: '/photo-id', width: 320, quality: 80, format: 'webp' }, { providers }).url)
+      .toBe('https://images.unsplash.com/photo-id?fm=webp&q=80&w=320');
+    expect(getImage({ provider: 'github', src: '/u/1', width: 128 }, { providers }).url)
+      .toBe('https://avatars.githubusercontent.com/u/1?v=4&s=128');
+    expect(getImage({ provider: 'cloudflareimages', src: 'image-id' }, {
+      providers,
+      providerOptions: {
+        cloudflareimages: { accountHash: 'account' }
+      }
+    }).url).toBe('https://imagedelivery.net/account/image-id/public');
   });
 
   it('generates IPX URLs with modifiers', () => {

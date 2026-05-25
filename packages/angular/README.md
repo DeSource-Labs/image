@@ -98,7 +98,7 @@ The helper matches the core Nuxt-style callable API with `getImage`, `getSizes`,
 
 ## Providers
 
-Automatic provider detection uses:
+Automatic provider detection uses `std-env` first, matching Nuxt Image's provider detection, then keeps host/rendered-output fallbacks so SSR and hydration stay aligned:
 
 - `awsAmplify` when `AWS_AMPLIFY`, `AWS_APP_ID`, an `.amplifyapp.com` host, or server-rendered AWS Amplify image URLs are detected.
 - `vercel` when `VERCEL`, `VERCEL_ENV`, `NOW_BUILDER`, `VERCEL_URL`, `NEXT_PUBLIC_VERCEL_URL`, a `.vercel.app` host, or server-rendered Vercel image URLs are detected.

@@ -1,3 +1,4 @@
+import { detectProvider as detectStdEnvProvider, provider as stdEnvProvider } from 'std-env';
 import type { ImageConfig, ImageContext, ImageInput, ImagePreloadLink, ImageProviderResult, PictureAttrs, ResolvedImageConfig } from './types.js';
 import { createDefaultProviders } from './providers.js';
 import { getImage, getImageAttrs, getImagePreloadLink, getPictureAttrs } from './image.js';
@@ -45,6 +46,11 @@ export function detectImageProvider(): string {
     return forced;
   }
 
+  const stdDetected = normalizeStdEnvProvider(detectStdEnvProvider().name || stdEnvProvider);
+  if (stdDetected) {
+    return stdDetected;
+  }
+
   const rendered = detectRenderedProvider();
   if (rendered) {
     return rendered;
@@ -63,6 +69,16 @@ export function detectImageProvider(): string {
   }
 
   return 'ipx';
+}
+
+function normalizeStdEnvProvider(value: string | undefined): string | undefined {
+  const providers: Record<string, string> = {
+    aws_amplify: 'awsAmplify',
+    netlify: 'netlify',
+    vercel: 'vercel'
+  };
+
+  return value ? providers[value] : undefined;
 }
 
 function runtimeEnv(): Record<string, string | undefined> {
