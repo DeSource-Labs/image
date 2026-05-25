@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
+  awsAmplifyProvider,
   cloudinaryProvider,
   createImage,
   detectImageProvider,
@@ -62,7 +63,7 @@ describe('sizes and densities', () => {
       densities: '1 2'
     }, config);
 
-    expect(generated.srcset).toBe('/_vercel/image?url=https%3A%2F%2Fexample.com%2Fa.jpg&w=50&q=75 1x, /_vercel/image?url=https%3A%2F%2Fexample.com%2Fa.jpg&w=100&q=75 2x');
+    expect(generated.srcset).toBe('/_vercel/image?url=https%3A%2F%2Fexample.com%2Fa.jpg&w=50&q=100 1x, /_vercel/image?url=https%3A%2F%2Fexample.com%2Fa.jpg&w=100&q=100 2x');
   });
 });
 
@@ -142,6 +143,10 @@ describe('aliases, validation and merge order', () => {
 
 describe('providers', () => {
   it('detects deployment providers automatically', () => {
+    vi.stubEnv('AWS_APP_ID', 'app-id');
+    expect(detectImageProvider()).toBe('awsAmplify');
+    vi.unstubAllEnvs();
+
     vi.stubEnv('VERCEL', '1');
     expect(detectImageProvider()).toBe('vercel');
     vi.unstubAllEnvs();
@@ -151,6 +156,12 @@ describe('providers', () => {
     vi.unstubAllEnvs();
 
     expect(detectImageProvider()).toBe('ipx');
+  });
+
+  it('uses NUXT_IMAGE_PROVIDER as a compatibility override', () => {
+    vi.stubEnv('NUXT_IMAGE_PROVIDER', 'cloudinary');
+    expect(detectImageProvider()).toBe('cloudinary');
+    vi.unstubAllEnvs();
   });
 
   it('generates Vercel local and remote URLs', () => {
@@ -163,6 +174,20 @@ describe('providers', () => {
       .toBe('/_vercel/image?url=%2Fhero.png&w=800&q=75');
     expect(getImage({ src: 'https://example.com/hero.png', width: 800, quality: 75 }, config).url)
       .toBe('/_vercel/image?url=https%3A%2F%2Fexample.com%2Fhero.png&w=800&q=75');
+    expect(getImage({ src: '/hero.png' }, config).url)
+      .toBe('/_vercel/image?url=%2Fhero.png&w=1536&q=100');
+  });
+
+  it('generates AWS Amplify URLs', () => {
+    const config = resolveImageConfig({
+      provider: 'awsAmplify',
+      providers: { awsAmplify: awsAmplifyProvider() }
+    });
+
+    expect(getImage({ src: '/hero.png', width: 800, quality: 75, format: 'webp' }, config).url)
+      .toBe('/_amplify/image?url=%2Fhero.png&w=800&q=75&format=webp');
+    expect(getImage({ src: '/hero.png', format: 'webp' }, config).url)
+      .toBe('/_amplify/image?url=%2Fhero.png&w=1536&q=100&format=webp');
   });
 
   it('generates IPX URLs with modifiers', () => {
@@ -261,7 +286,7 @@ describe('attrs and picture output', () => {
       providerSizes: [320, 640, 768, 1024, 1280]
     });
 
-    expect(attrs.src).toBe('/_vercel/image?url=%2Fhero.png&w=2200&q=75');
+    expect(attrs.src).toBe('/_vercel/image?url=%2Fhero.png&w=2200&q=100');
     expect(attrs.srcset).toContain('1100w');
     expect(attrs.sizes).toBe('(max-width: 767px) 100vw, 1100px');
     expect(attrs.loading).toBe('eager');
@@ -299,7 +324,7 @@ describe('attrs and picture output', () => {
 
     expect(picture.sources.map((source) => source.type)).toEqual(['image/avif', 'image/webp']);
     expect(picture.sources[0]?.srcset).toContain('1w');
-    expect(picture.img.src).toBe('/_vercel/image?url=%2Fhero.png&w=2&q=75');
+    expect(picture.img.src).toBe('/_vercel/image?url=%2Fhero.png&w=2&q=100');
   });
 
   it('supports comma-separated picture formats and legacyFormat alias', () => {

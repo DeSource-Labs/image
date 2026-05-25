@@ -48,6 +48,7 @@ export {
 } from './factory.js';
 
 export {
+  awsAmplifyProvider,
   cloudflareProvider,
   cloudinaryProvider,
   imagekitProvider,

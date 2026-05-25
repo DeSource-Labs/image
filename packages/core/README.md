@@ -25,6 +25,7 @@ Core exports typed helpers for:
 Provider factories:
 
 - `vercelProvider`
+- `awsAmplifyProvider`
 - `ipxProvider`
 - `cloudinaryProvider`
 - `imgixProvider`
@@ -56,4 +57,4 @@ const sizes = $img.getSizes('/img/hero.jpg', {
 });
 ```
 
-By default this emits Nuxt-like IPX URLs such as `/_ipx/w_2200&f_webp&q_75/img/hero.jpg`. The default provider is `auto`: local/non-detected runtimes use IPX, Vercel runtimes use Vercel, and Netlify runtimes use Netlify. Core functions are pure and do not depend on Angular, Svelte, Vercel, Sharp, or browser globals. Framework packages provide the local optimizer endpoint integration.
+By default this emits Nuxt-like IPX URLs such as `/_ipx/w_2200&f_webp&q_75/img/hero.jpg`. The default provider is `auto`: local/non-detected runtimes use IPX, AWS Amplify runtimes use AWS Amplify, Vercel runtimes use Vercel, and Netlify runtimes use Netlify. Core functions are pure and do not depend on Angular, Svelte, Vercel, Sharp, or browser globals. Framework packages provide the local optimizer endpoint integration.

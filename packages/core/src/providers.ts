@@ -6,6 +6,11 @@ export interface VercelProviderOptions {
   defaultQuality?: number;
 }
 
+export interface AwsAmplifyProviderOptions {
+  path?: string;
+  defaultQuality?: number;
+}
+
 export interface IpxProviderOptions {
   path?: string;
 }
@@ -73,7 +78,7 @@ export function noneProvider(): ImageProvider {
 export function vercelProvider(options: VercelProviderOptions = {}): ImageProvider<VercelProviderOptions> {
   const defaults = {
     path: options.path ?? '/_vercel/image',
-    defaultQuality: options.defaultQuality ?? 75
+    defaultQuality: options.defaultQuality ?? 100
   };
 
   return {
@@ -91,6 +96,44 @@ export function vercelProvider(options: VercelProviderOptions = {}): ImageProvid
           w: input.width,
           q: quality
         }),
+        isOptimized: true
+      };
+    }
+  };
+}
+
+export function awsAmplifyProvider(options: AwsAmplifyProviderOptions = {}): ImageProvider<AwsAmplifyProviderOptions> {
+  const defaults = {
+    path: options.path ?? '/_amplify/image',
+    defaultQuality: options.defaultQuality ?? 100
+  };
+
+  return {
+    name: 'awsAmplify',
+    getImage(input, providerOptions = defaults): ImageProviderResult {
+      const path = providerOptions.path ?? defaults.path;
+      const quality = input.quality ?? providerOptions.defaultQuality ?? defaults.defaultQuality;
+      if (!input.width) {
+        return { url: input.src, isOptimized: false };
+      }
+
+      const params = appendProviderModifiers(
+        {
+          url: input.src,
+          w: input.width,
+          h: input.height,
+          q: quality,
+          format: normalizeFormat(input.format),
+          fit: input.modifiers?.fit,
+          position: input.modifiers?.position,
+          background: input.modifiers?.background
+        },
+        input.modifiers,
+        ['fit', 'position', 'background', 'width', 'w', 'height', 'h', 'quality', 'q', 'format', 'f']
+      );
+
+      return {
+        url: appendQuery(path, params),
         isOptimized: true
       };
     }
@@ -316,6 +359,7 @@ export function createDefaultProviders(): Record<string, ImageProvider> {
   return {
     none: noneProvider(),
     vercel: vercelProvider(),
+    awsAmplify: awsAmplifyProvider(),
     ipx: ipxProvider(),
     cloudinary: cloudinaryProvider(),
     imgix: imgixProvider(),

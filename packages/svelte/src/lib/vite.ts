@@ -104,11 +104,15 @@ function detectDeploymentProvider(): string {
     return forced;
   }
 
-  if (process.env['VERCEL'] || process.env['VERCEL_URL'] || process.env['NEXT_PUBLIC_VERCEL_URL']) {
+  if (process.env['AWS_AMPLIFY'] || process.env['AWS_APP_ID']) {
+    return 'awsAmplify';
+  }
+
+  if (process.env['VERCEL'] || process.env['VERCEL_ENV'] || process.env['NOW_BUILDER'] || process.env['VERCEL_URL'] || process.env['NEXT_PUBLIC_VERCEL_URL']) {
     return 'vercel';
   }
 
-  if (process.env['NETLIFY']) {
+  if (process.env['NETLIFY'] || process.env['NETLIFY_LOCAL']) {
     return 'netlify';
   }
 

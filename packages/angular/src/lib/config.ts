@@ -1,5 +1,5 @@
 import { InjectionToken, type EnvironmentProviders, makeEnvironmentProviders } from '@angular/core';
-import { type ImageConfig, ipxProvider, vercelProvider } from '@desource/image-core';
+import { awsAmplifyProvider, type ImageConfig, ipxProvider, vercelProvider } from '@desource/image-core';
 
 export const DS_IMAGE_CONFIG = new InjectionToken<ImageConfig>('DS_IMAGE_CONFIG', {
   providedIn: 'root',
@@ -32,6 +32,17 @@ export function provideDsVercelImage(config: ImageConfig = {}): EnvironmentProvi
     provider: config.provider ?? 'vercel',
     providers: {
       vercel: vercelProvider(),
+      ...config.providers
+    }
+  });
+}
+
+export function provideDsAwsAmplifyImage(config: ImageConfig = {}): EnvironmentProviders {
+  return provideDsImage({
+    ...config,
+    provider: config.provider ?? 'awsAmplify',
+    providers: {
+      awsAmplify: awsAmplifyProvider(),
       ...config.providers
     }
   });

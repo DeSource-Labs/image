@@ -87,15 +87,24 @@ Nuxt-style comma-separated formats are also supported:
 
 `useImage()` returns the Nuxt-style callable helper with `getImage`, `getSizes`, `getAttrs`, `getPicture`, `getPreloadLink`, and preset shortcut methods.
 
-## SvelteKit on Vercel
+## SvelteKit Deployment Providers
 
-Automatic provider detection uses Vercel when `VERCEL`, `VERCEL_URL`, `NEXT_PUBLIC_VERCEL_URL`, or a `.vercel.app` host is detected. `desourceImage()` bakes the detected provider into the client bundle so SSR and hydration agree even on custom domains. For stricter Vercel projects, ensure image config allows the widths, qualities, formats, local paths, and remote hosts you generate:
+Automatic provider detection uses:
+
+- `awsAmplify` when `AWS_AMPLIFY`, `AWS_APP_ID`, or an `.amplifyapp.com` host is detected.
+- `vercel` when `VERCEL`, `VERCEL_ENV`, `NOW_BUILDER`, `VERCEL_URL`, `NEXT_PUBLIC_VERCEL_URL`, or a `.vercel.app` host is detected.
+- `netlify` when `NETLIFY`, `NETLIFY_LOCAL`, or a `.netlify.app` host is detected.
+- `ipx` otherwise.
+
+`NUXT_IMAGE_PROVIDER`, `DESOURCE_IMAGE_PROVIDER`, `PUBLIC_DESOURCE_IMAGE_PROVIDER`, or `VITE_DESOURCE_IMAGE_PROVIDER` can override detection. `desourceImage()` bakes the detected provider into the client bundle so SSR and hydration agree even on custom domains.
+
+For stricter Vercel projects, ensure image config allows the widths, qualities, formats, local paths, and remote hosts you generate:
 
 ```json
 {
   "images": {
     "sizes": [1, 2, 320, 640, 768, 1024, 1100, 1280, 1536, 2200],
-    "qualities": [50, 60, 70, 75, 80, 90],
+    "qualities": [50, 60, 70, 75, 80, 90, 100],
     "formats": ["image/avif", "image/webp"],
     "localPatterns": [{ "pathname": "/**" }],
     "remotePatterns": [

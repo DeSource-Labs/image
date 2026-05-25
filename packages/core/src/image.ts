@@ -78,8 +78,8 @@ export function getImage(input: ImageInput, config: ImageConfig | ResolvedImageC
     return { url: resolved.src, isOptimized: false };
   }
 
-  const provider = getProvider(resolved.provider, resolvedConfig);
-  const providerInput = toProviderInput(resolved);
+  const { name, provider } = getProvider(resolved.provider, resolvedConfig);
+  const providerInput = toProviderInput(resolved, resolvedConfig, name);
   return provider.getImage(providerInput, resolvedConfig.providerOptions[provider.name]);
 }
 
@@ -256,11 +256,12 @@ function resolveInput(input: ImageInput, config: ResolvedImageConfig): ResolvedI
   });
 }
 
-function toProviderInput(input: ResolvedInput): ImageProviderInput {
+function toProviderInput(input: ResolvedInput, config: ResolvedImageConfig, providerName: string): ImageProviderInput {
   const format = Array.isArray(input.format) ? input.format[0] : input.format;
+  const width = input.width ?? defaultWidthForProvider(providerName, config);
   return stripUndefined({
     src: input.src,
-    width: input.width,
+    width,
     height: input.height,
     quality: input.quality,
     format,
@@ -300,14 +301,25 @@ function pictureFormats(input: ImageInput, resolved: ResolvedInput, config: Reso
   return [...new Set([...(explicit ?? fromResolved ?? fromConfig ?? ['webp'])])];
 }
 
-function getProvider(name: string, config: ResolvedImageConfig): ImageProvider {
+function getProvider(name: string, config: ResolvedImageConfig): { name: string; provider: ImageProvider } {
   const providerName = name === 'auto' ? detectImageProvider() : name;
   const provider = config.providers[providerName];
   if (!provider) {
     throw new Error(`Unknown image provider "${providerName}". Register it in image config providers.`);
   }
 
-  return provider;
+  return { name: providerName, provider };
+}
+
+function defaultWidthForProvider(providerName: string, config: ResolvedImageConfig): number | undefined {
+  if (!['awsAmplify', 'vercel'].includes(providerName)) {
+    return undefined;
+  }
+
+  return Object.values(config.screens)
+    .filter((value) => Number.isFinite(value))
+    .sort((a, b) => a - b)
+    .at(-1);
 }
 
 function ensureConfig(config: ImageConfig | ResolvedImageConfig): ResolvedImageConfig {

@@ -50,11 +50,15 @@ export function detectImageProvider(): string {
     return rendered;
   }
 
-  if (env['VERCEL'] || env['NEXT_PUBLIC_VERCEL_URL'] || env['VERCEL_URL'] || isVercelHost()) {
+  if (env['AWS_AMPLIFY'] || env['AWS_APP_ID'] || isAwsAmplifyHost()) {
+    return 'awsAmplify';
+  }
+
+  if (env['VERCEL'] || env['VERCEL_ENV'] || env['NOW_BUILDER'] || env['NEXT_PUBLIC_VERCEL_URL'] || env['VERCEL_URL'] || isVercelHost()) {
     return 'vercel';
   }
 
-  if (env['NETLIFY'] || isNetlifyHost()) {
+  if (env['NETLIFY'] || env['NETLIFY_LOCAL'] || isNetlifyHost()) {
     return 'netlify';
   }
 
@@ -91,6 +95,10 @@ function isNetlifyHost(): boolean {
   return typeof globalThis.location !== 'undefined' && /\.netlify\.app$/i.test(globalThis.location.hostname);
 }
 
+function isAwsAmplifyHost(): boolean {
+  return typeof globalThis.location !== 'undefined' && /\.amplifyapp\.com$/i.test(globalThis.location.hostname);
+}
+
 function detectRenderedProvider(): string | undefined {
   if (typeof globalThis.document === 'undefined') {
     return undefined;
@@ -103,6 +111,10 @@ function detectRenderedProvider(): string | undefined {
 
   if (document.querySelector('img[src^="/.netlify/images"],source[srcset^="/.netlify/images"]')) {
     return 'netlify';
+  }
+
+  if (document.querySelector('img[src^="/_amplify/image"],source[srcset^="/_amplify/image"]')) {
+    return 'awsAmplify';
   }
 
   if (document.querySelector('img[src^="/_ipx/"],source[srcset^="/_ipx/"]')) {

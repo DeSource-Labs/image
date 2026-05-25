@@ -18,6 +18,7 @@ This is an original implementation. Nuxt Image is used as a product/API referenc
 | --- | --- | --- | --- |
 | Provider URL generation | Yes | Via core | Via core |
 | Vercel provider | Yes | Yes | Yes |
+| AWS Amplify provider | Yes | Yes | Yes |
 | IPX URL builder | Yes | Yes | Yes |
 | Cloudinary, Imgix, ImageKit, Cloudflare, Netlify, none | Yes | Yes | Yes |
 | Responsive `sizes` parser | Yes | Yes | Yes |
@@ -155,11 +156,12 @@ Svelte components also default to the same IPX-like output.
 Provider selection is automatic:
 
 - Local/non-detected runtime: `ipx`
-- Vercel runtime or `.vercel.app` host: `vercel`
-- Netlify runtime or `.netlify.app` host: `netlify`
+- AWS Amplify runtime or `.amplifyapp.com` host: `awsAmplify`
+- Vercel runtime (`VERCEL`, `VERCEL_ENV`, `NOW_BUILDER`, `VERCEL_URL`) or `.vercel.app` host: `vercel`
+- Netlify runtime (`NETLIFY`, `NETLIFY_LOCAL`) or `.netlify.app` host: `netlify`
 - Explicit override: `DESOURCE_IMAGE_PROVIDER`, `PUBLIC_DESOURCE_IMAGE_PROVIDER`, `VITE_DESOURCE_IMAGE_PROVIDER`, or `NUXT_IMAGE_PROVIDER`
 
-Local development uses the first-party IPX integration above. Vercel and Netlify deployments automatically switch to their platform image providers when their environment variables or hostnames are present.
+Local development uses the first-party IPX integration above. AWS Amplify, Vercel, and Netlify deployments automatically switch to their platform image providers when their environment variables or hostnames are present.
 
 ## Nuxt-Style Helper
 
@@ -194,6 +196,7 @@ Provider factories are exported from `@desource/image-core`:
 
 ```ts
 import {
+  awsAmplifyProvider,
   vercelProvider,
   ipxProvider,
   cloudinaryProvider,
@@ -240,7 +243,7 @@ The Vercel provider emits:
 /_vercel/image?url=<encoded-source>&w=<width>&q=<quality>
 ```
 
-Local public assets such as `/hero.png` and remote URLs are supported. Vercel chooses AVIF/WebP from deployment config and request headers; the provider intentionally follows Nuxt/Vercel by not adding an explicit format query parameter.
+Local public assets such as `/hero.png` and remote URLs are supported. Like Nuxt Image, missing width falls back to the largest configured screen and missing quality falls back to `100`. Vercel chooses AVIF/WebP from deployment config and request headers; the provider intentionally follows Nuxt/Vercel by not adding an explicit format query parameter.
 
 For stricter Vercel projects, use matching Vercel image config:
 
@@ -248,7 +251,7 @@ For stricter Vercel projects, use matching Vercel image config:
 {
   "images": {
     "sizes": [320, 640, 768, 1024, 1280, 1536, 2200],
-    "qualities": [50, 60, 70, 75, 80, 90],
+    "qualities": [50, 60, 70, 75, 80, 90, 100],
     "formats": ["image/avif", "image/webp"],
     "localPatterns": [{ "pathname": "/**" }],
     "remotePatterns": [
@@ -265,6 +268,16 @@ For stricter Vercel projects, use matching Vercel image config:
 
 `domains` can be used instead of `remotePatterns` for simple host allow-lists.
 
+## AWS Amplify Provider
+
+The AWS Amplify provider emits:
+
+```txt
+/_amplify/image?url=<encoded-source>&w=<width>&q=<quality>
+```
+
+It is selected automatically when `AWS_AMPLIFY`, `AWS_APP_ID`, or an `.amplifyapp.com` host is detected. Missing width falls back to the largest configured screen and missing quality falls back to `100`. It can also be forced with `NUXT_IMAGE_PROVIDER=awsAmplify` or `DESOURCE_IMAGE_PROVIDER=awsAmplify`.
+
 ## IPX Provider
 
 `ipxProvider({ path: '/_ipx' })` emits Nuxt/IPX-like URLs with modifiers:
@@ -278,7 +291,7 @@ The framework packages include first-party integration points for this endpoint:
 - SvelteKit: `desourceImage()` in `vite.config.ts` registers the dev/preview optimizer.
 - Angular SSR: `createDsImageMiddleware()` registers the optimizer in the SSR server.
 
-Production deployments on Vercel or Netlify can use automatic provider detection instead of IPX. A custom Node deployment that wants IPX in production should install the same middleware in its HTTP server.
+Production deployments on AWS Amplify, Vercel, or Netlify can use automatic provider detection instead of IPX. A custom Node deployment that wants IPX in production should install the same middleware in its HTTP server.
 
 ## Responsive Sizes
 

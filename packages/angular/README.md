@@ -61,7 +61,7 @@ This produces a Nuxt-like local URL:
 
 `priority` or Nuxt-style `preload` sets `loading="eager"`, `fetchpriority="high"` when requested, and `decoding="sync"`.
 
-No image provider config is required for the common path. `provideDsImage(config)`, `provideDsVercelImage(config)`, and `provideDsIpxImage(config)` are optional when you want explicit providers, aliases, presets, or validation policy.
+No image provider config is required for the common path. `provideDsImage(config)`, `provideDsAwsAmplifyImage(config)`, `provideDsVercelImage(config)`, and `provideDsIpxImage(config)` are optional when you want explicit providers, aliases, presets, or validation policy.
 
 ## Picture
 
@@ -98,6 +98,25 @@ The helper matches the core Nuxt-style callable API with `getImage`, `getSizes`,
 
 ## Providers
 
+Automatic provider detection uses:
+
+- `awsAmplify` when `AWS_AMPLIFY`, `AWS_APP_ID`, an `.amplifyapp.com` host, or server-rendered AWS Amplify image URLs are detected.
+- `vercel` when `VERCEL`, `VERCEL_ENV`, `NOW_BUILDER`, `VERCEL_URL`, `NEXT_PUBLIC_VERCEL_URL`, a `.vercel.app` host, or server-rendered Vercel image URLs are detected.
+- `netlify` when `NETLIFY`, `NETLIFY_LOCAL`, a `.netlify.app` host, or server-rendered Netlify image URLs are detected.
+- `ipx` otherwise.
+
+`NUXT_IMAGE_PROVIDER`, `DESOURCE_IMAGE_PROVIDER`, `PUBLIC_DESOURCE_IMAGE_PROVIDER`, or `VITE_DESOURCE_IMAGE_PROVIDER` can override detection.
+
+### AWS Amplify
+
+```ts
+import { provideDsAwsAmplifyImage } from '@desource/angular-image';
+
+provideDsAwsAmplifyImage();
+```
+
+AWS Amplify output uses `/_amplify/image?url=%2Fimg%2Fhero.jpg&w=2200&q=75`.
+
 ### Vercel
 
 ```ts
@@ -106,7 +125,7 @@ import { provideDsVercelImage } from '@desource/angular-image';
 provideDsVercelImage();
 ```
 
-Automatic provider detection uses Vercel when `VERCEL`, `VERCEL_URL`, `NEXT_PUBLIC_VERCEL_URL`, a `.vercel.app` host, or server-rendered Vercel image URLs are detected. Vercel output uses `/_vercel/image?url=%2Fimg%2Fhero.jpg&w=2200&q=75`. Vercel formats are selected from platform config and request headers, so the provider does not add an explicit `format` query parameter.
+Vercel output uses `/_vercel/image?url=%2Fimg%2Fhero.jpg&w=2200&q=75`. Vercel formats are selected from platform config and request headers, so the provider does not add an explicit `format` query parameter.
 
 Vercel project config should include compatible `images.sizes`, `images.qualities`, `images.formats`, `images.localPatterns`, `images.remotePatterns` or `domains`, and `minimumCacheTTL`.
 
