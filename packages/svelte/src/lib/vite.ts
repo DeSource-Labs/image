@@ -74,7 +74,7 @@ export function desourceImage(options: DesourceImagePluginOptions = {}): Plugin 
       return;
     }
 
-    const url = new URL(requestUrl, 'http://desource.local');
+    const url = parseRequestPath(requestUrl);
 
     if (!isIpxRequest(url.pathname, basePath)) {
       next();
@@ -121,4 +121,16 @@ function normalizeBasePath(path: string): string {
 
 function isIpxRequest(pathname: string, basePath: string): boolean {
   return pathname === basePath || pathname.startsWith(`${basePath}/`);
+}
+
+function parseRequestPath(requestUrl: string): { pathname: string; search: string } {
+  const queryIndex = requestUrl.indexOf('?');
+  if (queryIndex === -1) {
+    return { pathname: requestUrl, search: '' };
+  }
+
+  return {
+    pathname: requestUrl.slice(0, queryIndex),
+    search: requestUrl.slice(queryIndex)
+  };
 }
