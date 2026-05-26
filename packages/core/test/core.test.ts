@@ -1,9 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
-  BUILT_IN_PROVIDER_NAMES,
   awsAmplifyProvider,
-  cloudinaryProvider,
-  createBuiltInProviders,
   createDefaultProviders,
   createImage,
   detectImageProvider,
@@ -13,7 +10,6 @@ import {
   getImage,
   getImageAttrs,
   getPictureAttrs,
-  imgixProvider,
   ipxProvider,
   parseDensities,
   parseSizes,
@@ -22,21 +18,27 @@ import {
   validateSource,
   vercelProvider
 } from '../src/index.js';
+import {
+  BUILT_IN_PROVIDER_NAMES,
+  createBuiltInProviders
+} from '../src/providers/index.js';
+import { cloudinaryProvider } from '../src/providers/cloudinary.js';
+import { imgixProvider } from '../src/providers/imgix.js';
 
 describe('sizes and densities', () => {
-  it('parses Nuxt-like responsive sizes', () => {
+  it('parses responsive sizes', () => {
     const parsed = parseSizes('100vw md:50vw lg:400px');
 
     expect(parsed?.sizes).toBe('(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 400px');
   });
 
-  it('parses Nuxt-like object sizes', () => {
+  it('parses object sizes', () => {
     const parsed = parseSizes({ '1px': '100vw', md: '1100px' });
 
     expect(parsed?.sizes).toBe('(max-width: 767px) 100vw, 1100px');
   });
 
-  it('generates Nuxt-like size candidates from responsive sizes and densities', () => {
+  it('generates size candidates from responsive sizes and densities', () => {
     const generated = generateSizes({
       width: 1100,
       sizes: '100vw md:1100px',
@@ -44,7 +46,7 @@ describe('sizes and densities', () => {
     });
 
     expect(generated.sizes).toBe('(max-width: 767px) 100vw, 1100px');
-    expect(generated.widths).toEqual([1, 2, 1100, 2200]);
+    expect(generated.widths).toEqual([320, 640, 767, 768, 1024, 1100, 1280, 1534, 2200]);
   });
 
   it('parses density syntaxes', () => {
@@ -145,7 +147,7 @@ describe('aliases, validation and merge order', () => {
 });
 
 describe('providers', () => {
-  it('keeps default providers small and exposes every Nuxt-compatible built-in provider on demand', () => {
+  it('keeps default providers small and exposes every built-in provider on demand', () => {
     expect(Object.keys(createDefaultProviders()).sort()).toEqual([
       'awsAmplify',
       'ipx',
@@ -241,7 +243,7 @@ describe('providers', () => {
     }, config).url).toBe('/_ipx/s_800x400&f_webp&q_70&fit_cover&pos_center&b_fff&blur_8/hero.png');
   });
 
-  it('honors Nuxt-style standard modifiers', () => {
+  it('honors standard modifiers', () => {
     const config = resolveImageConfig({
       provider: 'ipx',
       providers: { ipx: ipxProvider() }
@@ -257,7 +259,7 @@ describe('providers', () => {
     }, config).url).toBe('/_ipx/w_800&f_webp&q_75/hero.png');
   });
 
-  it('defaults to Nuxt-like local IPX URLs', () => {
+  it('defaults to local IPX-style URLs', () => {
     const attrs = getImageAttrs({
       src: '/img/1.png',
       quality: 75,
@@ -326,7 +328,7 @@ describe('attrs and picture output', () => {
     expect(attrs.placeholderSrc).toBe('/_vercel/image?url=%2Fhero.png&w=32&q=20');
   });
 
-  it('supports Nuxt-style preload alias', () => {
+  it('supports the preload alias', () => {
     const attrs = getImageAttrs({
       src: '/hero.png',
       width: 800,
@@ -355,8 +357,8 @@ describe('attrs and picture output', () => {
     });
 
     expect(picture.sources.map((source) => source.type)).toEqual(['image/avif', 'image/webp']);
-    expect(picture.sources[0]?.srcset).toContain('1w');
-    expect(picture.img.src).toBe('/_vercel/image?url=%2Fhero.png&w=2&q=100');
+    expect(picture.sources[0]?.srcset).toContain('320w');
+    expect(picture.img.src).toBe('/_vercel/image?url=%2Fhero.png&w=3072&q=100');
   });
 
   it('supports comma-separated picture formats and legacyFormat alias', () => {
@@ -407,7 +409,7 @@ describe('attrs and picture output', () => {
     expect(picture.img.src).not.toContain('f_webp');
   });
 
-  it('creates a Nuxt-style callable image helper', () => {
+  it('creates a callable image helper', () => {
     const $img = createImage({
       provider: 'ipx',
       providers: { ipx: ipxProvider() },

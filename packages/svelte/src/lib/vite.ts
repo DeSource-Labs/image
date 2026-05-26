@@ -6,7 +6,7 @@ import type { Plugin } from 'vite';
 export interface DesourceImagePluginOptions {
   /**
    * Concrete provider to bake into the client bundle. Defaults to deployment
-   * auto-detection, matching Nuxt Image's module-time provider resolution.
+   * auto-detection so SSR and hydrated output use the same provider.
    */
   provider?: string;
   /**

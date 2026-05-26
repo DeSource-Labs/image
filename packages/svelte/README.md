@@ -8,6 +8,8 @@ Svelte 5 and SvelteKit components for Desource Image.
 pnpm add @desource/svelte-image
 ```
 
+Add `@desource/image-core` too when your app imports core helpers or provider factories directly.
+
 Add the SvelteKit integration in `vite.config.ts`:
 
 ```ts
@@ -20,7 +22,7 @@ export default defineConfig({
 });
 ```
 
-This registers the local `/_ipx` optimizer for SvelteKit dev and preview. It is the SvelteKit equivalent of adding `@nuxt/image` to `nuxt.config`.
+This registers the local `/_ipx` optimizer for SvelteKit dev and preview.
 
 ## Image
 
@@ -39,13 +41,13 @@ This registers the local `/_ipx` optimizer for SvelteKit dev and preview. It is 
 />
 ```
 
-This produces a Nuxt-like local URL:
+This produces an IPX-style local URL:
 
 ```txt
 /_ipx/w_2200&f_webp&q_75/img/hero.jpg
 ```
 
-`priority` or Nuxt-style `preload` sets `loading="eager"`, `fetchpriority="high"` when requested, and `decoding="sync"`.
+`priority` or `preload` sets `loading="eager"`, `fetchpriority="high"` when requested, and `decoding="sync"`.
 
 No provider config is required for the common path. Add `setImageConfig(config)` in a root layout only when you need explicit providers, aliases, presets, validation rules, or global defaults.
 
@@ -68,7 +70,7 @@ No provider config is required for the common path. Add `setImageConfig(config)`
 
 The component renders native `<picture>` and `<img>` elements with no wrapper.
 
-Nuxt-style comma-separated formats are also supported:
+Comma-separated formats are also supported:
 
 ```svelte
 <Picture src="/hero.png" alt="Hero" format="avif,webp" legacyFormat="jpg" />
@@ -85,11 +87,11 @@ Nuxt-style comma-separated formats are also supported:
 </script>
 ```
 
-`useImage()` returns the Nuxt-style callable helper with `getImage`, `getSizes`, `getAttrs`, `getPicture`, `getPreloadLink`, and preset shortcut methods.
+`useImage()` returns the core callable helper with `getImage`, `getSizes`, `getAttrs`, `getPicture`, `getPreloadLink`, and preset shortcut methods.
 
 ## SvelteKit Deployment Providers
 
-Automatic provider detection uses `std-env` first, matching Nuxt Image's provider detection, then keeps host/rendered-output fallbacks so SSR and hydration stay aligned:
+Automatic provider detection uses `std-env` first, then keeps host/rendered-output fallbacks so SSR and hydration stay aligned:
 
 - `awsAmplify` when `AWS_AMPLIFY`, `AWS_APP_ID`, or an `.amplifyapp.com` host is detected.
 - `vercel` when `VERCEL`, `VERCEL_ENV`, `NOW_BUILDER`, `VERCEL_URL`, `NEXT_PUBLIC_VERCEL_URL`, or a `.vercel.app` host is detected.

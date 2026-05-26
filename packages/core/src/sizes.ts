@@ -91,11 +91,12 @@ export function generateSizes(options: {
   }
 
   const densities = options.densities ?? [1, 2];
-  const variants = getSizeVariants(parsed.entries, options.screens ?? DEFAULT_SCREENS);
-  const candidates = variants.flatMap((variant) => densities.map((density) => Math.round(variant.width * density)));
+  const screens = options.screens ?? DEFAULT_SCREENS;
+  const variants = getSizeVariants(parsed.entries, screens);
+  const candidates = getCandidateWidths(variants, densities, providerSizes, screens);
 
   return {
-    sizes: toNuxtSizesAttribute(variants),
+    sizes: toResponsiveSizesAttribute(variants),
     widths: uniqueSorted(candidates.length > 0 ? candidates : providerSizes)
   };
 }
@@ -115,13 +116,15 @@ export function generateDensities(options: {
 }
 
 interface SizeVariant {
+  screen?: string;
   size: string;
   screenMaxWidth: number;
   width: number;
+  fluid: boolean;
 }
 
 function toSizesAttribute(entries: ParsedSizes['entries'], screens: Record<string, number>): string {
-  return toNuxtSizesAttribute(getSizeVariants(entries, screens));
+  return toResponsiveSizesAttribute(getSizeVariants(entries, screens));
 }
 
 function getSizeVariants(entries: ParsedSizes['entries'], screens: Record<string, number>): SizeVariant[] {
@@ -135,17 +138,52 @@ function getSizeVariants(entries: ParsedSizes['entries'], screens: Record<string
         return undefined;
       }
 
-      return {
+      const variant: SizeVariant = {
         size: normalizedSize,
         screenMaxWidth,
-        width
+        width,
+        fluid: normalizedSize.endsWith('vw')
       };
+
+      if (entry.screen) {
+        variant.screen = entry.screen;
+      }
+
+      return variant;
     })
     .filter((entry): entry is SizeVariant => entry !== undefined)
     .sort((a, b) => a.screenMaxWidth - b.screenMaxWidth);
 }
 
-function toNuxtSizesAttribute(variants: SizeVariant[]): string {
+function getCandidateWidths(
+  variants: SizeVariant[],
+  densities: readonly number[],
+  providerSizes: readonly number[],
+  screens: Record<string, number>
+): number[] {
+  const maxScreen = maxFinite(Object.values(screens)) ?? maxFinite(providerSizes) ?? 1536;
+
+  return variants.flatMap((variant, index) => {
+    const next = variants[index + 1];
+    const viewportWidth = next
+      ? next.screenMaxWidth - 1
+      : variant.screen
+        ? variant.screenMaxWidth
+        : maxScreen;
+    const baseWidth = variant.fluid
+      ? widthFromSize(variant.size, viewportWidth) ?? variant.width
+      : variant.width;
+    const densityWidths = densities.map((density) => Math.round(baseWidth * density));
+    const maxDensityWidth = maxFinite(densityWidths) ?? baseWidth;
+    const providerWidths = variant.fluid
+      ? providerSizes.filter((width) => width <= maxDensityWidth)
+      : [];
+
+    return [...providerWidths, ...densityWidths];
+  });
+}
+
+function toResponsiveSizesAttribute(variants: SizeVariant[]): string {
   if (variants.length === 0) {
     return '100vw';
   }
@@ -176,4 +214,8 @@ function widthFromSize(size: string, screenMaxWidth: number): number | undefined
 
   const pixels = /^(\d+(?:\.\d+)?)px$/.exec(size)?.[1];
   return pixels ? toNumber(pixels) : undefined;
+}
+
+function maxFinite(values: readonly number[]): number | undefined {
+  return values.filter((value) => Number.isFinite(value)).sort((a, b) => a - b).at(-1);
 }

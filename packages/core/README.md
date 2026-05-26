@@ -22,20 +22,26 @@ Core exports typed helpers for:
 - `createImageContext`
 - `createImage`
 
-Provider factories:
+Default provider factories are exported from `@desource/image-core`:
 
-- `BUILT_IN_PROVIDER_NAMES`
-- `createBuiltInProviders`
 - `vercelProvider`
 - `awsAmplifyProvider`
 - `ipxProvider`
-- all Nuxt-compatible built-ins including Cloudinary, Imgix, ImageKit, Cloudflare, Cloudflare Images, Contentful, Directus, Sanity, Storyblok, Uploadcare, Unsplash, and more
+- `ipxStaticProvider`
+- `netlifyProvider`
+- `netlifyImageCdnProvider`
+- `netlifyLargeMediaProvider`
+- `noneProvider`
+
+The full provider registry is exported from `@desource/image-core/providers`. Individual provider files are exported as `@desource/image-core/providers/<name>`:
+
+- `BUILT_IN_PROVIDER_NAMES`
+- `createBuiltInProviders`
+- built-in providers including Cloudinary, Imgix, ImageKit, Cloudflare, Cloudflare Images, Contentful, Directus, Sanity, Storyblok, Uploadcare, Unsplash, and more
 - `cloudinaryProvider`
 - `imgixProvider`
 - `imagekitProvider`
 - `cloudflareProvider`
-- `netlifyProvider`
-- `noneProvider`
 
 ## Example
 
@@ -60,6 +66,11 @@ const sizes = $img.getSizes('/img/hero.jpg', {
 });
 ```
 
-By default this emits Nuxt-like IPX URLs such as `/_ipx/w_2200&f_webp&q_75/img/hero.jpg`. The default provider is `auto`: local/non-detected runtimes use IPX, AWS Amplify runtimes use AWS Amplify, Vercel runtimes use Vercel, and Netlify runtimes use Netlify. Detection uses `std-env` first, plus framework-safe fallbacks for hydrated browser code.
+```ts
+import { cloudinaryProvider } from '@desource/image-core/providers/cloudinary';
+import { imgixProvider } from '@desource/image-core/providers/imgix';
+```
 
-For bundle size, `resolveImageConfig()` only registers the default/auto providers. Import individual provider factories for app-specific providers, or use `createBuiltInProviders()` when you explicitly want every Nuxt-compatible built-in provider in a registry.
+By default this emits IPX-style URLs such as `/_ipx/w_2200&f_webp&q_75/img/hero.jpg`. The default provider is `auto`: local/non-detected runtimes use IPX, AWS Amplify runtimes use AWS Amplify, Vercel runtimes use Vercel, and Netlify runtimes use Netlify. Detection uses `std-env` first, plus framework-safe fallbacks for hydrated browser code.
+
+For bundle size, `resolveImageConfig()` only registers the default/auto providers. Import individual provider factories for app-specific providers, or use `createBuiltInProviders()` when you explicitly want every built-in provider in a registry.

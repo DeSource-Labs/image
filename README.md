@@ -1,8 +1,8 @@
 # Desource Image
 
-Desource Image is a cross-framework image optimization library inspired by Nuxt Image, built for Angular and Svelte/SvelteKit. It provides framework-native components backed by a pure TypeScript core for optimized URLs, responsive `srcset`, `<picture>` formats, provider adapters, aliases, presets, safety validation, and deterministic SSR output.
+Desource Image is a cross-framework image optimization library for Angular and Svelte/SvelteKit. It provides framework-native components backed by a pure TypeScript core for optimized URLs, responsive `srcset`, `<picture>` formats, provider adapters, aliases, presets, safety validation, and deterministic SSR output.
 
-This is an original implementation. Nuxt Image is used as a product/API reference, not as copied source.
+The developer experience is intentionally familiar to teams that have used Nuxt Image, but this is an original implementation for Angular and Svelte. Nuxt projects should continue to use Nuxt Image.
 
 ## Packages
 
@@ -20,7 +20,7 @@ This is an original implementation. Nuxt Image is used as a product/API referenc
 | Vercel provider | Yes | Yes | Yes |
 | AWS Amplify provider | Yes | Yes | Yes |
 | IPX URL builder | Yes | Yes | Yes |
-| Nuxt-compatible built-in provider factories | Yes | Via core | Via core |
+| Built-in provider factories | Yes | Via core | Via core |
 | Responsive `sizes` parser | Yes | Yes | Yes |
 | Width `srcset` | Yes | Yes | Yes |
 | Density `srcset` | Yes | Yes | Yes |
@@ -35,7 +35,7 @@ This is an original implementation. Nuxt Image is used as a product/API referenc
 
 ## Comparison
 
-Nuxt Image provides deep Nuxt integration, IPX server routes, and Vue components. Desource Image focuses on the same developer ergonomics for Angular and Svelte while keeping the optimization logic framework-independent.
+Nuxt Image provides deep Nuxt integration, IPX server routes, and Vue components. Desource Image focuses on comparable ergonomics for Angular and Svelte while keeping the optimization logic framework-independent.
 
 Next Image is tightly coupled to Next.js routing and runtime assumptions. Desource Image does not require Vercel or any single deployment target; Vercel is one provider.
 
@@ -43,7 +43,7 @@ Angular `NgOptimizedImage` improves native image loading behavior in Angular app
 
 Svelte enhanced-img is build-time oriented. Desource Image is runtime/provider oriented, which is useful for CMS, CDN, remote image, and deployment-provider workflows.
 
-Unpic is a strong cross-framework image component library. Desource Image is closer to Nuxt Image’s provider/preset/config model and includes a first-party core that both Angular and Svelte packages share.
+Unpic is a strong cross-framework image component library. Desource Image emphasizes provider, preset, alias, and deployment-target workflows through a first-party core that both Angular and Svelte packages share.
 
 ## Install
 
@@ -53,7 +53,7 @@ pnpm add @desource/angular-image
 pnpm add @desource/svelte-image
 ```
 
-Install the framework package you need. `@desource/image-core` is installed transitively and remains available for direct helper imports when needed.
+Install the framework package you need. If your app imports core helpers or provider factories directly, add `@desource/image-core` as an explicit dependency as well. This matters for strict package managers such as pnpm.
 
 ## Angular Quick Start
 
@@ -108,7 +108,7 @@ import { DsImageComponent } from '@desource/angular-image';
 export class AppComponent {}
 ```
 
-Default local output is Nuxt/IPX-like:
+Default local output is IPX-style:
 
 ```txt
 /_ipx/w_2200&f_webp&q_75/img/hero.jpg
@@ -153,7 +153,7 @@ Then use the component:
 
 Svelte components also default to the same IPX-like output.
 
-Provider selection is automatic and uses `std-env` first, matching Nuxt Image's deployment-provider detection:
+Provider selection is automatic and uses `std-env` first:
 
 - Local/non-detected runtime: `ipx`
 - AWS Amplify runtime or `.amplifyapp.com` host: `awsAmplify`
@@ -163,9 +163,9 @@ Provider selection is automatic and uses `std-env` first, matching Nuxt Image's 
 
 Local development uses the first-party IPX integration above. AWS Amplify, Vercel, and Netlify deployments automatically switch to their platform image providers when their environment variables or hostnames are present.
 
-## Nuxt-Style Helper
+## Image Helper
 
-Core exports a callable helper similar to Nuxt Image’s `$img`:
+Core exports a callable helper:
 
 ```ts
 import { createImage } from '@desource/image-core';
@@ -192,26 +192,27 @@ Svelte exposes this as `useImage()`. Angular exposes the same helper through `Ds
 
 ## Providers
 
-Provider factories are exported from `@desource/image-core`. The default registry is intentionally small for bundle size: `ipx`, `awsAmplify`, `vercel`, `netlify`, and `none`. Other Nuxt-compatible providers are tree-shakable factories; import only the provider you use, or call `createBuiltInProviders()` when you explicitly want the full registry.
+Default provider factories are exported from `@desource/image-core`. The default registry is intentionally small for bundle size: `ipx`, `awsAmplify`, `vercel`, `netlify`, and `none`. The full provider registry is available from `@desource/image-core/providers`; individual provider files are available as `@desource/image-core/providers/<name>` for better tree shaking.
 
 ```ts
 import {
-  BUILT_IN_PROVIDER_NAMES,
   awsAmplifyProvider,
-  createBuiltInProviders,
-  cloudinaryProvider,
-  imgixProvider,
   ipxProvider,
   vercelProvider
 } from '@desource/image-core';
+import { cloudinaryProvider } from '@desource/image-core/providers/cloudinary';
+import {
+  BUILT_IN_PROVIDER_NAMES,
+  createBuiltInProviders
+} from '@desource/image-core/providers';
 ```
 
-Supported built-in provider names match Nuxt Image's `BuiltInProviders`: `aliyun`, `awsAmplify`, `bunny`, `builderio`, `caisy`, `cloudflare`, `cloudflareimages`, `cloudimage`, `cloudinary`, `contentful`, `directus`, `fastly`, `filerobot`, `flyimg`, `github`, `glide`, `gumlet`, `hygraph`, `imageengine`, `imagekit`, `imgix`, `ipx`, `ipxStatic`, `netlify`, `netlifyLargeMedia`, `netlifyImageCdn`, `picsum`, `prepr`, `none`, `prismic`, `sanity`, `shopify`, `storyblok`, `strapi`, `strapi5`, `supabase`, `twicpics`, `umbraco`, `unsplash`, `uploadcare`, `vercel`, `wagtail`, `weserv`, and `sirv`.
+Built-in provider names include `aliyun`, `awsAmplify`, `bunny`, `builderio`, `caisy`, `cloudflare`, `cloudflareimages`, `cloudimage`, `cloudinary`, `contentful`, `directus`, `fastly`, `filerobot`, `flyimg`, `github`, `glide`, `gumlet`, `hygraph`, `imageengine`, `imagekit`, `imgix`, `ipx`, `ipxStatic`, `netlify`, `netlifyLargeMedia`, `netlifyImageCdn`, `picsum`, `prepr`, `none`, `prismic`, `sanity`, `shopify`, `storyblok`, `strapi`, `strapi5`, `supabase`, `twicpics`, `umbraco`, `unsplash`, `uploadcare`, `vercel`, `wagtail`, `weserv`, and `sirv`.
 
 To opt into the complete registry:
 
 ```ts
-import { createBuiltInProviders } from '@desource/image-core';
+import { createBuiltInProviders } from '@desource/image-core/providers';
 
 provideDsImage({
   providers: createBuiltInProviders()
@@ -253,7 +254,7 @@ The Vercel provider emits:
 /_vercel/image?url=<encoded-source>&w=<width>&q=<quality>
 ```
 
-Local public assets such as `/hero.png` and remote URLs are supported. Like Nuxt Image, missing width falls back to the largest configured screen and missing quality falls back to `100`. Vercel chooses AVIF/WebP from deployment config and request headers; the provider intentionally follows Nuxt/Vercel by not adding an explicit format query parameter.
+Local public assets such as `/hero.png` and remote URLs are supported. Missing width falls back to the largest configured screen and missing quality falls back to `100`. Vercel chooses AVIF/WebP from deployment config and request headers, so the provider intentionally does not add an explicit format query parameter.
 
 For stricter Vercel projects, use matching Vercel image config:
 
@@ -290,7 +291,7 @@ It is selected automatically when `AWS_AMPLIFY`, `AWS_APP_ID`, or an `.amplifyap
 
 ## IPX Provider
 
-`ipxProvider({ path: '/_ipx' })` emits Nuxt/IPX-like URLs with modifiers:
+`ipxProvider({ path: '/_ipx' })` emits IPX-style URLs with modifiers:
 
 ```txt
 /_ipx/w_2200&f_webp&q_75/img/hero.jpg
@@ -313,7 +314,7 @@ sm:100vw md:50vw lg:400px
 100vw md:1100px
 ```
 
-Object syntax is also supported for Nuxt-style utilities:
+Object syntax is also supported:
 
 ```ts
 { '1px': '100vw', md: '1100px' }
@@ -332,9 +333,9 @@ Default screens:
 }
 ```
 
-When `sizes` is present, the library follows Nuxt Image’s responsive variant model: breakpoints become max-width media conditions and candidate widths are multiplied by configured densities. Without `sizes`, a known `width` generates density descriptors from `densities`.
+When `sizes` is present, breakpoints become max-width media conditions and candidate widths are multiplied by configured densities. Without `sizes`, a known `width` generates density descriptors from `densities`.
 
-Nuxt-style standard modifiers are promoted automatically:
+Standard modifiers are promoted automatically:
 
 ```ts
 $img('/hero.png', { width: 800, format: 'webp', quality: 75 });

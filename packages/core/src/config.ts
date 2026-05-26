@@ -1,6 +1,6 @@
 import { detectProvider as detectStdEnvProvider, provider as stdEnvProvider } from 'std-env';
 import type { ImageConfig, ImageContext, ImageInput, ImagePreloadLink, ImageProviderResult, PictureAttrs, ResolvedImageConfig } from './types.js';
-import { createDefaultProviders } from './providers.js';
+import { createDefaultProviders } from './providers/default.js';
 import { getImage, getImageAttrs, getImagePreloadLink, getPictureAttrs } from './image.js';
 
 declare const __DESOURCE_IMAGE_PROVIDER__: string | undefined;

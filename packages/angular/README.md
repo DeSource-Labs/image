@@ -8,6 +8,8 @@ Angular components for Desource Image.
 pnpm add @desource/angular-image
 ```
 
+Add `@desource/image-core` too when your app imports core helpers or provider factories directly, such as custom Cloudinary/Imgix config.
+
 Peer dependencies support Angular `^19.0.0 || ^20.0.0 || ^21.0.0`. The package is built with Angular 21.2.12 and uses standalone signal-input components.
 
 For Angular SSR, install the optimizer middleware in `src/server.ts` before static files and SSR rendering:
@@ -53,13 +55,13 @@ import { DsImageComponent } from '@desource/angular-image';
 export class AppComponent {}
 ```
 
-This produces a Nuxt-like local URL:
+This produces an IPX-style local URL:
 
 ```txt
 /_ipx/w_2200&f_webp&q_75/img/hero.jpg
 ```
 
-`priority` or Nuxt-style `preload` sets `loading="eager"`, `fetchpriority="high"` when requested, and `decoding="sync"`.
+`priority` or `preload` sets `loading="eager"`, `fetchpriority="high"` when requested, and `decoding="sync"`.
 
 No image provider config is required for the common path. `provideDsImage(config)`, `provideDsAwsAmplifyImage(config)`, `provideDsVercelImage(config)`, and `provideDsIpxImage(config)` are optional when you want explicit providers, aliases, presets, or validation policy.
 
@@ -78,7 +80,7 @@ No image provider config is required for the common path. `provideDsImage(config
 
 This renders `<source type="image/avif">`, `<source type="image/webp">`, and a fallback `<img>`.
 
-Nuxt-style comma-separated formats and `legacyFormat` are also supported:
+Comma-separated formats and `legacyFormat` are also supported:
 
 ```html
 <ds-picture src="/hero.png" alt="Hero" format="avif,webp" legacyFormat="jpg" />
@@ -94,11 +96,11 @@ const $img = inject(DsImageService).create();
 const hero = $img('/img/hero.jpg', { width: 800, format: 'webp', quality: 75 });
 ```
 
-The helper matches the core Nuxt-style callable API with `getImage`, `getSizes`, `getAttrs`, `getPicture`, `getPreloadLink`, and preset shortcut methods.
+The helper matches the core callable API with `getImage`, `getSizes`, `getAttrs`, `getPicture`, `getPreloadLink`, and preset shortcut methods.
 
 ## Providers
 
-Automatic provider detection uses `std-env` first, matching Nuxt Image's provider detection, then keeps host/rendered-output fallbacks so SSR and hydration stay aligned:
+Automatic provider detection uses `std-env` first, then keeps host/rendered-output fallbacks so SSR and hydration stay aligned:
 
 - `awsAmplify` when `AWS_AMPLIFY`, `AWS_APP_ID`, an `.amplifyapp.com` host, or server-rendered AWS Amplify image URLs are detected.
 - `vercel` when `VERCEL`, `VERCEL_ENV`, `NOW_BUILDER`, `VERCEL_URL`, `NEXT_PUBLIC_VERCEL_URL`, a `.vercel.app` host, or server-rendered Vercel image URLs are detected.
@@ -132,7 +134,7 @@ Vercel project config should include compatible `images.sizes`, `images.qualitie
 ### Cloudinary
 
 ```ts
-import { cloudinaryProvider } from '@desource/image-core';
+import { cloudinaryProvider } from '@desource/image-core/providers/cloudinary';
 
 provideDsImage({
   provider: 'cloudinary',
