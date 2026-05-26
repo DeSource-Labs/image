@@ -1,7 +1,7 @@
-import type { ImageProvider, ImageProviderResult } from '../types.js';
-import { normalizeFormat, stripLeadingSlash } from '../utils.js';
-import { isTransformable, joinURLParts, providerBaseURL } from '../provider-utils.js';
-import type { GenericProviderOptions } from '../provider-utils.js';
+import type { ImageProvider, ImageProviderResult } from '../types';
+import { normalizeFormat, stripLeadingSlash } from '../utils';
+import { isTransformable, joinURLParts, providerBaseURL } from '../provider-utils';
+import type { GenericProviderOptions } from '../provider-utils';
 
 export type HygraphProviderOptions = GenericProviderOptions;
 

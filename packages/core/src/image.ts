@@ -15,11 +15,11 @@ import type {
   PictureAttrs,
   PictureSource,
   ResolvedImageConfig
-} from './types.js';
-import { detectImageProvider, resolveImageConfig } from './config.js';
-import { generateDensities, generateSizes, parseDensities } from './sizes.js';
-import { resolveAlias, validateSource } from './source.js';
-import { clampQuality, mergeModifiers, mimeForFormat, toNumber } from './utils.js';
+} from './types';
+import { detectImageProvider, resolveImageConfig } from './config';
+import { generateDensities, generateSizes, parseDensities } from './sizes';
+import { resolveAlias, validateSource } from './source';
+import { clampQuality, mergeModifiers, mimeForFormat, toNumber } from './utils';
 
 interface ResolvedInput {
   src: string;

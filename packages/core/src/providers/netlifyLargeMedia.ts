@@ -1,2 +1,2 @@
-export { netlifyLargeMediaProvider } from './default.js';
-export type { NetlifyLargeMediaProviderOptions } from './default.js';
+export { netlifyLargeMediaProvider } from './default';
+export type { NetlifyLargeMediaProviderOptions } from './default';

@@ -33,7 +33,7 @@ export type {
   ImageSizes,
   SizesInput,
   SourceValidationResult
-} from './types.js';
+} from './types';
 
 export type {
   AwsAmplifyProviderOptions,
@@ -41,7 +41,7 @@ export type {
   NetlifyLargeMediaProviderOptions,
   NetlifyProviderOptions,
   VercelProviderOptions
-} from './providers/default.js';
+} from './providers/default';
 
 export {
   DEFAULT_PROVIDER_SIZES,
@@ -49,11 +49,11 @@ export {
   createImageContext,
   detectImageProvider,
   resolveImageConfig
-} from './config.js';
+} from './config';
 
 export {
   createImage
-} from './factory.js';
+} from './factory';
 
 export {
   awsAmplifyProvider,
@@ -65,7 +65,7 @@ export {
   noneProvider,
   vercelProvider,
   createDefaultProviders
-} from './providers/default.js';
+} from './providers/default';
 
 export {
   generatePictureSources,
@@ -75,16 +75,16 @@ export {
   getImagePreloadLink,
   getPictureAttrs,
   resolvePreset
-} from './image.js';
+} from './image';
 
 export {
   generateDensities,
   generateSizes,
   parseDensities,
   parseSizes
-} from './sizes.js';
+} from './sizes';
 
 export {
   resolveAlias,
   validateSource
-} from './source.js';
+} from './source';

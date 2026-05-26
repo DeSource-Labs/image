@@ -1,2 +1,2 @@
-export { ipxProvider } from './default.js';
-export type { IpxProviderOptions } from './default.js';
+export { ipxProvider } from './default';
+export type { IpxProviderOptions } from './default';

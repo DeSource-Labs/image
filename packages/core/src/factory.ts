@@ -1,6 +1,6 @@
-import { resolveImageConfig } from './config.js';
-import { generateSrcset, getImage, getImageAttrs, getImagePreloadLink, getPictureAttrs } from './image.js';
-import type { DesourceImage, ImageConfig, ImageInput, ImageModifiers, ImageOptions, ImageProviderResult, ImageSizes, ResolvedImageConfig } from './types.js';
+import { resolveImageConfig } from './config';
+import { generateSrcset, getImage, getImageAttrs, getImagePreloadLink, getPictureAttrs } from './image';
+import type { DesourceImage, ImageConfig, ImageInput, ImageModifiers, ImageOptions, ImageProviderResult, ImageSizes, ResolvedImageConfig } from './types';
 
 export function createImage(config: ImageConfig | ResolvedImageConfig = {}): DesourceImage {
   const resolved = isResolvedConfig(config) ? config : resolveImageConfig(config);

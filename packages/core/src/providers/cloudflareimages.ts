@@ -1,6 +1,6 @@
-import type { ImageProvider, ImageProviderResult } from '../types.js';
-import { joinURLParts, pathOperations } from '../provider-utils.js';
-import type { GenericProviderOptions } from '../provider-utils.js';
+import type { ImageProvider, ImageProviderResult } from '../types';
+import { joinURLParts, pathOperations } from '../provider-utils';
+import type { GenericProviderOptions } from '../provider-utils';
 
 export type CloudflareImagesProviderOptions = GenericProviderOptions;
 

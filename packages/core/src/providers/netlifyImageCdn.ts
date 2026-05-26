@@ -1,2 +1,2 @@
-export { netlifyImageCdnProvider } from './default.js';
-export type { NetlifyProviderOptions as NetlifyImageCdnProviderOptions } from './default.js';
+export { netlifyImageCdnProvider } from './default';
+export type { NetlifyProviderOptions as NetlifyImageCdnProviderOptions } from './default';

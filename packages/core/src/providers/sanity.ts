@@ -1,7 +1,7 @@
-import type { ImageProvider, ImageProviderResult } from '../types.js';
-import { appendQuery, stripLeadingSlash } from '../utils.js';
-import { defaultFitValue, formatJpgValue, isTransformable, joinURLParts, mappedModifiers } from '../provider-utils.js';
-import type { GenericProviderOptions } from '../provider-utils.js';
+import type { ImageProvider, ImageProviderResult } from '../types';
+import { appendQuery, stripLeadingSlash } from '../utils';
+import { defaultFitValue, formatJpgValue, isTransformable, joinURLParts, mappedModifiers } from '../provider-utils';
+import type { GenericProviderOptions } from '../provider-utils';
 
 export type SanityProviderOptions = GenericProviderOptions & { projectId?: string; dataset?: string };
 

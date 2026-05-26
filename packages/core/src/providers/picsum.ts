@@ -1,7 +1,7 @@
-import type { ImageProvider, ImageProviderResult } from '../types.js';
-import { appendQuery, joinURL, stripLeadingSlash } from '../utils.js';
-import { mappedModifiers, providerBaseURL } from '../provider-utils.js';
-import type { GenericProviderOptions } from '../provider-utils.js';
+import type { ImageProvider, ImageProviderResult } from '../types';
+import { appendQuery, joinURL, stripLeadingSlash } from '../utils';
+import { mappedModifiers, providerBaseURL } from '../provider-utils';
+import type { GenericProviderOptions } from '../provider-utils';
 
 export type PicsumProviderOptions = GenericProviderOptions;
 

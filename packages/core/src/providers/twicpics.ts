@@ -1,7 +1,7 @@
-import type { ImageProvider, ImageProviderResult, ModifierValue } from '../types.js';
-import { stableModifiers } from '../utils.js';
-import { cleanColor, isTransformable, mappedModifiers, providerBaseURL, sourceWithBase } from '../provider-utils.js';
-import type { GenericProviderOptions } from '../provider-utils.js';
+import type { ImageProvider, ImageProviderResult, ModifierValue } from '../types';
+import { stableModifiers } from '../utils';
+import { cleanColor, isTransformable, mappedModifiers, providerBaseURL, sourceWithBase } from '../provider-utils';
+import type { GenericProviderOptions } from '../provider-utils';
 
 export type TwicpicsProviderOptions = GenericProviderOptions;
 

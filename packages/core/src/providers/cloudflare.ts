@@ -1,6 +1,6 @@
-import type { ImageProvider, ImageProviderResult } from '../types.js';
-import { encodeRemoteOrPath, normalizeFormat, stableModifiers } from '../utils.js';
-import { appendProviderModifiers, isTransformable } from '../provider-utils.js';
+import type { ImageProvider, ImageProviderResult } from '../types';
+import { encodeRemoteOrPath, normalizeFormat, stableModifiers } from '../utils';
+import { appendProviderModifiers, isTransformable } from '../provider-utils';
 
 export interface CloudflareProviderOptions {
   baseURL?: string;

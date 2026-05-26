@@ -1,7 +1,7 @@
-import type { ImageProvider, ImageProviderResult } from '../types.js';
-import { normalizeFormat, stableModifiers } from '../utils.js';
-import { isTransformable, joinURLParts } from '../provider-utils.js';
-import type { GenericProviderOptions } from '../provider-utils.js';
+import type { ImageProvider, ImageProviderResult } from '../types';
+import { normalizeFormat, stableModifiers } from '../utils';
+import { isTransformable, joinURLParts } from '../provider-utils';
+import type { GenericProviderOptions } from '../provider-utils';
 
 export type UploadcareProviderOptions = GenericProviderOptions;
 

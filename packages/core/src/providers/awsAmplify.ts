@@ -1,2 +1,2 @@
-export { awsAmplifyProvider } from './default.js';
-export type { AwsAmplifyProviderOptions } from './default.js';
+export { awsAmplifyProvider } from './default';
+export type { AwsAmplifyProviderOptions } from './default';

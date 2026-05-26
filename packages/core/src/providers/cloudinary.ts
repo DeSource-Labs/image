@@ -1,5 +1,5 @@
-import type { ImageProvider, ImageProviderResult } from '../types.js';
-import { normalizeFormat, stableModifiers, stripLeadingSlash } from '../utils.js';
+import type { ImageProvider, ImageProviderResult } from '../types';
+import { normalizeFormat, stableModifiers, stripLeadingSlash } from '../utils';
 
 export interface CloudinaryProviderOptions {
   cloudName?: string;

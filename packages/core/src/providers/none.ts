@@ -1,1 +1,1 @@
-export { noneProvider } from './default.js';
+export { noneProvider } from './default';

@@ -1,7 +1,7 @@
-import type { ImageProvider, ImageProviderResult } from '../types.js';
-import { joinURL } from '../utils.js';
-import { isTransformable, pathOperations } from '../provider-utils.js';
-import type { GenericProviderOptions } from '../provider-utils.js';
+import type { ImageProvider, ImageProviderResult } from '../types';
+import { joinURL } from '../utils';
+import { isTransformable, pathOperations } from '../provider-utils';
+import type { GenericProviderOptions } from '../provider-utils';
 
 export type FlyimgProviderOptions = GenericProviderOptions;
 

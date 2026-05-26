@@ -1,7 +1,7 @@
-import type { ImageProvider, ImageProviderResult } from '../types.js';
-import { appendQuery, joinURL } from '../utils.js';
-import { isTransformable, joinURLParts, mappedModifiers } from '../provider-utils.js';
-import type { GenericProviderOptions } from '../provider-utils.js';
+import type { ImageProvider, ImageProviderResult } from '../types';
+import { appendQuery, joinURL } from '../utils';
+import { isTransformable, joinURLParts, mappedModifiers } from '../provider-utils';
+import type { GenericProviderOptions } from '../provider-utils';
 
 export type CloudimageProviderOptions = GenericProviderOptions;
 

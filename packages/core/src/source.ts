@@ -1,5 +1,5 @@
-import type { LocalPattern, RemotePattern, ResolvedImageConfig, SourceValidationResult } from './types.js';
-import { isDataSource, isLocalSource, isRemoteSource } from './utils.js';
+import type { LocalPattern, RemotePattern, ResolvedImageConfig, SourceValidationResult } from './types';
+import { isDataSource, isLocalSource, isRemoteSource } from './utils';
 
 export function resolveAlias(src: string, aliases: Record<string, string> = {}): string {
   for (const [alias, replacement] of Object.entries(aliases)) {

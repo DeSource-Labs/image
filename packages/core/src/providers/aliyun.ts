@@ -1,7 +1,7 @@
-import type { ImageProvider, ImageProviderResult } from '../types.js';
-import { appendQuery, stableModifiers } from '../utils.js';
-import { isTransformable, providerBaseURL, sourceWithBase } from '../provider-utils.js';
-import type { GenericProviderOptions } from '../provider-utils.js';
+import type { ImageProvider, ImageProviderResult } from '../types';
+import { appendQuery, stableModifiers } from '../utils';
+import { isTransformable, providerBaseURL, sourceWithBase } from '../provider-utils';
+import type { GenericProviderOptions } from '../provider-utils';
 
 export type AliyunProviderOptions = GenericProviderOptions;
 

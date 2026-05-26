@@ -1,6 +1,6 @@
-import type { ImageProvider, ImageProviderInput, ImageProviderResult, ModifierValue } from '../types.js';
-import { appendQuery, encodeRemoteOrPath, normalizeFormat, stableModifiers, stripLeadingSlash } from '../utils.js';
-import { appendProviderModifiers, isTransformable } from '../provider-utils.js';
+import type { ImageProvider, ImageProviderInput, ImageProviderResult, ModifierValue } from '../types';
+import { appendQuery, encodeRemoteOrPath, normalizeFormat, stableModifiers, stripLeadingSlash } from '../utils';
+import { appendProviderModifiers, isTransformable } from '../provider-utils';
 
 export interface VercelProviderOptions {
   path?: string;

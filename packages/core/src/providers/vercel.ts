@@ -1,2 +1,2 @@
-export { vercelProvider } from './default.js';
-export type { VercelProviderOptions } from './default.js';
+export { vercelProvider } from './default';
+export type { VercelProviderOptions } from './default';

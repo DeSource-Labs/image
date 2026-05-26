@@ -17,13 +17,13 @@ import {
   resolveImageConfig,
   validateSource,
   vercelProvider
-} from '../src/index.js';
+} from '../src/index';
 import {
   BUILT_IN_PROVIDER_NAMES,
   createBuiltInProviders
-} from '../src/providers/index.js';
-import { cloudinaryProvider } from '../src/providers/cloudinary.js';
-import { imgixProvider } from '../src/providers/imgix.js';
+} from '../src/providers/index';
+import { cloudinaryProvider } from '../src/providers/cloudinary';
+import { imgixProvider } from '../src/providers/imgix';
 
 describe('sizes and densities', () => {
   it('parses responsive sizes', () => {

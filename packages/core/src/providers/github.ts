@@ -1,7 +1,7 @@
-import type { ImageProvider, ImageProviderResult } from '../types.js';
-import { appendQuery } from '../utils.js';
-import { providerBaseURL, sourceWithBase } from '../provider-utils.js';
-import type { GenericProviderOptions } from '../provider-utils.js';
+import type { ImageProvider, ImageProviderResult } from '../types';
+import { appendQuery } from '../utils';
+import { providerBaseURL, sourceWithBase } from '../provider-utils';
+import type { GenericProviderOptions } from '../provider-utils';
 
 export type GithubProviderOptions = GenericProviderOptions;
 

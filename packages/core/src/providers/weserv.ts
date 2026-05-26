@@ -1,7 +1,7 @@
-import type { ImageProvider, ImageProviderResult } from '../types.js';
-import { appendQuery, normalizeFormat } from '../utils.js';
-import { isTransformable, sourceWithBase } from '../provider-utils.js';
-import type { GenericProviderOptions } from '../provider-utils.js';
+import type { ImageProvider, ImageProviderResult } from '../types';
+import { appendQuery, normalizeFormat } from '../utils';
+import { isTransformable, sourceWithBase } from '../provider-utils';
+import type { GenericProviderOptions } from '../provider-utils';
 
 export type WeservProviderOptions = GenericProviderOptions & { weservURL?: string };
 

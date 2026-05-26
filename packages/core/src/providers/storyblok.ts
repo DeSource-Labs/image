@@ -1,7 +1,7 @@
-import type { ImageProvider, ImageProviderResult } from '../types.js';
-import { normalizeFormat } from '../utils.js';
-import { isTransformable, joinURLParts, providerBaseURL, sourcePath, sourceWithBase } from '../provider-utils.js';
-import type { GenericProviderOptions } from '../provider-utils.js';
+import type { ImageProvider, ImageProviderResult } from '../types';
+import { normalizeFormat } from '../utils';
+import { isTransformable, joinURLParts, providerBaseURL, sourcePath, sourceWithBase } from '../provider-utils';
+import type { GenericProviderOptions } from '../provider-utils';
 
 export type StoryblokProviderOptions = GenericProviderOptions;
 

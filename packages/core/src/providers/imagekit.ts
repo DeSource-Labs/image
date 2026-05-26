@@ -1,5 +1,5 @@
-import type { ImageProvider, ImageProviderResult } from '../types.js';
-import { appendQuery, joinURL, normalizeFormat, stableModifiers } from '../utils.js';
+import type { ImageProvider, ImageProviderResult } from '../types';
+import { appendQuery, joinURL, normalizeFormat, stableModifiers } from '../utils';
 
 export interface ImageKitProviderOptions {
   endpoint?: string;

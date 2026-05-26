@@ -1,4 +1,4 @@
-import type { ImageFormat, ImageModifiers, ModifierValue } from './types.js';
+import type { ImageFormat, ImageModifiers, ModifierValue } from './types';
 
 export function toNumber(value: number | string | null | undefined): number | undefined {
   if (typeof value === 'number' && Number.isFinite(value)) {

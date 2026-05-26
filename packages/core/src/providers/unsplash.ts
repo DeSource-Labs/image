@@ -1,6 +1,6 @@
-import type { ImageProvider } from '../types.js';
-import { createMappedQueryProvider, formatJpgValue } from '../provider-utils.js';
-import type { GenericProviderOptions } from '../provider-utils.js';
+import type { ImageProvider } from '../types';
+import { createMappedQueryProvider, formatJpgValue } from '../provider-utils';
+import type { GenericProviderOptions } from '../provider-utils';
 
 export type UnsplashProviderOptions = GenericProviderOptions;
 

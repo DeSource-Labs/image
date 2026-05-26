@@ -1,6 +1,6 @@
-import type { ImageProvider, ImageProviderResult, ModifierValue } from '../types.js';
-import { appendQuery, joinURL } from '../utils.js';
-import { appendProviderModifiers, isTransformable, withStandardParams } from '../provider-utils.js';
+import type { ImageProvider, ImageProviderResult, ModifierValue } from '../types';
+import { appendQuery, joinURL } from '../utils';
+import { appendProviderModifiers, isTransformable, withStandardParams } from '../provider-utils';
 
 export interface ImgixProviderOptions {
   baseURL?: string;
