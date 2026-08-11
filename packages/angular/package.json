@@ -1,5 +1,5 @@
 {
-  "name": "@desource/angular-image",
+  "name": "@desource/image-angular",
   "version": "0.1.0",
   "description": "Angular components for Desource Image.",
   "type": "module",
@@ -16,18 +16,30 @@
     }
   },
   "scripts": {
-    "build": "ngc -p tsconfig.lib.json",
-    "typecheck": "ngc -p tsconfig.lib.json --noEmit"
+    "clean": "rimraf dist test-results coverage",
+    "clean:modules": "rimraf node_modules",
+    "build": "pnpm clean && pnpm build:internal",
+    "build:internal": "ng-packagr -p ng-package.json",
+    "typecheck": "ngc -p tsconfig.lib.json --noEmit",
+    "test:unit": "ng test phone-mask-angular --watch=false",
+    "test:unit:coverage": "ng test phone-mask-angular --watch=false --coverage",
+    "test:e2e": "playwright test"
   },
   "peerDependencies": {
     "@angular/core": "^19.0.0 || ^20.0.0 || ^21.0.0"
   },
   "dependencies": {
-    "@desource/image-core": "workspace:*",
+    "@desource/image": "workspace:*",
     "ipx": "^3.1.1",
     "tslib": "^2.8.1"
   },
   "devDependencies": {
-    "@desource/image-core": "workspace:*"
+    "@angular/build": "^21.2.12",
+    "@angular/cli": "^21.2.12",
+    "@angular/common": "^21.2.14",
+    "@angular/compiler": "^21.2.14",
+    "@angular/compiler-cli": "^21.2.14",
+    "@angular/core": "^21.2.14",
+    "ng-packagr": "^21.2.3"
   }
 }

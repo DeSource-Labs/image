@@ -1,21 +1,21 @@
-# @desource/angular-image
+# @desource/image-angular
 
 Angular components for Desource Image.
 
 ## Install
 
 ```sh
-pnpm add @desource/angular-image
+pnpm add @desource/image-angular
 ```
 
-Add `@desource/image-core` too when your app imports core helpers or provider factories directly, such as custom Cloudinary/Imgix config.
+Add `@desource/image` too when your app imports core helpers or provider factories directly, such as custom Cloudinary/Imgix config.
 
 Peer dependencies support Angular `^19.0.0 || ^20.0.0 || ^21.0.0`. The package is built with Angular 21.2.12 and uses standalone signal-input components.
 
 For Angular SSR, install the optimizer middleware in `src/server.ts` before static files and SSR rendering:
 
 ```ts
-import { createDsImageMiddleware } from '@desource/angular-image/server';
+import { createDsImageMiddleware } from '@desource/image-angular/server';
 
 app.use(createDsImageMiddleware({
   dirs: [browserDistFolder]
@@ -26,7 +26,7 @@ Also externalize the server subpath in `angular.json` so Angular does not bundle
 
 ```json
 {
-  "externalDependencies": ["@desource/angular-image/server"]
+  "externalDependencies": ["@desource/image-angular/server"]
 }
 ```
 
@@ -34,7 +34,7 @@ Also externalize the server subpath in `angular.json` so Angular does not bundle
 
 ```ts
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { DsImageComponent } from '@desource/angular-image';
+import { DsImageComponent } from '@desource/image-angular';
 
 @Component({
   selector: 'app-root',
@@ -90,7 +90,7 @@ Comma-separated formats and `legacyFormat` are also supported:
 
 ```ts
 import { inject } from '@angular/core';
-import { DsImageService } from '@desource/angular-image';
+import { DsImageService } from '@desource/image-angular';
 
 const $img = inject(DsImageService).create();
 const hero = $img('/img/hero.jpg', { width: 800, format: 'webp', quality: 75 });
@@ -107,12 +107,12 @@ Automatic provider detection uses `std-env` first, then keeps host/rendered-outp
 - `netlify` when `NETLIFY`, `NETLIFY_LOCAL`, a `.netlify.app` host, or server-rendered Netlify image URLs are detected.
 - `ipx` otherwise.
 
-`NUXT_IMAGE_PROVIDER`, `DESOURCE_IMAGE_PROVIDER`, `PUBLIC_DESOURCE_IMAGE_PROVIDER`, or `VITE_DESOURCE_IMAGE_PROVIDER` can override detection.
+`DESOURCE_IMAGE_PROVIDER`, `PUBLIC_DESOURCE_IMAGE_PROVIDER`, or `VITE_DESOURCE_IMAGE_PROVIDER` can override detection.
 
 ### AWS Amplify
 
 ```ts
-import { provideDsAwsAmplifyImage } from '@desource/angular-image';
+import { provideDsAwsAmplifyImage } from '@desource/image-angular';
 
 provideDsAwsAmplifyImage();
 ```
@@ -122,19 +122,19 @@ AWS Amplify output uses `/_amplify/image?url=%2Fimg%2Fhero.jpg&w=2200&q=75`.
 ### Vercel
 
 ```ts
-import { provideDsVercelImage } from '@desource/angular-image';
+import { provideDsVercelImage } from '@desource/image-angular';
 
 provideDsVercelImage();
 ```
 
-Vercel output uses `/_vercel/image?url=%2Fimg%2Fhero.jpg&w=2200&q=75`. Vercel formats are selected from platform config and request headers, so the provider does not add an explicit `format` query parameter.
+Vercel output uses `/_vercel/image?url=%2Fimg%2Fhero.jpg&w=<screen-width>&q=75`. Widths are normalized to the next configured screen width and remote URLs must match configured `domains` or `remotePatterns`. Vercel formats are selected from platform config and request headers, so the provider does not add an explicit `format` query parameter.
 
 Vercel project config should include compatible `images.sizes`, `images.qualities`, `images.formats`, `images.localPatterns`, `images.remotePatterns` or `domains`, and `minimumCacheTTL`.
 
 ### Cloudinary
 
 ```ts
-import { cloudinaryProvider } from '@desource/image-core/providers/cloudinary';
+import { cloudinaryProvider } from '@desource/image/providers/cloudinary';
 
 provideDsImage({
   provider: 'cloudinary',

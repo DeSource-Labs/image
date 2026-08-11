@@ -1,5 +1,5 @@
 import { getContext, setContext } from 'svelte';
-import { createImage, resolveImageConfig, type DesourceImage, type ImageConfig, type ResolvedImageConfig } from '@desource/image-core';
+import { createImage, resolveImageConfig, type DesourceImage, type ImageConfig, type ResolvedImageConfig } from '@desource/image';
 
 const IMAGE_CONFIG_KEY = Symbol('desource-image-config');
 

@@ -1,11 +1,15 @@
 {
-  "name": "@desource/svelte-image",
+  "name": "@desource/image-svelte",
   "version": "0.1.0",
   "description": "Svelte and SvelteKit components for Desource Image.",
   "type": "module",
   "sideEffects": false,
   "svelte": "./dist/index.js",
-  "files": ["dist", "README.md"],
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -28,23 +32,27 @@
     }
   },
   "scripts": {
-    "build": "svelte-package",
-    "check": "svelte-package && svelte-check --tsconfig ./tsconfig.json"
+    "clean": "rimraf dist",
+    "clean:modules": "rimraf node_modules",
+    "build": "pnpm clean && pnpm build:internal",
+    "build:internal": "svelte-package",
+    "typecheck": "svelte-check --tsconfig ./tsconfig.json",
+    "test:unit": "vitest run",
+    "test:unit:coverage": "vitest run --coverage.enabled --coverage.provider=v8 --coverage.reporter=lcov --coverage.reportsDirectory=coverage",
+    "test:e2e": "playwright test"
   },
   "peerDependencies": {
     "svelte": "^5.0.0",
-    "vite": "^6.0.0 || ^7.0.0 || ^8.0.0"
-  },
-  "peerDependenciesMeta": {
-    "vite": {
-      "optional": true
-    }
-  },
-  "dependencies": {
-    "@desource/image-core": "workspace:*",
+    "vite": "^6.0.0 || ^7.0.0 || ^8.0.0",
     "ipx": "^3.1.1"
   },
+  "dependencies": {
+    "@desource/image": "workspace:*"
+  },
   "devDependencies": {
-    "@desource/image-core": "workspace:*"
+    "@sveltejs/package": "^2.5.7",
+    "@sveltejs/vite-plugin-svelte": "^7.1.2",
+    "svelte": "^5.55.9",
+    "svelte-check": "^4.4.8"
   }
 }

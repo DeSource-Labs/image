@@ -1,4 +1,4 @@
-# @desource/image-core
+# @desource/image
 
 Framework-agnostic image optimization primitives for Desource Image.
 
@@ -10,7 +10,11 @@ Core exports typed helpers for:
 - `resolvePreset`
 - `resolveAlias`
 - `validateSource`
+- `parseSize`
 - `parseSizes`
+- `createMapper`
+- `createOperationsGenerator`
+- `defineProvider`
 - `generateSizes`
 - `generateSrcset`
 - `generateDensities`
@@ -22,7 +26,7 @@ Core exports typed helpers for:
 - `createImageContext`
 - `createImage`
 
-Default provider factories are exported from `@desource/image-core`:
+Default provider factories are exported from `@desource/image`:
 
 - `vercelProvider`
 - `awsAmplifyProvider`
@@ -33,7 +37,7 @@ Default provider factories are exported from `@desource/image-core`:
 - `netlifyLargeMediaProvider`
 - `noneProvider`
 
-The full provider registry is exported from `@desource/image-core/providers`. Individual provider files are exported as `@desource/image-core/providers/<name>`:
+The full provider registry is exported from `@desource/image/providers`. Individual provider files are exported as `@desource/image/providers/<name>`:
 
 - `BUILT_IN_PROVIDER_NAMES`
 - `createBuiltInProviders`
@@ -46,7 +50,7 @@ The full provider registry is exported from `@desource/image-core/providers`. In
 ## Example
 
 ```ts
-import { createImage, getImageAttrs } from '@desource/image-core';
+import { createImage, getImageAttrs } from '@desource/image';
 
 const attrs = getImageAttrs(
   {
@@ -67,8 +71,8 @@ const sizes = $img.getSizes('/img/hero.jpg', {
 ```
 
 ```ts
-import { cloudinaryProvider } from '@desource/image-core/providers/cloudinary';
-import { imgixProvider } from '@desource/image-core/providers/imgix';
+import { cloudinaryProvider } from '@desource/image/providers/cloudinary';
+import { imgixProvider } from '@desource/image/providers/imgix';
 ```
 
 By default this emits IPX-style URLs such as `/_ipx/w_2200&f_webp&q_75/img/hero.jpg`. The default provider is `auto`: local/non-detected runtimes use IPX, AWS Amplify runtimes use AWS Amplify, Vercel runtimes use Vercel, and Netlify runtimes use Netlify. Detection uses `std-env` first, plus framework-safe fallbacks for hydrated browser code.

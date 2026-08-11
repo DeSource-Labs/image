@@ -1,19 +1,19 @@
-# @desource/svelte-image
+# @desource/image-svelte
 
 Svelte 5 and SvelteKit components for Desource Image.
 
 ## Install
 
 ```sh
-pnpm add @desource/svelte-image
+pnpm add @desource/image-svelte
 ```
 
-Add `@desource/image-core` too when your app imports core helpers or provider factories directly.
+Add `@desource/image` too when your app imports core helpers or provider factories directly.
 
 Add the SvelteKit integration in `vite.config.ts`:
 
 ```ts
-import { desourceImage } from '@desource/svelte-image/vite';
+import { desourceImage } from '@desource/image-svelte/vite';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 
@@ -28,7 +28,7 @@ This registers the local `/_ipx` optimizer for SvelteKit dev and preview.
 
 ```svelte
 <script lang="ts">
-  import { Image } from '@desource/svelte-image';
+  import { Image } from '@desource/image-svelte';
 </script>
 
 <Image
@@ -55,7 +55,7 @@ No provider config is required for the common path. Add `setImageConfig(config)`
 
 ```svelte
 <script lang="ts">
-  import { Picture } from '@desource/svelte-image';
+  import { Picture } from '@desource/image-svelte';
 </script>
 
 <Picture
@@ -80,7 +80,7 @@ Comma-separated formats are also supported:
 
 ```svelte
 <script lang="ts">
-  import { useImage } from '@desource/svelte-image';
+  import { useImage } from '@desource/image-svelte';
 
   const $img = useImage();
   const hero = $img('/img/hero.jpg', { width: 800, format: 'webp', quality: 75 });
@@ -98,7 +98,7 @@ Automatic provider detection uses `std-env` first, then keeps host/rendered-outp
 - `netlify` when `NETLIFY`, `NETLIFY_LOCAL`, or a `.netlify.app` host is detected.
 - `ipx` otherwise.
 
-`NUXT_IMAGE_PROVIDER`, `DESOURCE_IMAGE_PROVIDER`, `PUBLIC_DESOURCE_IMAGE_PROVIDER`, or `VITE_DESOURCE_IMAGE_PROVIDER` can override detection. `desourceImage()` bakes the detected provider into the client bundle so SSR and hydration agree even on custom domains.
+`DESOURCE_IMAGE_PROVIDER`, `PUBLIC_DESOURCE_IMAGE_PROVIDER`, or `VITE_DESOURCE_IMAGE_PROVIDER` can override detection. `desourceImage()` bakes the detected provider into the client bundle so SSR and hydration agree even on custom domains.
 
 For stricter Vercel projects, ensure image config allows the widths, qualities, formats, local paths, and remote hosts you generate:
 

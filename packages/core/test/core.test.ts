@@ -3,7 +3,10 @@ import {
   awsAmplifyProvider,
   createDefaultProviders,
   createImage,
+  createMapper,
+  createOperationsGenerator,
   detectImageProvider,
+  defineProvider,
   generatePictureSources,
   generateSizes,
   generateSrcset,
@@ -12,6 +15,7 @@ import {
   getPictureAttrs,
   ipxProvider,
   parseDensities,
+  parseSize,
   parseSizes,
   resolveAlias,
   resolveImageConfig,
@@ -24,6 +28,14 @@ import {
 } from '../src/providers/index';
 import { cloudinaryProvider } from '../src/providers/cloudinary';
 import { imgixProvider } from '../src/providers/imgix';
+import { testImageBehavior } from '../../../common/tests/image-behavior';
+
+testImageBehavior({
+  name: 'core',
+  createImage,
+  getImageAttrs,
+  getPictureAttrs
+});
 
 describe('sizes and densities', () => {
   it('parses responsive sizes', () => {
@@ -68,7 +80,7 @@ describe('sizes and densities', () => {
       densities: '1 2'
     }, config);
 
-    expect(generated.srcset).toBe('/_vercel/image?url=https%3A%2F%2Fexample.com%2Fa.jpg&w=50&q=100 1x, /_vercel/image?url=https%3A%2F%2Fexample.com%2Fa.jpg&w=100&q=100 2x');
+    expect(generated.srcset).toBe('/_vercel/image?url=https%3A%2F%2Fexample.com%2Fa.jpg&w=640&q=100 1x, /_vercel/image?url=https%3A%2F%2Fexample.com%2Fa.jpg&w=640&q=100 2x');
   });
 });
 
@@ -96,8 +108,8 @@ describe('aliases, validation and merge order', () => {
       src: 'https://evil.example.com/hero.jpg',
       width: 800
     }, {
-      provider: 'vercel',
-      providers: { vercel: vercelProvider() },
+      provider: 'cloudinary',
+      providers: { cloudinary: cloudinaryProvider({ cloudName: 'demo' }) },
       domains: ['example.com'],
       onInvalidSource: 'warn'
     });
@@ -112,8 +124,8 @@ describe('aliases, validation and merge order', () => {
       src: 'https://evil.example.com/hero.jpg',
       width: 800
     }, {
-      provider: 'vercel',
-      providers: { vercel: vercelProvider() },
+      provider: 'cloudinary',
+      providers: { cloudinary: cloudinaryProvider({ cloudName: 'demo' }) },
       domains: ['example.com'],
       onInvalidSource: 'throw'
     })).toThrow(/not allowed/);
@@ -177,8 +189,8 @@ describe('providers', () => {
     expect(detectImageProvider()).toBe('ipx');
   });
 
-  it('uses NUXT_IMAGE_PROVIDER as a compatibility override', () => {
-    vi.stubEnv('NUXT_IMAGE_PROVIDER', 'cloudinary');
+  it('uses DESOURCE_IMAGE_PROVIDER as a compatibility override', () => {
+    vi.stubEnv('DESOURCE_IMAGE_PROVIDER', 'cloudinary');
     expect(detectImageProvider()).toBe('cloudinary');
     vi.unstubAllEnvs();
   });
@@ -186,15 +198,18 @@ describe('providers', () => {
   it('generates Vercel local and remote URLs', () => {
     const config = resolveImageConfig({
       provider: 'vercel',
-      providers: { vercel: vercelProvider() }
+      providers: { vercel: vercelProvider() },
+      domains: ['example.com']
     });
 
     expect(getImage({ src: '/hero.png', width: 800, quality: 75 }, config).url)
-      .toBe('/_vercel/image?url=%2Fhero.png&w=800&q=75');
+      .toBe('/_vercel/image?url=%2Fhero.png&w=1024&q=75');
     expect(getImage({ src: 'https://example.com/hero.png', width: 800, quality: 75 }, config).url)
-      .toBe('/_vercel/image?url=https%3A%2F%2Fexample.com%2Fhero.png&w=800&q=75');
+      .toBe('/_vercel/image?url=https%3A%2F%2Fexample.com%2Fhero.png&w=1024&q=75');
     expect(getImage({ src: '/hero.png' }, config).url)
       .toBe('/_vercel/image?url=%2Fhero.png&w=1536&q=100');
+    expect(getImage({ src: 'https://unlisted.example/hero.png', width: 800 }, config))
+      .toEqual({ url: 'https://unlisted.example/hero.png', isOptimized: false });
   });
 
   it('generates AWS Amplify URLs', () => {
@@ -204,7 +219,7 @@ describe('providers', () => {
     });
 
     expect(getImage({ src: '/hero.png', width: 800, quality: 75, format: 'webp' }, config).url)
-      .toBe('/_amplify/image?url=%2Fhero.png&w=800&q=75&format=webp');
+      .toBe('/_amplify/image?url=%2Fhero.png&w=1024&q=75&format=webp');
     expect(getImage({ src: '/hero.png', format: 'webp' }, config).url)
       .toBe('/_amplify/image?url=%2Fhero.png&w=1536&q=100&format=webp');
   });
@@ -320,12 +335,12 @@ describe('attrs and picture output', () => {
       providerSizes: [320, 640, 768, 1024, 1280]
     });
 
-    expect(attrs.src).toBe('/_vercel/image?url=%2Fhero.png&w=2200&q=100');
+    expect(attrs.src).toBe('/_vercel/image?url=%2Fhero.png&w=1536&q=100');
     expect(attrs.srcset).toContain('1100w');
     expect(attrs.sizes).toBe('(max-width: 767px) 100vw, 1100px');
     expect(attrs.loading).toBe('eager');
     expect(attrs.fetchpriority).toBe('high');
-    expect(attrs.placeholderSrc).toBe('/_vercel/image?url=%2Fhero.png&w=32&q=20');
+    expect(attrs.placeholderSrc).toBe('/_vercel/image?url=%2Fhero.png&w=640&q=20');
   });
 
   it('supports the preload alias', () => {
@@ -343,6 +358,19 @@ describe('attrs and picture output', () => {
     expect(attrs.decoding).toBe('sync');
   });
 
+  it('uses Nuxt-compatible placeholder defaults', () => {
+    const attrs = getImageAttrs({
+      src: '/hero.png',
+      width: 800,
+      placeholder: true
+    }, {
+      provider: 'ipx',
+      providers: { ipx: ipxProvider() }
+    });
+
+    expect(attrs.placeholderSrc).toBe('/_ipx/s_10x10&q_50&blur_3/hero.png');
+  });
+
   it('generates picture sources for avif and webp with fallback img', () => {
     const picture = getPictureAttrs({
       src: '/hero.png',
@@ -358,7 +386,7 @@ describe('attrs and picture output', () => {
 
     expect(picture.sources.map((source) => source.type)).toEqual(['image/avif', 'image/webp']);
     expect(picture.sources[0]?.srcset).toContain('320w');
-    expect(picture.img.src).toBe('/_vercel/image?url=%2Fhero.png&w=3072&q=100');
+    expect(picture.img.src).toBe('/_vercel/image?url=%2Fhero.png&w=1536&q=100');
   });
 
   it('supports comma-separated picture formats and legacyFormat alias', () => {
@@ -407,6 +435,55 @@ describe('attrs and picture output', () => {
     expect(picture.sources[1]?.srcset).toContain('f_webp');
     expect(picture.img.src).not.toContain('f_avif');
     expect(picture.img.src).not.toContain('f_webp');
+    expect(picture.img.src).toContain('f_png');
+  });
+
+  it('keeps global picture formats out of plain image URLs', () => {
+    const attrs = getImageAttrs({
+      src: '/hero.png',
+      width: 800
+    }, {
+      provider: 'ipx',
+      providers: { ipx: ipxProvider() },
+      format: ['avif', 'webp']
+    });
+
+    expect(attrs.src).toBe('/_ipx/w_800/hero.png');
+  });
+
+  it('uses Nuxt-style picture fallbacks and SVG passthrough', () => {
+    expect(getPictureAttrs({
+      src: '/hero.jpg',
+      width: 800,
+      format: ['avif', 'webp']
+    }).img.src).toContain('f_jpeg');
+
+    const svg = getPictureAttrs({
+      src: '/logo.svg',
+      width: 1200
+    });
+
+    expect(svg.sources).toEqual([]);
+    expect(svg.img.src).toBe('/logo.svg');
+  });
+
+  it('exports Nuxt-style provider utility helpers', () => {
+    expect(parseSize('320px')).toBe(320);
+    expect(createMapper({ cover: 'crop' })('cover')).toBe('crop');
+
+    const operations = createOperationsGenerator({
+      keyMap: { width: 'w', format: 'f' },
+      valueMap: { format: { jpeg: 'jpg' } }
+    });
+
+    expect(operations({ width: 320, format: 'jpeg' })).toBe('w=320&f=jpg');
+
+    const setup = defineProvider({
+      name: 'test',
+      getImage: (input) => ({ url: input.src })
+    });
+
+    expect(setup()).toBe(setup());
   });
 
   it('creates a callable image helper', () => {

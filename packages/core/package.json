@@ -1,12 +1,13 @@
 {
-  "name": "@desource/image-core",
+  "name": "@desource/image",
   "version": "0.1.0",
   "description": "Framework-agnostic image URL, srcset, picture, provider, preset, alias, and placeholder helpers.",
   "type": "module",
   "sideEffects": false,
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "CHANGELOG.md"
   ],
   "exports": {
     ".": {
@@ -23,9 +24,15 @@
     }
   },
   "scripts": {
-    "build": "vite build && tsc -p tsconfig.build.json",
-    "test": "vitest run",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "clean": "rimraf dist coverage",
+    "clean:modules": "rimraf node_modules",
+    "build": "pnpm clean && pnpm build:internal",
+    "build:internal": "pnpm build:lib && pnpm build:types",
+    "build:lib": "vite build",
+    "build:types": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test:unit": "vitest run",
+    "test:unit:coverage": "vitest run --coverage.enabled --coverage.provider=v8 --coverage.reporter=lcov --coverage.reportsDirectory=coverage"
   },
   "dependencies": {
     "std-env": "^4.1.0"

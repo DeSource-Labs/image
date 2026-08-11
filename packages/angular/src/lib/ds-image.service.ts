@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { createImage, type DesourceImage } from '@desource/image-core';
+import { createImage, type DesourceImage } from '@desource/image';
 import { DS_IMAGE_CONFIG } from './config.js';
 
 @Injectable({
@@ -7,8 +7,9 @@ import { DS_IMAGE_CONFIG } from './config.js';
 })
 export class DsImageService {
   private readonly config = inject(DS_IMAGE_CONFIG);
+  private readonly image = createImage(this.config);
 
   create(): DesourceImage {
-    return createImage(this.config);
+    return this.image;
   }
 }

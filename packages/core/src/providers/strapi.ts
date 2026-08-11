@@ -9,6 +9,7 @@ export function strapiProvider(options: StrapiProviderOptions = {}): ImageProvid
   const defaults = { baseURL: options.baseURL ?? 'http://localhost:1337/uploads' };
   return {
     name: 'strapi',
+    validateDomains: true,
     getImage(input, providerOptions = defaults): ImageProviderResult {
       const breakpoint = input.modifiers?.breakpoint ? `${input.modifiers.breakpoint}_` : '';
       return {

@@ -1,4 +1,5 @@
 import type { HTMLImgAttributes } from 'svelte/elements';
+import type { Snippet } from 'svelte';
 import type {
   DensityInput,
   ImageDecoding,
@@ -10,7 +11,7 @@ import type {
   ImagePlaceholder,
   ImagePreload,
   SizesInput
-} from '@desource/image-core';
+} from '@desource/image';
 
 type NativeImageAttrs = Omit<
   HTMLImgAttributes,
@@ -24,6 +25,7 @@ type NativeImageAttrs = Omit<
   | 'decoding'
   | 'fetchpriority'
   | 'placeholder'
+  | 'children'
 >;
 
 export interface ImageComponentProps extends NativeImageAttrs {
@@ -48,10 +50,20 @@ export interface ImageComponentProps extends NativeImageAttrs {
   preload?: ImagePreload;
   placeholder?: ImagePlaceholder;
   placeholderClass?: string;
+  nonce?: string;
+  custom?: boolean;
+  children?: Snippet<[ImageSlotProps]>;
 }
 
 export interface PictureComponentProps extends ImageComponentProps {
   formats?: readonly ImageFormat[];
   fallbackFormat?: ImageFormat;
   legacyFormat?: ImageFormat;
+  imgAttrs?: NativeImageAttrs;
+}
+
+export interface ImageSlotProps {
+  imgAttrs: HTMLImgAttributes & { nonce?: string };
+  isLoaded: boolean;
+  src?: string;
 }

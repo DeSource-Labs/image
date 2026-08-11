@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { getImageAttrs, type ImageInput } from '@desource/image-core';
+  import { getImageAttrs, type ImageInput } from '@desource/image';
   import { getImageConfig } from './context.js';
-  import type { ImageComponentProps } from './types.js';
+  import type { ImageComponentProps, ImageSlotProps } from './types.js';
 
   let {
     src,
@@ -26,8 +26,12 @@
     preload,
     placeholder,
     placeholderClass,
+    custom = false,
+    children,
     class: className,
     style,
+    crossorigin,
+    nonce,
     onload,
     onerror,
     ...rest
@@ -68,6 +72,28 @@
   const renderedSizes = $derived(fallbackActive ? undefined : attrs.sizes);
   const imageClass = $derived([className, attrs.placeholderSrc && !loaded ? attrs.placeholderClass : undefined].filter(Boolean).join(' ') || undefined);
   const imageStyle = $derived(styleWithPlaceholder(style, attrs.placeholderSrc, loaded));
+  const normalizedCrossorigin = $derived(normalizeCrossorigin(crossorigin));
+  const nonceAttrs = $derived(nonce ? { nonce } : {});
+  const slotProps = $derived<ImageSlotProps>({
+    imgAttrs: stripUndefined({
+      ...rest,
+      src: renderedSrc,
+      srcset: renderedSrcset,
+      sizes: renderedSizes,
+      width: attrs.width,
+      height: attrs.height,
+      alt: attrs.alt ?? '',
+      loading: attrs.loading,
+      decoding: attrs.decoding,
+      fetchpriority: attrs.fetchpriority,
+      crossorigin: normalizedCrossorigin,
+      nonce,
+      class: imageClass,
+      style: imageStyle
+    }),
+    isLoaded: loaded,
+    src: renderedSrc
+  });
 
   function handleLoad(event: Event) {
     loaded = true;
@@ -114,22 +140,40 @@
       'background-position:center'
     ].filter(Boolean).join(';');
   }
+
+  function normalizeCrossorigin(value: unknown): 'anonymous' | 'use-credentials' | undefined {
+    if (value === true || value === '' || value === 'true') {
+      return 'anonymous';
+    }
+
+    return value === 'anonymous' || value === 'use-credentials' ? value : undefined;
+  }
+
+  function stripUndefined<T extends Record<string, unknown>>(value: T): T {
+    return Object.fromEntries(Object.entries(value).filter(([, entry]) => entry !== undefined)) as T;
+  }
 </script>
 
-<img
-  bind:this={imageElement}
-  {...rest}
-  src={renderedSrc}
-  srcset={renderedSrcset}
-  sizes={renderedSizes}
-  width={attrs.width}
-  height={attrs.height}
-  alt={attrs.alt ?? ''}
-  loading={attrs.loading}
-  decoding={attrs.decoding}
-  fetchpriority={attrs.fetchpriority}
-  class={imageClass}
-  style={imageStyle}
-  onload={handleLoad}
-  onerror={handleError}
-/>
+{#if custom && children}
+  {@render children(slotProps)}
+{:else}
+  <img
+    bind:this={imageElement}
+    {...rest}
+    src={renderedSrc}
+    srcset={renderedSrcset}
+    sizes={renderedSizes}
+    width={attrs.width}
+    height={attrs.height}
+    alt={attrs.alt ?? ''}
+    loading={attrs.loading}
+    decoding={attrs.decoding}
+    fetchpriority={attrs.fetchpriority}
+    crossorigin={normalizedCrossorigin}
+    {...nonceAttrs}
+    class={imageClass}
+    style={imageStyle}
+    onload={handleLoad}
+    onerror={handleError}
+  />
+{/if}

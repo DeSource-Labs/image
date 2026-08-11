@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { getPictureAttrs, type ImageInput } from '@desource/image-core';
+  import { getPictureAttrs, type ImageInput } from '@desource/image';
   import { getImageConfig } from './context.js';
   import type { PictureComponentProps } from './types.js';
 
@@ -29,8 +29,13 @@
     preload,
     placeholder,
     placeholderClass,
+    custom: _custom,
+    children: _children,
+    imgAttrs,
     class: className,
     style,
+    crossorigin,
+    nonce,
     onload,
     onerror,
     ...rest
@@ -74,6 +79,8 @@
   const renderedSizes = $derived(fallbackActive ? undefined : picture.img.sizes);
   const imageClass = $derived([className, picture.img.placeholderSrc && !loaded ? picture.img.placeholderClass : undefined].filter(Boolean).join(' ') || undefined);
   const imageStyle = $derived(styleWithPlaceholder(style, picture.img.placeholderSrc, loaded));
+  const normalizedCrossorigin = $derived(normalizeCrossorigin(crossorigin));
+  const nonceAttrs = $derived(nonce ? { nonce } : {});
 
   function handleLoad(event: Event) {
     loaded = true;
@@ -120,6 +127,14 @@
       'background-position:center'
     ].filter(Boolean).join(';');
   }
+
+  function normalizeCrossorigin(value: unknown): 'anonymous' | 'use-credentials' | undefined {
+    if (value === true || value === '' || value === 'true') {
+      return 'anonymous';
+    }
+
+    return value === 'anonymous' || value === 'use-credentials' ? value : undefined;
+  }
 </script>
 
 <picture>
@@ -128,6 +143,7 @@
   {/each}
   <img
     bind:this={imageElement}
+    {...imgAttrs}
     {...rest}
     src={renderedSrc}
     srcset={renderedSrcset}
@@ -138,6 +154,8 @@
     loading={picture.img.loading}
     decoding={picture.img.decoding}
     fetchpriority={picture.img.fetchpriority}
+    crossorigin={normalizedCrossorigin}
+    {...nonceAttrs}
     class={imageClass}
     style={imageStyle}
     onload={handleLoad}

@@ -22,6 +22,10 @@ export interface DsImageMiddlewareOptions {
    * Cache lifetime in seconds for optimized responses.
    */
   maxAge?: number;
+  /**
+   * IPX aliases used by local optimizer routes.
+   */
+  alias?: Record<string, string>;
 }
 
 type Next = (error?: unknown) => void;
@@ -71,6 +75,7 @@ async function createIpxHandler(options: DsImageMiddlewareOptions): Promise<Node
 
   return createIPXNodeServer(createIPX({
     maxAge: options.maxAge ?? 60,
+    alias: options.alias,
     storage: ipxFSStorage({
       dir: dirs,
       maxAge: options.maxAge ?? 60

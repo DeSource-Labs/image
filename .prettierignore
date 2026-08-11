@@ -1,0 +1,10 @@
+dist
+node_modules
+.angular
+.svelte-kit
+.output
+.cache
+coverage
+*.min.js
+*.min.css
+pnpm-lock.yaml

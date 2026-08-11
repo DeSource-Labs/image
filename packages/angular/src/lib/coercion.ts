@@ -1,4 +1,4 @@
-import type { ImagePlaceholder, ImagePreload } from '@desource/image-core';
+import type { ImagePlaceholder, ImagePreload } from '@desource/image';
 
 export function coerceNumber(value: unknown): number | undefined {
   if (value === null || value === undefined || value === '') {
@@ -43,6 +43,18 @@ export function coercePreload(value: unknown): ImagePreload | undefined {
   }
 
   return undefined;
+}
+
+export function coerceCrossorigin(value: unknown): 'anonymous' | 'use-credentials' | undefined {
+  if (value === null || value === undefined || value === false || value === 'false') {
+    return undefined;
+  }
+
+  if (value === '' || value === true || value === 'true') {
+    return 'anonymous';
+  }
+
+  return value === 'anonymous' || value === 'use-credentials' ? value : undefined;
 }
 
 export function stripUndefined<T extends Record<string, unknown>>(value: T): T {

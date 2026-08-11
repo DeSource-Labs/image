@@ -3,13 +3,25 @@ export type ImageFit = 'cover' | 'contain' | 'fill' | 'inside' | 'outside' | 'sc
 export type ImageLoading = 'lazy' | 'eager';
 export type ImageDecoding = 'async' | 'sync' | 'auto';
 export type ImageFetchPriority = 'high' | 'low' | 'auto';
-export type ImagePlaceholder = boolean | string | readonly [number, number?, number?, number?];
+export type ImagePlaceholder = boolean | string | number | readonly [number, number?, number?, number?];
 export type DensityInput = string | number | readonly number[];
 export type SizesInput = string | Record<string, string | number>;
 export type ModifierValue = string | number | boolean | null | undefined;
 export type ImageModifiers = Record<string, ModifierValue>;
 export type InvalidSourceStrategy = 'throw' | 'warn' | 'passthrough';
 export type ImagePreload = boolean | { fetchPriority?: ImageFetchPriority };
+export type OperationMapper<From, To> = Record<string | Extract<From, string | number>, To> | ((key?: From) => To | From | undefined);
+
+export type OperationGeneratorConfig<Key extends string, Value, FinalKey, FinalValue> = {
+  keyMap?: Partial<Record<Key, FinalKey>>;
+  valueMap?: Partial<Record<Key, Partial<Record<Extract<Value, string>, FinalValue>> | ((key: Value) => Value | FinalValue | undefined)>>;
+} & ({
+  formatter?: (key: FinalKey, value: FinalValue) => string;
+  joinWith?: undefined;
+} | {
+  formatter: (key: FinalKey, value: FinalValue) => string;
+  joinWith: string;
+});
 
 export interface RemotePattern {
   protocol?: 'http' | 'https' | string;
@@ -39,6 +51,8 @@ export interface ImageProviderResult {
 
 export interface ImageProvider<TOptions = unknown> {
   name: string;
+  validateDomains?: boolean;
+  supportsAlias?: boolean;
   getImage(input: Readonly<ImageProviderInput>, options?: TOptions): ImageProviderResult;
 }
 
@@ -73,6 +87,7 @@ export interface ImageConfig {
   remotePatterns?: readonly RemotePattern[];
   localPatterns?: readonly LocalPattern[];
   presets?: Record<string, ImagePreset>;
+  alias?: Record<string, string>;
   aliases?: Record<string, string>;
   providers?: Record<string, ImageProvider>;
   providerOptions?: Record<string, unknown>;

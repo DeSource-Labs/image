@@ -41,6 +41,7 @@ export function vercelProvider(options: VercelProviderOptions = {}): ImageProvid
 
   return {
     name: 'vercel',
+    validateDomains: true,
     getImage(input, providerOptions = defaults): ImageProviderResult {
       const path = providerOptions.path ?? defaults.path;
       const quality = input.quality ?? providerOptions.defaultQuality ?? defaults.defaultQuality;
@@ -60,6 +61,7 @@ export function awsAmplifyProvider(options: AwsAmplifyProviderOptions = {}): Ima
 
   return {
     name: 'awsAmplify',
+    validateDomains: true,
     getImage(input, providerOptions = defaults): ImageProviderResult {
       const path = providerOptions.path ?? defaults.path;
       const quality = input.quality ?? providerOptions.defaultQuality ?? defaults.defaultQuality;
@@ -92,6 +94,8 @@ export function ipxProvider(options: IpxProviderOptions = {}): ImageProvider<Ipx
 
   return {
     name: 'ipx',
+    validateDomains: true,
+    supportsAlias: true,
     getImage(input, providerOptions = defaults): ImageProviderResult {
       if (!isTransformable(input)) {
         return { url: input.src, isOptimized: false };

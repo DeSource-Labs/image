@@ -19,7 +19,7 @@ import type {
 import { detectImageProvider, resolveImageConfig } from './config';
 import { generateDensities, generateSizes, parseDensities } from './sizes';
 import { resolveAlias, validateSource } from './source';
-import { clampQuality, mergeModifiers, mimeForFormat, toNumber } from './utils';
+import { clampQuality, isRemoteSource, mergeModifiers, mimeForFormat, toNumber } from './utils';
 
 interface ResolvedInput {
   src: string;
@@ -65,9 +65,16 @@ export function getImage(input: ImageInput, config: ImageConfig | ResolvedImageC
   const resolvedConfig = ensureConfig(config);
   const resolved = resolveInput(input, resolvedConfig);
   const providerName = resolveProviderName(resolved.provider);
-  const validation = allowsOpaqueSource(providerName, resolved.src)
+  const { name, provider } = getProvider(providerName, resolvedConfig);
+  const providerSrc = provider.supportsAlias ? resolved.src : resolveAlias(resolved.src, resolvedConfig.aliases);
+
+  if (provider.validateDomains && !validateProviderRemoteSource(providerSrc, resolvedConfig)) {
+    return { url: providerSrc, isOptimized: false };
+  }
+
+  const validation = allowsOpaqueSource(providerName, providerSrc)
     ? { valid: true }
-    : validateSource(resolved.src, resolvedConfig);
+    : validateSource(providerSrc, resolvedConfig);
 
   if (!validation.valid) {
     if (resolvedConfig.onInvalidSource === 'throw') {
@@ -78,11 +85,10 @@ export function getImage(input: ImageInput, config: ImageConfig | ResolvedImageC
       warn(validation.reason);
     }
 
-    return { url: resolved.src, isOptimized: false };
+    return { url: providerSrc, isOptimized: false };
   }
 
-  const { name, provider } = getProvider(providerName, resolvedConfig);
-  const providerInput = toProviderInput(resolved, resolvedConfig, name);
+  const providerInput = toProviderInput(resolved, resolvedConfig, name, providerSrc);
   return provider.getImage(providerInput, resolvedConfig.providerOptions[provider.name]);
 }
 
@@ -144,6 +150,11 @@ export function generateSrcset(input: ImageInput, config: ImageConfig | Resolved
 export function generatePictureSources(input: ImageInput, config: ImageConfig | ResolvedImageConfig = {}): PictureSource[] {
   const resolvedConfig = ensureConfig(config);
   const resolved = resolveInput(input, resolvedConfig);
+
+  if (originalFormat(input.src) === 'svg') {
+    return [];
+  }
+
   const formats = pictureFormats(input, resolved, resolvedConfig);
 
   return formats.map((format) => {
@@ -186,15 +197,30 @@ export function getImageAttrs(input: ImageInput, config: ImageConfig | ResolvedI
 
 export function getPictureAttrs(input: ImageInput, config: ImageConfig | ResolvedImageConfig = {}): PictureAttrs {
   const resolvedConfig = ensureConfig(config);
-  const fallbackFormat = input.fallbackFormat ?? input.legacyFormat;
-  const fallbackConfig: ResolvedImageConfig = {
-    ...resolvedConfig,
-    format: fallbackFormat
-  };
+  const resolved = resolveInput(input, resolvedConfig);
+
+  if (originalFormat(input.src) === 'svg') {
+    const priority = Boolean(resolved.priority);
+    return {
+      sources: [],
+      img: stripUndefined({
+        src: input.src,
+        width: resolved.width,
+        height: resolved.height,
+        alt: resolved.alt,
+        loading: priority ? 'eager' : resolved.loading,
+        decoding: priority ? 'sync' : (resolved.decoding ?? 'async'),
+        fetchpriority: priority ? 'high' : resolved.fetchpriority,
+        isOptimized: false
+      })
+    };
+  }
+
+  const fallbackFormat = input.fallbackFormat ?? input.legacyFormat ?? defaultLegacyFormat(input.src);
 
   return {
     sources: generatePictureSources(input, resolvedConfig),
-    img: getImageAttrs({ ...input, format: fallbackFormat, formats: undefined }, fallbackConfig)
+    img: getImageAttrs({ ...input, format: fallbackFormat, formats: undefined }, resolvedConfig)
   };
 }
 
@@ -230,12 +256,11 @@ function resolveInput(input: ImageInput, config: ResolvedImageConfig): ResolvedI
     ?? preset?.quality
     ?? modifierQuality(preset?.modifiers)
     ?? config.quality;
-  const format = input.format ?? modifierFormatValue ?? preset?.format ?? modifierFormat(preset?.modifiers) ?? config.format;
-  const src = resolveAlias(input.src, config.aliases);
+  const format = input.format ?? modifierFormatValue ?? preset?.format ?? modifierFormat(preset?.modifiers);
   const preload = input.preload ?? preset?.preload;
 
   return stripUndefined({
-    src,
+    src: input.src,
     originalSrc: input.src,
     alt: input.alt,
     width: toNumber(input.width) ?? modifierWidth ?? preset?.width ?? modifierNumber(preset?.modifiers, 'width', 'w'),
@@ -259,11 +284,11 @@ function resolveInput(input: ImageInput, config: ResolvedImageConfig): ResolvedI
   });
 }
 
-function toProviderInput(input: ResolvedInput, config: ResolvedImageConfig, providerName: string): ImageProviderInput {
+function toProviderInput(input: ResolvedInput, config: ResolvedImageConfig, providerName: string, src = input.src): ImageProviderInput {
   const format = Array.isArray(input.format) ? input.format[0] : input.format;
-  const width = input.width ?? defaultWidthForProvider(providerName, config);
+  const width = widthForProvider(providerName, input.width, config);
   return stripUndefined({
-    src: input.src,
+    src,
     width,
     height: input.height,
     quality: input.quality,
@@ -282,7 +307,11 @@ function resolvePlaceholder(input: ResolvedInput, config: ResolvedImageConfig): 
     return placeholder;
   }
 
-  const [width = 40, height, quality = 30, blur = 8] = Array.isArray(placeholder) ? placeholder : [];
+  const [width = 10, height = width, quality = 50, blur = 3] = Array.isArray(placeholder)
+    ? placeholder
+    : typeof placeholder === 'number'
+      ? [placeholder]
+      : [10, 10, 50, 3];
   return getImage({
     src: input.originalSrc,
     provider: input.provider,
@@ -298,10 +327,16 @@ function resolvePlaceholder(input: ResolvedInput, config: ResolvedImageConfig): 
 }
 
 function pictureFormats(input: ImageInput, resolved: ResolvedInput, config: ResolvedImageConfig): ImageFormat[] {
+  if (originalFormat(input.src) === 'svg') {
+    return [];
+  }
+
   const explicit = input.formats ?? splitFormats(input.format);
   const fromConfig = splitFormats(config.format);
   const fromResolved = splitFormats(resolved.format);
-  return [...new Set([...(explicit ?? fromResolved ?? fromConfig ?? ['webp'])])];
+  const fallback = input.fallbackFormat ?? input.legacyFormat ?? defaultLegacyFormat(input.src);
+  return [...new Set([...(explicit ?? fromResolved ?? fromConfig ?? ['webp'])])]
+    .filter((format) => normalizeLegacyFormat(format) !== normalizeLegacyFormat(fallback));
 }
 
 function getProvider(name: string, config: ResolvedImageConfig): { name: string; provider: ImageProvider } {
@@ -326,15 +361,23 @@ function allowsOpaqueSource(providerName: string, src: string): boolean {
   return ['cloudflareimages', 'github', 'hygraph', 'picsum', 'sanity', 'uploadcare'].includes(providerName);
 }
 
-function defaultWidthForProvider(providerName: string, config: ResolvedImageConfig): number | undefined {
+function widthForProvider(providerName: string, width: number | undefined, config: ResolvedImageConfig): number | undefined {
   if (!['awsAmplify', 'vercel'].includes(providerName)) {
-    return undefined;
+    return width;
   }
 
-  return Object.values(config.screens)
+  const validWidths = Object.values(config.screens)
     .filter((value) => Number.isFinite(value))
-    .sort((a, b) => a - b)
-    .at(-1);
+    .sort((a, b) => a - b);
+  const largestWidth = validWidths.at(-1);
+
+  if (!width) {
+    return largestWidth;
+  }
+
+  return validWidths.includes(width)
+    ? width
+    : validWidths.find((validWidth) => validWidth > width) ?? largestWidth;
 }
 
 function ensureConfig(config: ImageConfig | ResolvedImageConfig): ResolvedImageConfig {
@@ -395,6 +438,31 @@ function splitFormats(format: ImageFormat | readonly ImageFormat[] | undefined):
     .split(',')
     .map((entry: string) => entry.trim())
     .filter(Boolean) as ImageFormat[];
+}
+
+function defaultLegacyFormat(src: string): ImageFormat {
+  const format = originalFormat(src);
+  return !format || !['png', 'webp', 'gif', 'svg'].includes(format) ? 'jpeg' : 'png';
+}
+
+function originalFormat(src: string): string | undefined {
+  return src.match(/^[^?#]+\.([a-z0-9]+)(?:$|[?#])/i)?.[1]?.toLowerCase();
+}
+
+function normalizeLegacyFormat(format: ImageFormat | undefined): string | undefined {
+  return format === 'jpg' ? 'jpeg' : format;
+}
+
+function validateProviderRemoteSource(src: string, config: ResolvedImageConfig): boolean {
+  if (!isRemoteSource(src)) {
+    return true;
+  }
+
+  if (!config.domains?.length && !config.remotePatterns?.length) {
+    return false;
+  }
+
+  return validateSource(src, config).valid;
 }
 
 function compactModifiers(modifiers: ImageModifiers): ImageModifiers {

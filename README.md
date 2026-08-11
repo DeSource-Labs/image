@@ -8,9 +8,9 @@ The developer experience is intentionally familiar to teams that have used Nuxt 
 
 | Package | Purpose |
 | --- | --- |
-| `@desource/image-core` | Framework-agnostic config, providers, URL generation, responsive sizes, placeholders, validation, and preload helpers. |
-| `@desource/angular-image` | Standalone Angular components: `<ds-image>` and `<ds-picture>`. |
-| `@desource/svelte-image` | Svelte 5/SvelteKit components: `<Image>` and `<Picture>`. |
+| `@desource/image` | Framework-agnostic config, providers, URL generation, responsive sizes, placeholders, validation, and preload helpers. |
+| `@desource/image-angular` | Standalone Angular components: `<ds-image>` and `<ds-picture>`. |
+| `@desource/image-svelte` | Svelte 5/SvelteKit components: `<Image>` and `<Picture>`. |
 
 ## Feature Matrix
 
@@ -48,26 +48,26 @@ Unpic is a strong cross-framework image component library. Desource Image emphas
 ## Install
 
 ```sh
-pnpm add @desource/angular-image
+pnpm add @desource/image-angular
 # or
-pnpm add @desource/svelte-image
+pnpm add @desource/image-svelte
 ```
 
-Install the framework package you need. If your app imports core helpers or provider factories directly, add `@desource/image-core` as an explicit dependency as well. This matters for strict package managers such as pnpm.
+Install the framework package you need. If your app imports core helpers or provider factories directly, add `@desource/image` as an explicit dependency as well. This matters for strict package managers such as pnpm.
 
 ## Angular Quick Start
 
 Add the dependency:
 
 ```sh
-pnpm add @desource/angular-image
+pnpm add @desource/image-angular
 ```
 
 For Angular SSR, install the image middleware in `src/server.ts`:
 
 ```ts
 import { CommonEngine, createNodeRequestHandler, isMainModule } from '@angular/ssr/node';
-import { createDsImageMiddleware } from '@desource/angular-image/server';
+import { createDsImageMiddleware } from '@desource/image-angular/server';
 import express from 'express';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -87,7 +87,7 @@ Then use the component:
 
 ```ts
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { DsImageComponent } from '@desource/angular-image';
+import { DsImageComponent } from '@desource/image-angular';
 
 @Component({
   selector: 'app-root',
@@ -119,13 +119,13 @@ Default local output is IPX-style:
 Add the dependency:
 
 ```sh
-pnpm add @desource/svelte-image
+pnpm add @desource/image-svelte
 ```
 
 Add the SvelteKit/Vite integration:
 
 ```ts
-import { desourceImage } from '@desource/svelte-image/vite';
+import { desourceImage } from '@desource/image-svelte/vite';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 
@@ -138,7 +138,7 @@ Then use the component:
 
 ```svelte
 <script lang="ts">
-  import { Image } from '@desource/svelte-image';
+  import { Image } from '@desource/image-svelte';
 </script>
 
 <Image
@@ -159,7 +159,7 @@ Provider selection is automatic and uses `std-env` first:
 - AWS Amplify runtime or `.amplifyapp.com` host: `awsAmplify`
 - Vercel runtime (`VERCEL`, `VERCEL_ENV`, `NOW_BUILDER`, `VERCEL_URL`) or `.vercel.app` host: `vercel`
 - Netlify runtime (`NETLIFY`, `NETLIFY_LOCAL`) or `.netlify.app` host: `netlify`
-- Explicit override: `DESOURCE_IMAGE_PROVIDER`, `PUBLIC_DESOURCE_IMAGE_PROVIDER`, `VITE_DESOURCE_IMAGE_PROVIDER`, or `NUXT_IMAGE_PROVIDER`
+- Explicit override: `DESOURCE_IMAGE_PROVIDER`, `PUBLIC_DESOURCE_IMAGE_PROVIDER`, `VITE_DESOURCE_IMAGE_PROVIDER`
 
 Local development uses the first-party IPX integration above. AWS Amplify, Vercel, and Netlify deployments automatically switch to their platform image providers when their environment variables or hostnames are present.
 
@@ -168,7 +168,7 @@ Local development uses the first-party IPX integration above. AWS Amplify, Verce
 Core exports a callable helper:
 
 ```ts
-import { createImage } from '@desource/image-core';
+import { createImage } from '@desource/image';
 
 const $img = createImage({
   presets: {
@@ -192,19 +192,19 @@ Svelte exposes this as `useImage()`. Angular exposes the same helper through `Ds
 
 ## Providers
 
-Default provider factories are exported from `@desource/image-core`. The default registry is intentionally small for bundle size: `ipx`, `awsAmplify`, `vercel`, `netlify`, and `none`. The full provider registry is available from `@desource/image-core/providers`; individual provider files are available as `@desource/image-core/providers/<name>` for better tree shaking.
+Default provider factories are exported from `@desource/image`. The default registry is intentionally small for bundle size: `ipx`, `awsAmplify`, `vercel`, `netlify`, and `none`. The full provider registry is available from `@desource/image/providers`; individual provider files are available as `@desource/image/providers/<name>` for better tree shaking.
 
 ```ts
 import {
   awsAmplifyProvider,
   ipxProvider,
   vercelProvider
-} from '@desource/image-core';
-import { cloudinaryProvider } from '@desource/image-core/providers/cloudinary';
+} from '@desource/image';
+import { cloudinaryProvider } from '@desource/image/providers/cloudinary';
 import {
   BUILT_IN_PROVIDER_NAMES,
   createBuiltInProviders
-} from '@desource/image-core/providers';
+} from '@desource/image/providers';
 ```
 
 Built-in provider names include `aliyun`, `awsAmplify`, `bunny`, `builderio`, `caisy`, `cloudflare`, `cloudflareimages`, `cloudimage`, `cloudinary`, `contentful`, `directus`, `fastly`, `filerobot`, `flyimg`, `github`, `glide`, `gumlet`, `hygraph`, `imageengine`, `imagekit`, `imgix`, `ipx`, `ipxStatic`, `netlify`, `netlifyLargeMedia`, `netlifyImageCdn`, `picsum`, `prepr`, `none`, `prismic`, `sanity`, `shopify`, `storyblok`, `strapi`, `strapi5`, `supabase`, `twicpics`, `umbraco`, `unsplash`, `uploadcare`, `vercel`, `wagtail`, `weserv`, and `sirv`.
@@ -212,7 +212,7 @@ Built-in provider names include `aliyun`, `awsAmplify`, `bunny`, `builderio`, `c
 To opt into the complete registry:
 
 ```ts
-import { createBuiltInProviders } from '@desource/image-core/providers';
+import { createBuiltInProviders } from '@desource/image/providers';
 
 provideDsImage({
   providers: createBuiltInProviders()
@@ -222,7 +222,7 @@ provideDsImage({
 Custom providers implement:
 
 ```ts
-import type { ImageProvider } from '@desource/image-core';
+import type { ImageProvider } from '@desource/image';
 
 export const myProvider: ImageProvider = {
   name: 'my-provider',
@@ -254,7 +254,7 @@ The Vercel provider emits:
 /_vercel/image?url=<encoded-source>&w=<width>&q=<quality>
 ```
 
-Local public assets such as `/hero.png` and remote URLs are supported. Missing width falls back to the largest configured screen and missing quality falls back to `100`. Vercel chooses AVIF/WebP from deployment config and request headers, so the provider intentionally does not add an explicit format query parameter.
+Local public assets such as `/hero.png` and allowed remote URLs are supported. Widths are normalized to the next configured screen width, missing width falls back to the largest configured screen, and missing quality falls back to `100`. Remote URLs must match `domains` or `remotePatterns`, matching Nuxt Image and Vercel's platform rules. Vercel chooses AVIF/WebP from deployment config and request headers, so the provider intentionally does not add an explicit format query parameter.
 
 For stricter Vercel projects, use matching Vercel image config:
 
@@ -287,7 +287,7 @@ The AWS Amplify provider emits:
 /_amplify/image?url=<encoded-source>&w=<width>&q=<quality>
 ```
 
-It is selected automatically when `AWS_AMPLIFY`, `AWS_APP_ID`, or an `.amplifyapp.com` host is detected. Missing width falls back to the largest configured screen and missing quality falls back to `100`. It can also be forced with `NUXT_IMAGE_PROVIDER=awsAmplify` or `DESOURCE_IMAGE_PROVIDER=awsAmplify`.
+It is selected automatically when `AWS_AMPLIFY`, `AWS_APP_ID`, or an `.amplifyapp.com` host is detected. Widths are normalized to the next configured screen width, missing width falls back to the largest configured screen, missing quality falls back to `100`, and remote URLs must match `domains` or `remotePatterns`. It can also be forced with `DESOURCE_IMAGE_PROVIDER=awsAmplify`.
 
 ## IPX Provider
 
@@ -324,7 +324,6 @@ Default screens:
 
 ```ts
 {
-  xs: 320,
   sm: 640,
   md: 768,
   lg: 1024,

@@ -6,7 +6,6 @@ import { getImage, getImageAttrs, getImagePreloadLink, getPictureAttrs } from '.
 declare const __DESOURCE_IMAGE_PROVIDER__: string | undefined;
 
 export const DEFAULT_SCREENS: Record<string, number> = {
-  xs: 320,
   sm: 640,
   md: 768,
   lg: 1024,
@@ -23,11 +22,11 @@ export function resolveImageConfig(config: ImageConfig = {}): ResolvedImageConfi
     format: config.format,
     screens: { ...DEFAULT_SCREENS, ...config.screens },
     densities: config.densities ? [...config.densities] : [1, 2],
-    domains: config.domains ? [...config.domains] : undefined,
+    domains: config.domains,
     remotePatterns: config.remotePatterns ? [...config.remotePatterns] : undefined,
     localPatterns: config.localPatterns ? [...config.localPatterns] : undefined,
     presets: { ...config.presets },
-    aliases: { ...config.aliases },
+    aliases: { ...config.alias, ...config.aliases },
     providers: { ...createDefaultProviders(), ...config.providers },
     providerOptions: { ...config.providerOptions },
     providerSizes: config.providerSizes ? [...config.providerSizes] : [...DEFAULT_PROVIDER_SIZES],
@@ -39,8 +38,7 @@ export function detectImageProvider(): string {
   const env = runtimeEnv();
   const forced = env['DESOURCE_IMAGE_PROVIDER']
     ?? env['PUBLIC_DESOURCE_IMAGE_PROVIDER']
-    ?? env['VITE_DESOURCE_IMAGE_PROVIDER']
-    ?? env['NUXT_IMAGE_PROVIDER'];
+    ?? env['VITE_DESOURCE_IMAGE_PROVIDER'];
 
   if (forced) {
     return forced;

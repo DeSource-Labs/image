@@ -24,9 +24,9 @@ import {
   type ImagePreload,
   type SizesInput,
   getPictureAttrs
-} from '@desource/image-core';
+} from '@desource/image';
 import { DS_IMAGE_CONFIG } from './config.js';
-import { coerceBoolean, coerceNumber, coercePlaceholder, coercePreload, mergeClassNames, stripUndefined, styleWithPlaceholder } from './coercion.js';
+import { coerceBoolean, coerceCrossorigin, coerceNumber, coercePlaceholder, coercePreload, mergeClassNames, stripUndefined, styleWithPlaceholder } from './coercion.js';
 
 type NativeAttrs = Record<string, string | number | boolean | null | undefined>;
 
@@ -66,6 +66,7 @@ type NativeAttrs = Record<string, string | number | boolean | null | undefined>;
         [attr.aria-describedby]="ariaDescribedby()"
         [attr.referrerpolicy]="referrerpolicy()"
         [attr.crossorigin]="crossorigin()"
+        [attr.nonce]="nonce()"
         [attr.usemap]="usemap()"
         [attr.data-testid]="dataTestid()"
         (load)="loaded.set(true)"
@@ -111,10 +112,12 @@ export class DsPictureComponent {
   readonly ariaLabel = input<string | undefined>(undefined, { alias: 'aria-label' });
   readonly ariaDescribedby = input<string | undefined>(undefined, { alias: 'aria-describedby' });
   readonly referrerpolicy = input<string | undefined>();
-  readonly crossorigin = input<string | undefined>();
+  readonly crossorigin = input<'anonymous' | 'use-credentials' | undefined, unknown>(undefined, { transform: coerceCrossorigin });
+  readonly nonce = input<string | undefined>();
   readonly usemap = input<string | undefined>();
   readonly dataTestid = input<string | undefined>(undefined, { alias: 'data-testid' });
   readonly nativeAttrs = input<NativeAttrs>({});
+  readonly imgAttrs = input<NativeAttrs>({});
 
   readonly loaded = signal(false);
 
@@ -171,7 +174,7 @@ export class DsPictureComponent {
         return;
       }
 
-      for (const [name, value] of Object.entries(this.nativeAttrs())) {
+      for (const [name, value] of Object.entries({ ...this.nativeAttrs(), ...this.imgAttrs() })) {
         if (value === false || value === null || value === undefined) {
           this.renderer.removeAttribute(image, name);
         } else {

@@ -88,3 +88,18 @@ export {
   resolveAlias,
   validateSource
 } from './source';
+
+export {
+  checkDensities,
+  createMapper,
+  createOperationsGenerator,
+  parseSize
+} from './utils';
+
+export {
+  defineProvider
+} from './provider-utils';
+
+export type {
+  Mapper
+} from './utils';

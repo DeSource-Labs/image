@@ -1,4 +1,69 @@
-import type { ImageFormat, ImageModifiers, ModifierValue } from './types';
+import type { ImageFormat, ImageModifiers, ModifierValue, OperationGeneratorConfig } from './types';
+
+export interface Mapper<Key, Value> {
+  (key: Key): Value | Key;
+  (): undefined;
+}
+
+export function createMapper<Key extends string, Value>(
+  map: Partial<Record<Key, Value>> & { missingValue?: Value }
+): Mapper<Key, Value> {
+  return ((key?: Key) => key !== undefined ? map[key] ?? key : map.missingValue) as Mapper<Key, Value>;
+}
+
+export function createOperationsGenerator<
+  ModifierKey extends string,
+  InputValue extends string | boolean | number = string | boolean | number,
+  FinalKey = ModifierKey,
+  FinalValue = InputValue
+>(config: OperationGeneratorConfig<ModifierKey, InputValue, FinalKey, FinalValue> = {}) {
+  const keyMap = config.keyMap ? createMapper(config.keyMap) : undefined;
+  type ValueMapper = Mapper<Extract<InputValue, string>, FinalValue> | ((value: InputValue) => InputValue | FinalValue | undefined);
+  const valueMap: Partial<Record<ModifierKey, ValueMapper>> = {};
+
+  for (const key of Object.keys(config.valueMap ?? {}) as ModifierKey[]) {
+    const mapper = config.valueMap?.[key];
+    if (!mapper) {
+      continue;
+    }
+
+    valueMap[key] = typeof mapper === 'function'
+      ? mapper as ValueMapper
+      : createMapper(mapper as Partial<Record<Extract<InputValue, string>, FinalValue>>);
+  }
+
+  return (modifiers: Partial<Record<ModifierKey | Extract<FinalKey, string>, InputValue | FinalValue | undefined>>): string => {
+    const operations: Array<[FinalKey, FinalValue]> = [];
+
+    for (const rawKey in modifiers) {
+      const value = modifiers[rawKey as keyof typeof modifiers];
+      if (value === undefined) {
+        continue;
+      }
+
+      const mapper = valueMap[rawKey as ModifierKey];
+      const mappedValue = typeof mapper === 'function'
+        ? mapper(value as InputValue)
+        : value;
+
+      if (mappedValue === undefined) {
+        continue;
+      }
+
+      operations.push([
+        (keyMap ? keyMap(rawKey as ModifierKey) : rawKey) as FinalKey,
+        mappedValue as FinalValue
+      ]);
+    }
+
+    const formatter = config.formatter;
+    if (formatter) {
+      return operations.map(([key, value]) => formatter(key, value)).join(config.joinWith ?? '&');
+    }
+
+    return new URLSearchParams(operations.map(([key, value]) => [String(key), String(value)])).toString();
+  };
+}
 
 export function toNumber(value: number | string | null | undefined): number | undefined {
   if (typeof value === 'number' && Number.isFinite(value)) {
@@ -11,6 +76,29 @@ export function toNumber(value: number | string | null | undefined): number | un
   }
 
   return undefined;
+}
+
+export function parseSize(input: string | number | null | undefined): number | undefined {
+  if (typeof input === 'number') {
+    return Number.isFinite(input) ? input : undefined;
+  }
+
+  if (typeof input !== 'string') {
+    return undefined;
+  }
+
+  const normalized = input.trim().replace(/px$/i, '');
+  return /^\d+$/.test(normalized) ? Number.parseInt(normalized, 10) : undefined;
+}
+
+export function checkDensities(densities: readonly number[]): void {
+  if (densities.length === 0) {
+    throw new Error('`densities` must not be empty, configure to `1` to render regular size only (DPR 1.0)');
+  }
+
+  if (densities.some((density) => density > 2) && typeof console !== 'undefined') {
+    console.warn('[desource/image] Density values above `2` are not recommended.');
+  }
 }
 
 export function clampQuality(value: number | string | null | undefined): number | undefined {

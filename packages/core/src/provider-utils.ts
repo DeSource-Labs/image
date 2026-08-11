@@ -141,3 +141,14 @@ export const defaultFitValue = {
   inside: 'min',
   outside: 'max'
 };
+
+export function defineProvider<TOptions>(
+  setup: ImageProvider<TOptions> | (() => ImageProvider<TOptions>)
+): () => ImageProvider<TOptions> {
+  let provider: ImageProvider<TOptions> | undefined;
+
+  return () => {
+    provider ??= typeof setup === 'function' ? setup() : setup;
+    return provider;
+  };
+}
