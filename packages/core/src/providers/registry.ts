@@ -91,7 +91,7 @@ export const BUILT_IN_PROVIDER_NAMES = [
   'sirv'
 ] as const;
 
-export type BuiltInProviderName = typeof BUILT_IN_PROVIDER_NAMES[number];
+export type BuiltInProviderName = (typeof BUILT_IN_PROVIDER_NAMES)[number];
 
 export function createBuiltInProviders(): Record<BuiltInProviderName, ImageProvider> {
   return {

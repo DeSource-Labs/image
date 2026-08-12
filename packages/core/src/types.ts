@@ -10,18 +10,24 @@ export type ModifierValue = string | number | boolean | null | undefined;
 export type ImageModifiers = Record<string, ModifierValue>;
 export type InvalidSourceStrategy = 'throw' | 'warn' | 'passthrough';
 export type ImagePreload = boolean | { fetchPriority?: ImageFetchPriority };
-export type OperationMapper<From, To> = Record<string | Extract<From, string | number>, To> | ((key?: From) => To | From | undefined);
+export type OperationMapper<From, To> =
+  Record<string | Extract<From, string | number>, To> | ((key?: From) => To | From | undefined);
 
 export type OperationGeneratorConfig<Key extends string, Value, FinalKey, FinalValue> = {
   keyMap?: Partial<Record<Key, FinalKey>>;
-  valueMap?: Partial<Record<Key, Partial<Record<Extract<Value, string>, FinalValue>> | ((key: Value) => Value | FinalValue | undefined)>>;
-} & ({
-  formatter?: (key: FinalKey, value: FinalValue) => string;
-  joinWith?: undefined;
-} | {
-  formatter: (key: FinalKey, value: FinalValue) => string;
-  joinWith: string;
-});
+  valueMap?: Partial<
+    Record<Key, Partial<Record<Extract<Value, string>, FinalValue>> | ((key: Value) => Value | FinalValue | undefined)>
+  >;
+} & (
+  | {
+      formatter?: (key: FinalKey, value: FinalValue) => string;
+      joinWith?: undefined;
+    }
+  | {
+      formatter: (key: FinalKey, value: FinalValue) => string;
+      joinWith: string;
+    }
+);
 
 export interface RemotePattern {
   protocol?: 'http' | 'https' | string;
@@ -95,7 +101,12 @@ export interface ImageConfig {
   onInvalidSource?: InvalidSourceStrategy;
 }
 
-export interface ResolvedImageConfig extends Required<Pick<ImageConfig, 'provider' | 'screens' | 'densities' | 'presets' | 'aliases' | 'providers' | 'providerOptions' | 'onInvalidSource'>> {
+export interface ResolvedImageConfig extends Required<
+  Pick<
+    ImageConfig,
+    'provider' | 'screens' | 'densities' | 'presets' | 'aliases' | 'providers' | 'providerOptions' | 'onInvalidSource'
+  >
+> {
   quality?: number;
   format?: ImageFormat | readonly ImageFormat[];
   domains?: readonly string[];

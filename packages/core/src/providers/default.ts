@@ -71,16 +71,23 @@ export function awsAmplifyProvider(options: AwsAmplifyProviderOptions = {}): Ima
       }
 
       return {
-        url: appendQuery(path, appendProviderModifiers({
-          url: input.src,
-          w: input.width,
-          h: input.height,
-          q: quality,
-          format: normalizeFormat(input.format),
-          fit: input.modifiers?.fit,
-          position: input.modifiers?.position,
-          background: input.modifiers?.background
-        }, input.modifiers, ['fit', 'position', 'background', 'width', 'w', 'height', 'h', 'quality', 'q', 'format', 'f'])),
+        url: appendQuery(
+          path,
+          appendProviderModifiers(
+            {
+              url: input.src,
+              w: input.width,
+              h: input.height,
+              q: quality,
+              format: normalizeFormat(input.format),
+              fit: input.modifiers?.fit,
+              position: input.modifiers?.position,
+              background: input.modifiers?.background
+            },
+            input.modifiers,
+            ['fit', 'position', 'background', 'width', 'w', 'height', 'h', 'quality', 'q', 'format', 'f']
+          )
+        ),
         isOptimized: true
       };
     }
@@ -120,7 +127,21 @@ export function ipxStaticProvider(options: IpxProviderOptions = {}): ImageProvid
 }
 
 function ipxModifierSegment(input: ImageProviderInput): string {
-  const reserved = new Set(['width', 'height', 'w', 'h', 'resize', 'quality', 'q', 'format', 'f', 'fit', 'position', 'background', 'blur']);
+  const reserved = new Set([
+    'width',
+    'height',
+    'w',
+    'h',
+    'resize',
+    'quality',
+    'q',
+    'format',
+    'f',
+    'fit',
+    'position',
+    'background',
+    'blur'
+  ]);
   const operations: Array<[string, Exclude<ModifierValue, undefined | null>]> = [];
 
   if (input.width && input.height) {
@@ -143,10 +164,16 @@ function ipxModifierSegment(input: ImageProviderInput): string {
     }
   }
 
-  return operations.map(([key, value]) => `${encodeURIComponent(key)}_${encodeURIComponent(String(value))}`).join('&') || '_';
+  return (
+    operations.map(([key, value]) => `${encodeURIComponent(key)}_${encodeURIComponent(String(value))}`).join('&') || '_'
+  );
 }
 
-function pushOperation(operations: Array<[string, Exclude<ModifierValue, undefined | null>]>, key: string, value: ModifierValue): void {
+function pushOperation(
+  operations: Array<[string, Exclude<ModifierValue, undefined | null>]>,
+  key: string,
+  value: ModifierValue
+): void {
   if (value !== undefined && value !== null && value !== false && value !== '') {
     operations.push([key, value]);
   }
@@ -165,15 +192,22 @@ export function netlifyProvider(options: NetlifyProviderOptions = {}): ImageProv
       }
 
       return {
-        url: appendQuery(providerOptions.path ?? defaults.path, appendProviderModifiers({
-          url: input.src,
-          w: input.width,
-          h: input.height,
-          q: input.quality,
-          fm: normalizeFormat(input.format),
-          fit: input.modifiers?.fit,
-          position: input.modifiers?.position
-        }, input.modifiers, ['fit', 'position'])),
+        url: appendQuery(
+          providerOptions.path ?? defaults.path,
+          appendProviderModifiers(
+            {
+              url: input.src,
+              w: input.width,
+              h: input.height,
+              q: input.quality,
+              fm: normalizeFormat(input.format),
+              fit: input.modifiers?.fit,
+              position: input.modifiers?.position
+            },
+            input.modifiers,
+            ['fit', 'position']
+          )
+        ),
         isOptimized: true
       };
     }
@@ -187,7 +221,9 @@ export function netlifyImageCdnProvider(options: NetlifyProviderOptions = {}): I
   };
 }
 
-export function netlifyLargeMediaProvider(options: NetlifyLargeMediaProviderOptions = {}): ImageProvider<NetlifyLargeMediaProviderOptions> {
+export function netlifyLargeMediaProvider(
+  options: NetlifyLargeMediaProviderOptions = {}
+): ImageProvider<NetlifyLargeMediaProviderOptions> {
   const defaults = {
     baseURL: options.baseURL ?? '/'
   };
@@ -195,18 +231,25 @@ export function netlifyLargeMediaProvider(options: NetlifyLargeMediaProviderOpti
   return {
     name: 'netlifyLargeMedia',
     getImage(input, providerOptions = defaults): ImageProviderResult {
-      const params = appendProviderModifiers({
-        w: input.width,
-        h: input.height,
-        nf_resize: input.modifiers?.fit
-      }, input.modifiers, ['format', 'fit']);
+      const params = appendProviderModifiers(
+        {
+          w: input.width,
+          h: input.height,
+          nf_resize: input.modifiers?.fit
+        },
+        input.modifiers,
+        ['format', 'fit']
+      );
 
       if ((params.h || params.w) && !params.nf_resize) {
         params.nf_resize = 'fit';
       }
 
       const baseURL = providerOptions.baseURL ?? defaults.baseURL;
-      const src = baseURL && !input.src.startsWith('http') ? `${baseURL.replace(/\/+$/, '')}/${input.src.replace(/^\/+/, '')}` : input.src;
+      const src =
+        baseURL && !input.src.startsWith('http')
+          ? `${baseURL.replace(/\/+$/, '')}/${input.src.replace(/^\/+/, '')}`
+          : input.src;
       return {
         url: appendQuery(src, params),
         isOptimized: isTransformable(input)

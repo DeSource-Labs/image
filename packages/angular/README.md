@@ -17,9 +17,11 @@ For Angular SSR, install the optimizer middleware in `src/server.ts` before stat
 ```ts
 import { createDsImageMiddleware } from '@desource/image-angular/server';
 
-app.use(createDsImageMiddleware({
-  dirs: [browserDistFolder]
-}));
+app.use(
+  createDsImageMiddleware({
+    dirs: [browserDistFolder]
+  })
+);
 ```
 
 Also externalize the server subpath in `angular.json` so Angular does not bundle the Sharp-based optimizer into `server.mjs`:
@@ -42,14 +44,7 @@ import { DsImageComponent } from '@desource/image-angular';
   imports: [DsImageComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <ds-image
-      src="/img/hero.jpg"
-      alt="Background"
-      quality="75"
-      sizes="100vw md:1100px"
-      format="webp"
-      loading="lazy"
-    />
+    <ds-image src="/img/hero.jpg" alt="Background" quality="75" sizes="100vw md:1100px" format="webp" loading="lazy" />
   `
 })
 export class AppComponent {}

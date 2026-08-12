@@ -10,13 +10,7 @@
   });
 </script>
 
-<Image
-  src="/hero.png"
-  alt="Hero"
-  width={800}
-  format="webp"
-  custom
->
+<Image src="/hero.png" alt="Hero" width={800} format="webp" custom>
   {#snippet children({ imgAttrs, src, isLoaded })}
     <figure data-src={src} data-loaded={isLoaded}>
       <img {...imgAttrs} data-custom="yes" />

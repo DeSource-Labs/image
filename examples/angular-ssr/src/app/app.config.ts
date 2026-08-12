@@ -2,8 +2,5 @@ import { type ApplicationConfig, provideZonelessChangeDetection } from '@angular
 import { provideClientHydration } from '@angular/platform-browser';
 
 export const appConfig: ApplicationConfig = {
-  providers: [
-    provideZonelessChangeDetection(),
-    provideClientHydration()
-  ]
+  providers: [provideZonelessChangeDetection(), provideClientHydration()]
 };

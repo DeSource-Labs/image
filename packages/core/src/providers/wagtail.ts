@@ -15,13 +15,14 @@ export function wagtailProvider(options: WagtailProviderOptions = {}): ImageProv
       const format = normalizeFormat(input.format) ?? 'webp';
       const quality = input.quality ?? 70;
       const suffix = `|format-${format}|${format}quality-${quality}`;
-      const operation = width && height
-        ? `fill-${width}x${height}-c0${suffix}`
-        : width
-          ? `width-${width}${suffix}`
-          : height
-            ? `height-${height}${suffix}`
-            : `original${suffix}`;
+      const operation =
+        width && height
+          ? `fill-${width}x${height}-c0${suffix}`
+          : width
+            ? `width-${width}${suffix}`
+            : height
+              ? `height-${height}${suffix}`
+              : `original${suffix}`;
       return {
         url: sourceWithBase(joinURL(input.src, operation), providerBaseURL(providerOptions, defaults)),
         isOptimized: true

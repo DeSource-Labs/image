@@ -10,11 +10,4 @@
   });
 </script>
 
-<Picture
-  src="/hero.png"
-  alt="Hero"
-  width={800}
-  format="avif,webp"
-  legacyFormat="jpg"
-  imgAttrs={{ id: 'fallback' }}
-/>
+<Picture src="/hero.png" alt="Hero" width={800} format="avif,webp" legacyFormat="jpg" imgAttrs={{ id: 'fallback' }} />

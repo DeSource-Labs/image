@@ -22,7 +22,10 @@ export function picsumProvider(options: PicsumProviderOptions = {}): ImageProvid
         parts.push(String(input.height));
       }
       return {
-        url: appendQuery(joinURL(providerBaseURL(providerOptions, defaults), parts.join('/')), mappedModifiers(input, {}, {}, ['width', 'height', 'quality', 'format', 'fit', 'background'])),
+        url: appendQuery(
+          joinURL(providerBaseURL(providerOptions, defaults), parts.join('/')),
+          mappedModifiers(input, {}, {}, ['width', 'height', 'quality', 'format', 'fit', 'background'])
+        ),
         isOptimized: true
       };
     }

@@ -52,15 +52,13 @@ The full provider registry is exported from `@desource/image/providers`. Individ
 ```ts
 import { createImage, getImageAttrs } from '@desource/image';
 
-const attrs = getImageAttrs(
-  {
-    src: '/img/hero.jpg',
-    quality: 75,
-    sizes: '100vw md:1100px',
-    format: 'webp',
-    loading: 'lazy'
-  }
-);
+const attrs = getImageAttrs({
+  src: '/img/hero.jpg',
+  quality: 75,
+  sizes: '100vw md:1100px',
+  format: 'webp',
+  loading: 'lazy'
+});
 
 const $img = createImage();
 const url = $img('/img/hero.jpg', { width: 800, format: 'webp', quality: 75 });

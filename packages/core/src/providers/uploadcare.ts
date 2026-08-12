@@ -26,7 +26,7 @@ export function uploadcareProvider(options: UploadcareProviderOptions = {}): Ima
           parts.push(`-/${key}/${value}/`);
         }
       }
-      const base = input.src.startsWith('http') ? '' : providerOptions.cdnURL ?? defaults.cdnURL;
+      const base = input.src.startsWith('http') ? '' : (providerOptions.cdnURL ?? defaults.cdnURL);
       return {
         url: joinURLParts(base, input.src, parts.join('')),
         isOptimized: isTransformable(input)

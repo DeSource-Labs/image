@@ -8,7 +8,7 @@ export interface Mapper<Key, Value> {
 export function createMapper<Key extends string, Value>(
   map: Partial<Record<Key, Value>> & { missingValue?: Value }
 ): Mapper<Key, Value> {
-  return ((key?: Key) => key !== undefined ? map[key] ?? key : map.missingValue) as Mapper<Key, Value>;
+  return ((key?: Key) => (key !== undefined ? (map[key] ?? key) : map.missingValue)) as Mapper<Key, Value>;
 }
 
 export function createOperationsGenerator<
@@ -18,7 +18,8 @@ export function createOperationsGenerator<
   FinalValue = InputValue
 >(config: OperationGeneratorConfig<ModifierKey, InputValue, FinalKey, FinalValue> = {}) {
   const keyMap = config.keyMap ? createMapper(config.keyMap) : undefined;
-  type ValueMapper = Mapper<Extract<InputValue, string>, FinalValue> | ((value: InputValue) => InputValue | FinalValue | undefined);
+  type ValueMapper =
+    Mapper<Extract<InputValue, string>, FinalValue> | ((value: InputValue) => InputValue | FinalValue | undefined);
   const valueMap: Partial<Record<ModifierKey, ValueMapper>> = {};
 
   for (const key of Object.keys(config.valueMap ?? {}) as ModifierKey[]) {
@@ -27,12 +28,15 @@ export function createOperationsGenerator<
       continue;
     }
 
-    valueMap[key] = typeof mapper === 'function'
-      ? mapper as ValueMapper
-      : createMapper(mapper as Partial<Record<Extract<InputValue, string>, FinalValue>>);
+    valueMap[key] =
+      typeof mapper === 'function'
+        ? (mapper as ValueMapper)
+        : createMapper(mapper as Partial<Record<Extract<InputValue, string>, FinalValue>>);
   }
 
-  return (modifiers: Partial<Record<ModifierKey | Extract<FinalKey, string>, InputValue | FinalValue | undefined>>): string => {
+  return (
+    modifiers: Partial<Record<ModifierKey | Extract<FinalKey, string>, InputValue | FinalValue | undefined>>
+  ): string => {
     const operations: Array<[FinalKey, FinalValue]> = [];
 
     for (const rawKey in modifiers) {
@@ -42,18 +46,13 @@ export function createOperationsGenerator<
       }
 
       const mapper = valueMap[rawKey as ModifierKey];
-      const mappedValue = typeof mapper === 'function'
-        ? mapper(value as InputValue)
-        : value;
+      const mappedValue = typeof mapper === 'function' ? mapper(value as InputValue) : value;
 
       if (mappedValue === undefined) {
         continue;
       }
 
-      operations.push([
-        (keyMap ? keyMap(rawKey as ModifierKey) : rawKey) as FinalKey,
-        mappedValue as FinalValue
-      ]);
+      operations.push([(keyMap ? keyMap(rawKey as ModifierKey) : rawKey) as FinalKey, mappedValue as FinalValue]);
     }
 
     const formatter = config.formatter;
@@ -111,7 +110,9 @@ export function clampQuality(value: number | string | null | undefined): number 
 }
 
 export function uniqueSorted(values: readonly number[]): number[] {
-  return [...new Set(values.filter((value) => Number.isFinite(value) && value > 0).map((value) => Math.round(value)))].sort((a, b) => a - b);
+  return [
+    ...new Set(values.filter((value) => Number.isFinite(value) && value > 0).map((value) => Math.round(value)))
+  ].sort((a, b) => a - b);
 }
 
 export function joinURL(base: string, path: string): string {
@@ -127,7 +128,9 @@ export function joinURL(base: string, path: string): string {
 }
 
 export function appendQuery(url: string, params: Record<string, ModifierValue>): string {
-  const entries = Object.entries(params).filter(([, value]) => value !== undefined && value !== null && value !== false && value !== '');
+  const entries = Object.entries(params).filter(
+    ([, value]) => value !== undefined && value !== null && value !== false && value !== ''
+  );
   if (entries.length === 0) {
     return url;
   }
@@ -139,7 +142,9 @@ export function appendQuery(url: string, params: Record<string, ModifierValue>):
   return `${url}${separator}${query}`;
 }
 
-export function stableModifiers(modifiers: ImageModifiers | undefined): [string, Exclude<ModifierValue, undefined | null>][] {
+export function stableModifiers(
+  modifiers: ImageModifiers | undefined
+): [string, Exclude<ModifierValue, undefined | null>][] {
   if (!modifiers) {
     return [];
   }

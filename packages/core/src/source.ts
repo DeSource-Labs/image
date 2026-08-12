@@ -59,7 +59,10 @@ export function validateSource(src: string, config: ResolvedImageConfig): Source
     return { valid: false, reason: `Remote image host "${url.hostname}" is not allowed by domains or remotePatterns.` };
   }
 
-  return { valid: false, reason: `Image source "${src}" must be an absolute local path, a data/blob URL, or an http(s) URL.` };
+  return {
+    valid: false,
+    reason: `Image source "${src}" must be an absolute local path, a data/blob URL, or an http(s) URL.`
+  };
 }
 
 function matchLocalPattern(src: string, pattern: LocalPattern): boolean {

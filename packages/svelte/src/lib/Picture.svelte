@@ -77,7 +77,11 @@
   const renderedSrc = $derived(fallbackActive && picture.img.fallbackSrc ? picture.img.fallbackSrc : picture.img.src);
   const renderedSrcset = $derived(fallbackActive ? undefined : picture.img.srcset);
   const renderedSizes = $derived(fallbackActive ? undefined : picture.img.sizes);
-  const imageClass = $derived([className, picture.img.placeholderSrc && !loaded ? picture.img.placeholderClass : undefined].filter(Boolean).join(' ') || undefined);
+  const imageClass = $derived(
+    [className, picture.img.placeholderSrc && !loaded ? picture.img.placeholderClass : undefined]
+      .filter(Boolean)
+      .join(' ') || undefined
+  );
   const imageStyle = $derived(styleWithPlaceholder(style, picture.img.placeholderSrc, loaded));
   const normalizedCrossorigin = $derived(normalizeCrossorigin(crossorigin));
   const nonceAttrs = $derived(nonce ? { nonce } : {});
@@ -114,18 +118,19 @@
     };
   });
 
-  function styleWithPlaceholder(base: string | null | undefined, placeholderSrc: string | undefined, isLoaded: boolean): string | undefined {
+  function styleWithPlaceholder(
+    base: string | null | undefined,
+    placeholderSrc: string | undefined,
+    isLoaded: boolean
+  ): string | undefined {
     if (!placeholderSrc || isLoaded) {
       return base ?? undefined;
     }
 
     const escaped = placeholderSrc.replace(/"/g, '%22');
-    return [
-      base,
-      `background-image:url("${escaped}")`,
-      'background-size:cover',
-      'background-position:center'
-    ].filter(Boolean).join(';');
+    return [base, `background-image:url("${escaped}")`, 'background-size:cover', 'background-position:center']
+      .filter(Boolean)
+      .join(';');
   }
 
   function normalizeCrossorigin(value: unknown): 'anonymous' | 'use-credentials' | undefined {

@@ -14,5 +14,12 @@
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
     "useDefineForClassFields": true
-  }
+  },
+  "references": [
+    { "path": "./packages/core/tsconfig.json" },
+    { "path": "./packages/angular/tsconfig.lib.json" },
+    { "path": "./packages/svelte/tsconfig.json" }
+  ],
+  "include": [],
+  "exclude": ["node_modules", "dist"]
 }

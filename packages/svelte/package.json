@@ -42,12 +42,10 @@
     "test:e2e": "playwright test"
   },
   "peerDependencies": {
+    "@desource/image": "workspace:*",
     "svelte": "^5.0.0",
     "vite": "^6.0.0 || ^7.0.0 || ^8.0.0",
     "ipx": "^3.1.1"
-  },
-  "dependencies": {
-    "@desource/image": "workspace:*"
   },
   "devDependencies": {
     "@sveltejs/package": "^2.5.7",

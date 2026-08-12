@@ -26,7 +26,16 @@ import {
   getPictureAttrs
 } from '@desource/image';
 import { DS_IMAGE_CONFIG } from './config.js';
-import { coerceBoolean, coerceCrossorigin, coerceNumber, coercePlaceholder, coercePreload, mergeClassNames, stripUndefined, styleWithPlaceholder } from './coercion.js';
+import {
+  coerceBoolean,
+  coerceCrossorigin,
+  coerceNumber,
+  coercePlaceholder,
+  coercePreload,
+  mergeClassNames,
+  stripUndefined,
+  styleWithPlaceholder
+} from './coercion.js';
 
 type NativeAttrs = Record<string, string | number | boolean | null | undefined>;
 
@@ -41,11 +50,7 @@ type NativeAttrs = Record<string, string | number | boolean | null | undefined>;
   template: `
     <picture>
       @for (source of picture().sources; track source.type) {
-        <source
-          [attr.type]="source.type"
-          [attr.srcset]="source.srcset"
-          [attr.sizes]="source.sizes"
-        />
+        <source [attr.type]="source.type" [attr.srcset]="source.srcset" [attr.sizes]="source.sizes" />
       }
       <img
         #image
@@ -112,7 +117,9 @@ export class DsPictureComponent {
   readonly ariaLabel = input<string | undefined>(undefined, { alias: 'aria-label' });
   readonly ariaDescribedby = input<string | undefined>(undefined, { alias: 'aria-describedby' });
   readonly referrerpolicy = input<string | undefined>();
-  readonly crossorigin = input<'anonymous' | 'use-credentials' | undefined, unknown>(undefined, { transform: coerceCrossorigin });
+  readonly crossorigin = input<'anonymous' | 'use-credentials' | undefined, unknown>(undefined, {
+    transform: coerceCrossorigin
+  });
   readonly nonce = input<string | undefined>();
   readonly usemap = input<string | undefined>();
   readonly dataTestid = input<string | undefined>(undefined, { alias: 'data-testid' });
@@ -121,41 +128,47 @@ export class DsPictureComponent {
 
   readonly loaded = signal(false);
 
-  readonly imageInput = computed<ImageInput>(() => stripUndefined({
-    src: this.src(),
-    alt: this.alt(),
-    width: this.width(),
-    height: this.height(),
-    sizes: this.sizes(),
-    quality: this.quality(),
-    format: this.format(),
-    formats: this.formats(),
-    fallbackFormat: this.fallbackFormat(),
-    legacyFormat: this.legacyFormat(),
-    fit: this.fit(),
-    position: this.position(),
-    background: this.background(),
-    modifiers: this.modifiers(),
-    provider: this.provider(),
-    preset: this.preset(),
-    densities: this.densities(),
-    loading: this.loading(),
-    decoding: this.decoding(),
-    fetchpriority: this.fetchpriority(),
-    priority: this.priority(),
-    preload: this.preload(),
-    placeholder: this.placeholder(),
-    placeholderClass: this.placeholderClass()
-  }));
+  readonly imageInput = computed<ImageInput>(() =>
+    stripUndefined({
+      src: this.src(),
+      alt: this.alt(),
+      width: this.width(),
+      height: this.height(),
+      sizes: this.sizes(),
+      quality: this.quality(),
+      format: this.format(),
+      formats: this.formats(),
+      fallbackFormat: this.fallbackFormat(),
+      legacyFormat: this.legacyFormat(),
+      fit: this.fit(),
+      position: this.position(),
+      background: this.background(),
+      modifiers: this.modifiers(),
+      provider: this.provider(),
+      preset: this.preset(),
+      densities: this.densities(),
+      loading: this.loading(),
+      decoding: this.decoding(),
+      fetchpriority: this.fetchpriority(),
+      priority: this.priority(),
+      preload: this.preload(),
+      placeholder: this.placeholder(),
+      placeholderClass: this.placeholderClass()
+    })
+  );
 
   readonly picture = computed(() => getPictureAttrs(this.imageInput(), this.config));
 
-  readonly imageClass = computed(() => mergeClassNames([
-    this.imgClass(),
-    this.picture().img.placeholderSrc && !this.loaded() ? this.picture().img.placeholderClass : undefined
-  ]));
+  readonly imageClass = computed(() =>
+    mergeClassNames([
+      this.imgClass(),
+      this.picture().img.placeholderSrc && !this.loaded() ? this.picture().img.placeholderClass : undefined
+    ])
+  );
 
-  readonly imageStyle = computed(() => styleWithPlaceholder(this.style(), this.picture().img.placeholderSrc, this.loaded()));
+  readonly imageStyle = computed(() =>
+    styleWithPlaceholder(this.style(), this.picture().img.placeholderSrc, this.loaded())
+  );
 
   handleError(event: Event): void {
     const image = event.target;

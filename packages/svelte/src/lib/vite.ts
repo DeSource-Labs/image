@@ -90,7 +90,9 @@ export function desourceImage(options: DesourceImagePluginOptions = {}): Plugin 
 
     try {
       handler ??= createIpxHandler(root, options);
-      await (await handler)(request, response);
+      await (
+        await handler
+      )(request, response);
     } catch (error) {
       next(error);
     } finally {
@@ -104,19 +106,21 @@ async function createIpxHandler(root: string, options: DesourceImagePluginOption
   const dirs = (options.dirs ?? ['static', 'public']).map((dir) => resolve(root, dir));
   const domains = options.domains ? [...options.domains] : undefined;
 
-  return createIPXNodeServer(createIPX({
-    maxAge: options.maxAge ?? 60,
-    alias: options.alias,
-    storage: ipxFSStorage({
-      dir: dirs,
-      maxAge: options.maxAge ?? 60
-    }),
-    httpStorage: ipxHttpStorage({
-      allowAllDomains: options.allowAllDomains ?? !domains?.length,
-      domains,
-      maxAge: options.maxAge ?? 60
+  return createIPXNodeServer(
+    createIPX({
+      maxAge: options.maxAge ?? 60,
+      alias: options.alias,
+      storage: ipxFSStorage({
+        dir: dirs,
+        maxAge: options.maxAge ?? 60
+      }),
+      httpStorage: ipxHttpStorage({
+        allowAllDomains: options.allowAllDomains ?? !domains?.length,
+        domains,
+        maxAge: options.maxAge ?? 60
+      })
     })
-  }));
+  );
 }
 
 function normalizeBasePath(path: string): string {

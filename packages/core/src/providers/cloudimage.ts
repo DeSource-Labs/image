@@ -20,19 +20,26 @@ export function cloudimageProvider(options: CloudimageProviderOptions = {}): Ima
         ? joinURL(cdnURL, input.src)
         : joinURLParts(cdnURL, options.baseURL ?? '', input.src);
       return {
-        url: appendQuery(src || input.src, mappedModifiers(input, {
-          fit: 'func',
-          format: 'force_format',
-          quality: 'q'
-        }, {
-          fit: {
-            cover: 'crop',
-            contain: 'fit',
-            fill: 'cover',
-            inside: 'bound',
-            outside: 'boundmin'
-          }
-        })),
+        url: appendQuery(
+          src || input.src,
+          mappedModifiers(
+            input,
+            {
+              fit: 'func',
+              format: 'force_format',
+              quality: 'q'
+            },
+            {
+              fit: {
+                cover: 'crop',
+                contain: 'fit',
+                fill: 'cover',
+                inside: 'bound',
+                outside: 'boundmin'
+              }
+            }
+          )
+        ),
         isOptimized: isTransformable(input)
       };
     }

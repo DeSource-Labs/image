@@ -51,7 +51,10 @@ export default [
       '**/coverage/**',
       '**/*.min.js',
       '**/*.min.css',
-      'pnpm-lock.yaml'
+      'pnpm-lock.yaml',
+      '**/.nuxt/**',
+      '**/nuxt_image/**',
+      'examples/**'
     ]
   },
 

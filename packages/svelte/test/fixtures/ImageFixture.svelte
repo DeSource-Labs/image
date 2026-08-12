@@ -10,11 +10,4 @@
   });
 </script>
 
-<Image
-  src="/hero.png"
-  alt="Hero"
-  width={800}
-  format="webp"
-  crossorigin
-  nonce="nonce-value"
-/>
+<Image src="/hero.png" alt="Hero" width={800} format="webp" crossorigin nonce="nonce-value" />

@@ -23,7 +23,9 @@ export function imagekitProvider(options: ImageKitProviderOptions = {}): ImagePr
         ...stableModifiers(input.modifiers)
           .filter(([key]) => !['fit', 'position', 'background'].includes(key))
           .map(([key, value]) => `${key}-${value}`)
-      ].filter(Boolean).join(',');
+      ]
+        .filter(Boolean)
+        .join(',');
 
       if (!transformations) {
         return { url: source, isOptimized: false };

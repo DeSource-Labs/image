@@ -17,15 +17,18 @@ export function testImageBehavior(adapter: ImageBehaviorAdapter): void {
     };
 
     it('generates Nuxt-style image attrs with priority and placeholders', () => {
-      const attrs = adapter.getImageAttrs({
-        src: '/hero.png',
-        alt: 'Hero',
-        width: 800,
-        height: 400,
-        format: 'webp',
-        priority: true,
-        placeholder: true
-      }, ipxConfig);
+      const attrs = adapter.getImageAttrs(
+        {
+          src: '/hero.png',
+          alt: 'Hero',
+          width: 800,
+          height: 400,
+          format: 'webp',
+          priority: true,
+          placeholder: true
+        },
+        ipxConfig
+      );
 
       expect(attrs).toMatchObject({
         src: '/_ipx/s_800x400&f_webp/hero.png',
@@ -43,17 +46,20 @@ export function testImageBehavior(adapter: ImageBehaviorAdapter): void {
     });
 
     it('generates picture sources with the fallback format last', () => {
-      const picture = adapter.getPictureAttrs({
-        src: '/hero.png',
-        width: 800,
-        height: 400,
-        sizes: '100vw md:400px',
-        format: 'avif,webp',
-        legacyFormat: 'jpg'
-      }, {
-        ...ipxConfig,
-        providerSizes: [320, 400, 640, 800]
-      });
+      const picture = adapter.getPictureAttrs(
+        {
+          src: '/hero.png',
+          width: 800,
+          height: 400,
+          sizes: '100vw md:400px',
+          format: 'avif,webp',
+          legacyFormat: 'jpg'
+        },
+        {
+          ...ipxConfig,
+          providerSizes: [320, 400, 640, 800]
+        }
+      );
 
       expect(picture.sources.map((source) => source.type)).toEqual(['image/avif', 'image/webp']);
       expect(picture.sources[0]?.srcset).toContain('f_avif');
@@ -77,12 +83,9 @@ export function testImageBehavior(adapter: ImageBehaviorAdapter): void {
         }
       });
 
-      expect($img('/hero.png', { width: 320, format: 'webp' }))
-        .toBe('/_ipx/w_320&f_webp/hero.png');
-      expect(($img.avatar as typeof $img)('/user.png'))
-        .toBe('/_ipx/s_96x96&q_80/user.png');
-      expect($img('/unsplash/photo-id', { width: 640 }))
-        .toBe('/_ipx/w_640/unsplash/photo-id');
+      expect($img('/hero.png', { width: 320, format: 'webp' })).toBe('/_ipx/w_320&f_webp/hero.png');
+      expect(($img.avatar as typeof $img)('/user.png')).toBe('/_ipx/s_96x96&q_80/user.png');
+      expect($img('/unsplash/photo-id', { width: 640 })).toBe('/_ipx/w_640/unsplash/photo-id');
     });
 
     it('uses custom providers without framework-specific glue', () => {
@@ -96,13 +99,18 @@ export function testImageBehavior(adapter: ImageBehaviorAdapter): void {
         }
       };
 
-      expect(adapter.getImageAttrs({
-        provider: 'custom',
-        src: '/asset.png',
-        width: 500
-      }, {
-        providers: { custom: customProvider }
-      }).src).toBe('/custom?src=%2Fasset.png&w=500');
+      expect(
+        adapter.getImageAttrs(
+          {
+            provider: 'custom',
+            src: '/asset.png',
+            width: 500
+          },
+          {
+            providers: { custom: customProvider }
+          }
+        ).src
+      ).toBe('/custom?src=%2Fasset.png&w=500');
     });
   });
 }

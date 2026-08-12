@@ -66,16 +66,17 @@ export function mergeClassNames(values: Array<string | undefined | false>): stri
   return className || undefined;
 }
 
-export function styleWithPlaceholder(style: string | undefined, placeholderSrc: string | undefined, loaded: boolean): string | undefined {
+export function styleWithPlaceholder(
+  style: string | undefined,
+  placeholderSrc: string | undefined,
+  loaded: boolean
+): string | undefined {
   if (!placeholderSrc || loaded) {
     return style;
   }
 
   const escaped = placeholderSrc.replace(/"/g, '%22');
-  return [
-    style,
-    `background-image:url("${escaped}")`,
-    'background-size:cover',
-    'background-position:center'
-  ].filter(Boolean).join(';');
+  return [style, `background-image:url("${escaped}")`, 'background-size:cover', 'background-position:center']
+    .filter(Boolean)
+    .join(';');
 }

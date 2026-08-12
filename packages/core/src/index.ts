@@ -51,9 +51,7 @@ export {
   resolveImageConfig
 } from './config';
 
-export {
-  createImage
-} from './factory';
+export { createImage } from './factory';
 
 export {
   awsAmplifyProvider,
@@ -77,29 +75,12 @@ export {
   resolvePreset
 } from './image';
 
-export {
-  generateDensities,
-  generateSizes,
-  parseDensities,
-  parseSizes
-} from './sizes';
+export { generateDensities, generateSizes, parseDensities, parseSizes } from './sizes';
 
-export {
-  resolveAlias,
-  validateSource
-} from './source';
+export { resolveAlias, validateSource } from './source';
 
-export {
-  checkDensities,
-  createMapper,
-  createOperationsGenerator,
-  parseSize
-} from './utils';
+export { checkDensities, createMapper, createOperationsGenerator, parseSize } from './utils';
 
-export {
-  defineProvider
-} from './provider-utils';
+export { defineProvider } from './provider-utils';
 
-export type {
-  Mapper
-} from './utils';
+export type { Mapper } from './utils';

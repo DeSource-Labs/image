@@ -1,5 +1,13 @@
 import { detectProvider as detectStdEnvProvider, provider as stdEnvProvider } from 'std-env';
-import type { ImageConfig, ImageContext, ImageInput, ImagePreloadLink, ImageProviderResult, PictureAttrs, ResolvedImageConfig } from './types';
+import type {
+  ImageConfig,
+  ImageContext,
+  ImageInput,
+  ImagePreloadLink,
+  ImageProviderResult,
+  PictureAttrs,
+  ResolvedImageConfig
+} from './types';
 import { createDefaultProviders } from './providers/default';
 import { getImage, getImageAttrs, getImagePreloadLink, getPictureAttrs } from './image';
 
@@ -36,9 +44,8 @@ export function resolveImageConfig(config: ImageConfig = {}): ResolvedImageConfi
 
 export function detectImageProvider(): string {
   const env = runtimeEnv();
-  const forced = env['DESOURCE_IMAGE_PROVIDER']
-    ?? env['PUBLIC_DESOURCE_IMAGE_PROVIDER']
-    ?? env['VITE_DESOURCE_IMAGE_PROVIDER'];
+  const forced =
+    env['DESOURCE_IMAGE_PROVIDER'] ?? env['PUBLIC_DESOURCE_IMAGE_PROVIDER'] ?? env['VITE_DESOURCE_IMAGE_PROVIDER'];
 
   if (forced) {
     return forced;
@@ -58,7 +65,14 @@ export function detectImageProvider(): string {
     return 'awsAmplify';
   }
 
-  if (env['VERCEL'] || env['VERCEL_ENV'] || env['NOW_BUILDER'] || env['NEXT_PUBLIC_VERCEL_URL'] || env['VERCEL_URL'] || isVercelHost()) {
+  if (
+    env['VERCEL'] ||
+    env['VERCEL_ENV'] ||
+    env['NOW_BUILDER'] ||
+    env['NEXT_PUBLIC_VERCEL_URL'] ||
+    env['VERCEL_URL'] ||
+    isVercelHost()
+  ) {
     return 'vercel';
   }
 

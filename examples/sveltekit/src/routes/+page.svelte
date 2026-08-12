@@ -3,20 +3,20 @@
 </script>
 
 <main>
-  <Image
-    src="/img/hero.jpg"
-    alt="Background"
-    quality={75}
-    sizes="100vw md:1100px"
-    format="webp"
-    loading="lazy"
-  />
+  <Image src="/img/hero.jpg" alt="Background" quality={75} sizes="100vw md:1100px" format="webp" loading="lazy" />
 </main>
 
 <style>
   :global(body) {
     margin: 0;
-    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-family:
+      Inter,
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      'Segoe UI',
+      sans-serif;
     color: #172033;
     background: #f7f8fb;
   }

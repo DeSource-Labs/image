@@ -59,7 +59,9 @@ export function createDsImageMiddleware(options: DsImageMiddlewareOptions = {}) 
 
     try {
       handler ??= createIpxHandler(options);
-      await (await handler)(request, response);
+      await (
+        await handler
+      )(request, response);
     } catch (error) {
       next(error);
     } finally {
@@ -73,19 +75,21 @@ async function createIpxHandler(options: DsImageMiddlewareOptions): Promise<Node
   const dirs = (options.dirs ?? ['public', 'static']).map((dir) => resolve(dir));
   const domains = options.domains ? [...options.domains] : undefined;
 
-  return createIPXNodeServer(createIPX({
-    maxAge: options.maxAge ?? 60,
-    alias: options.alias,
-    storage: ipxFSStorage({
-      dir: dirs,
-      maxAge: options.maxAge ?? 60
-    }),
-    httpStorage: ipxHttpStorage({
-      allowAllDomains: options.allowAllDomains ?? !domains?.length,
-      domains,
-      maxAge: options.maxAge ?? 60
+  return createIPXNodeServer(
+    createIPX({
+      maxAge: options.maxAge ?? 60,
+      alias: options.alias,
+      storage: ipxFSStorage({
+        dir: dirs,
+        maxAge: options.maxAge ?? 60
+      }),
+      httpStorage: ipxHttpStorage({
+        allowAllDomains: options.allowAllDomains ?? !domains?.length,
+        domains,
+        maxAge: options.maxAge ?? 60
+      })
     })
-  }));
+  );
 }
 
 function normalizeBasePath(path: string): string {

@@ -15,7 +15,9 @@ export function storyblokProvider(options: StoryblokProviderOptions = {}): Image
       const filters = [
         input.format ? `format(${normalizeFormat(input.format)})` : undefined,
         input.quality ? `quality(${input.quality})` : undefined
-      ].filter(Boolean).join(':');
+      ]
+        .filter(Boolean)
+        .join(':');
       const optionsPath = joinURLParts(
         input.modifiers?.fit ? `fit-${input.modifiers.fit}` : '',
         width !== '0' || height !== '0' ? `${width}x${height}` : '',

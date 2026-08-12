@@ -14,11 +14,19 @@ export function hygraphProvider(options: HygraphProviderOptions = {}): ImageProv
         input.width ? `width:${input.width}` : undefined,
         input.height ? `height:${input.height}` : undefined,
         input.modifiers?.fit ? `fit:${input.modifiers.fit === 'contain' ? 'max' : input.modifiers.fit}` : undefined
-      ].filter(Boolean).join(',');
+      ]
+        .filter(Boolean)
+        .join(',');
       const format = input.format ? `output=format:${normalizeFormat(input.format)}` : 'auto_image';
       const quality = input.quality && input.format ? `quality=value:${input.quality}` : undefined;
       return {
-        url: joinURLParts(providerBaseURL(providerOptions, defaults), transforms ? `resize=${transforms}` : '', quality ?? '', format, stripLeadingSlash(input.src)),
+        url: joinURLParts(
+          providerBaseURL(providerOptions, defaults),
+          transforms ? `resize=${transforms}` : '',
+          quality ?? '',
+          format,
+          stripLeadingSlash(input.src)
+        ),
         isOptimized: isTransformable(input)
       };
     }

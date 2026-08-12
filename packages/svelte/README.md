@@ -31,14 +31,7 @@ This registers the local `/_ipx` optimizer for SvelteKit dev and preview.
   import { Image } from '@desource/image-svelte';
 </script>
 
-<Image
-  src="/img/hero.jpg"
-  alt="Background"
-  quality={75}
-  sizes="100vw md:1100px"
-  format="webp"
-  loading="lazy"
-/>
+<Image src="/img/hero.jpg" alt="Background" quality={75} sizes="100vw md:1100px" format="webp" loading="lazy" />
 ```
 
 This produces an IPX-style local URL:
@@ -58,14 +51,7 @@ No provider config is required for the common path. Add `setImageConfig(config)`
   import { Picture } from '@desource/image-svelte';
 </script>
 
-<Picture
-  src="/hero.png"
-  alt="Hero"
-  width={2200}
-  height={1200}
-  sizes="100vw md:1100px"
-  formats={['avif', 'webp']}
-/>
+<Picture src="/hero.png" alt="Hero" width={2200} height={1200} sizes="100vw md:1100px" formats={['avif', 'webp']} />
 ```
 
 The component renders native `<picture>` and `<img>` elements with no wrapper.

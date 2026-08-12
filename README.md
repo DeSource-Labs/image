@@ -6,32 +6,32 @@ The developer experience is intentionally familiar to teams that have used Nuxt 
 
 ## Packages
 
-| Package | Purpose |
-| --- | --- |
-| `@desource/image` | Framework-agnostic config, providers, URL generation, responsive sizes, placeholders, validation, and preload helpers. |
-| `@desource/image-angular` | Standalone Angular components: `<ds-image>` and `<ds-picture>`. |
-| `@desource/image-svelte` | Svelte 5/SvelteKit components: `<Image>` and `<Picture>`. |
+| Package                   | Purpose                                                                                                                |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `@desource/image`         | Framework-agnostic config, providers, URL generation, responsive sizes, placeholders, validation, and preload helpers. |
+| `@desource/image-angular` | Standalone Angular components: `<ds-image>` and `<ds-picture>`.                                                        |
+| `@desource/image-svelte`  | Svelte 5/SvelteKit components: `<Image>` and `<Picture>`.                                                              |
 
 ## Feature Matrix
 
-| Feature | Core | Angular | Svelte/SvelteKit |
-| --- | --- | --- | --- |
-| Provider URL generation | Yes | Via core | Via core |
-| Vercel provider | Yes | Yes | Yes |
-| AWS Amplify provider | Yes | Yes | Yes |
-| IPX URL builder | Yes | Yes | Yes |
-| Built-in provider factories | Yes | Via core | Via core |
-| Responsive `sizes` parser | Yes | Yes | Yes |
-| Width `srcset` | Yes | Yes | Yes |
-| Density `srcset` | Yes | Yes | Yes |
-| `<picture>` AVIF/WebP sources | Yes | Yes | Yes |
-| Presets and aliases | Yes | Yes | Yes |
-| Domain/local source validation | Yes | Yes | Yes |
-| Provider-generated placeholders | Yes | Yes | Yes |
-| SSR deterministic output | Yes | Angular SSR compatible | SvelteKit SSR compatible |
-| Automatic preload injection | Helper only | Extension point | Extension point |
-| Auto provider selection | Yes | Yes | Yes |
-| Local IPX optimizer endpoint | URL builder only | SSR middleware | Vite dev/preview plugin |
+| Feature                         | Core             | Angular                | Svelte/SvelteKit         |
+| ------------------------------- | ---------------- | ---------------------- | ------------------------ |
+| Provider URL generation         | Yes              | Via core               | Via core                 |
+| Vercel provider                 | Yes              | Yes                    | Yes                      |
+| AWS Amplify provider            | Yes              | Yes                    | Yes                      |
+| IPX URL builder                 | Yes              | Yes                    | Yes                      |
+| Built-in provider factories     | Yes              | Via core               | Via core                 |
+| Responsive `sizes` parser       | Yes              | Yes                    | Yes                      |
+| Width `srcset`                  | Yes              | Yes                    | Yes                      |
+| Density `srcset`                | Yes              | Yes                    | Yes                      |
+| `<picture>` AVIF/WebP sources   | Yes              | Yes                    | Yes                      |
+| Presets and aliases             | Yes              | Yes                    | Yes                      |
+| Domain/local source validation  | Yes              | Yes                    | Yes                      |
+| Provider-generated placeholders | Yes              | Yes                    | Yes                      |
+| SSR deterministic output        | Yes              | Angular SSR compatible | SvelteKit SSR compatible |
+| Automatic preload injection     | Helper only      | Extension point        | Extension point          |
+| Auto provider selection         | Yes              | Yes                    | Yes                      |
+| Local IPX optimizer endpoint    | URL builder only | SSR middleware         | Vite dev/preview plugin  |
 
 ## Comparison
 
@@ -95,14 +95,7 @@ import { DsImageComponent } from '@desource/image-angular';
   imports: [DsImageComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <ds-image
-      src="/img/hero.jpg"
-      alt="Background"
-      quality="75"
-      sizes="100vw md:1100px"
-      format="webp"
-      loading="lazy"
-    />
+    <ds-image src="/img/hero.jpg" alt="Background" quality="75" sizes="100vw md:1100px" format="webp" loading="lazy" />
   `
 })
 export class AppComponent {}
@@ -141,14 +134,7 @@ Then use the component:
   import { Image } from '@desource/image-svelte';
 </script>
 
-<Image
-  src="/img/hero.jpg"
-  alt="Background"
-  quality={75}
-  sizes="100vw md:1100px"
-  format="webp"
-  loading="lazy"
-/>
+<Image src="/img/hero.jpg" alt="Background" quality={75} sizes="100vw md:1100px" format="webp" loading="lazy" />
 ```
 
 Svelte components also default to the same IPX-like output.
@@ -195,16 +181,9 @@ Svelte exposes this as `useImage()`. Angular exposes the same helper through `Ds
 Default provider factories are exported from `@desource/image`. The default registry is intentionally small for bundle size: `ipx`, `awsAmplify`, `vercel`, `netlify`, and `none`. The full provider registry is available from `@desource/image/providers`; individual provider files are available as `@desource/image/providers/<name>` for better tree shaking.
 
 ```ts
-import {
-  awsAmplifyProvider,
-  ipxProvider,
-  vercelProvider
-} from '@desource/image';
+import { awsAmplifyProvider, ipxProvider, vercelProvider } from '@desource/image';
 import { cloudinaryProvider } from '@desource/image/providers/cloudinary';
-import {
-  BUILT_IN_PROVIDER_NAMES,
-  createBuiltInProviders
-} from '@desource/image/providers';
+import { BUILT_IN_PROVIDER_NAMES, createBuiltInProviders } from '@desource/image/providers';
 ```
 
 Built-in provider names include `aliyun`, `awsAmplify`, `bunny`, `builderio`, `caisy`, `cloudflare`, `cloudflareimages`, `cloudimage`, `cloudinary`, `contentful`, `directus`, `fastly`, `filerobot`, `flyimg`, `github`, `glide`, `gumlet`, `hygraph`, `imageengine`, `imagekit`, `imgix`, `ipx`, `ipxStatic`, `netlify`, `netlifyLargeMedia`, `netlifyImageCdn`, `picsum`, `prepr`, `none`, `prismic`, `sanity`, `shopify`, `storyblok`, `strapi`, `strapi5`, `supabase`, `twicpics`, `umbraco`, `unsplash`, `uploadcare`, `vercel`, `wagtail`, `weserv`, and `sirv`.

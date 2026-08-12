@@ -19,23 +19,30 @@ export function sanityProvider(options: SanityProviderOptions = {}): ImageProvid
       const parts = asset.split('-').slice(1);
       const extension = parts.pop();
       const filename = parts.length && extension ? `${parts.join('-')}.${extension}` : asset;
-      const params = mappedModifiers(input, {
-        format: 'fm',
-        height: 'h',
-        quality: 'q',
-        width: 'w',
-        background: 'bg',
-        sharpen: 'sharp',
-        orientation: 'or'
-      }, {
-        format: formatJpgValue,
-        fit: defaultFitValue
-      });
+      const params = mappedModifiers(
+        input,
+        {
+          format: 'fm',
+          height: 'h',
+          quality: 'q',
+          width: 'w',
+          background: 'bg',
+          sharpen: 'sharp',
+          orientation: 'or'
+        },
+        {
+          format: formatJpgValue,
+          fit: defaultFitValue
+        }
+      );
       if (!params.fm && input.format === 'auto') {
         params.auto = 'format';
       }
       return {
-        url: appendQuery(joinURLParts(options.baseURL ?? '', options.projectId ?? '', options.dataset ?? 'production', filename), params),
+        url: appendQuery(
+          joinURLParts(options.baseURL ?? '', options.projectId ?? '', options.dataset ?? 'production', filename),
+          params
+        ),
         isOptimized: isTransformable(input)
       };
     }

@@ -45,14 +45,16 @@ interface ResolvedInput {
   placeholderClass?: string;
 }
 
-export function resolvePreset(name: string | undefined, config: ImageConfig | ResolvedImageConfig = {}): ImagePreset | undefined {
+export function resolvePreset(
+  name: string | undefined,
+  config: ImageConfig | ResolvedImageConfig = {}
+): ImagePreset | undefined {
   if (!name) {
     return undefined;
   }
 
-  const resolved = 'providers' in config && 'providerOptions' in config
-    ? config as ResolvedImageConfig
-    : resolveImageConfig(config);
+  const resolved =
+    'providers' in config && 'providerOptions' in config ? (config as ResolvedImageConfig) : resolveImageConfig(config);
   const preset = resolved.presets[name];
   if (!preset) {
     throw new Error(`Unknown image preset "${name}". Register it in image config presets.`);
@@ -129,7 +131,10 @@ export function generateSrcset(input: ImageInput, config: ImageConfig | Resolved
     });
     const srcset = densities
       .map((entry) => {
-        const url = getImage({ ...input, width: entry.width, height: entry.height, sizes: undefined }, resolvedConfig).url;
+        const url = getImage(
+          { ...input, width: entry.width, height: entry.height, sizes: undefined },
+          resolvedConfig
+        ).url;
         return `${url} ${entry.density}x`;
       })
       .join(', ');
@@ -147,7 +152,10 @@ export function generateSrcset(input: ImageInput, config: ImageConfig | Resolved
   };
 }
 
-export function generatePictureSources(input: ImageInput, config: ImageConfig | ResolvedImageConfig = {}): PictureSource[] {
+export function generatePictureSources(
+  input: ImageInput,
+  config: ImageConfig | ResolvedImageConfig = {}
+): PictureSource[] {
   const resolvedConfig = ensureConfig(config);
   const resolved = resolveInput(input, resolvedConfig);
 
@@ -224,7 +232,10 @@ export function getPictureAttrs(input: ImageInput, config: ImageConfig | Resolve
   };
 }
 
-export function getImagePreloadLink(input: ImageInput, config: ImageConfig | ResolvedImageConfig = {}): ImagePreloadLink {
+export function getImagePreloadLink(
+  input: ImageInput,
+  config: ImageConfig | ResolvedImageConfig = {}
+): ImagePreloadLink {
   const attrs = getImageAttrs({ ...input, priority: true }, config);
   return stripUndefined({
     rel: 'preload' as const,
@@ -251,11 +262,12 @@ function resolveInput(input: ImageInput, config: ResolvedImageConfig): ResolvedI
       background: input.background ?? preset?.background
     })
   );
-  const quality = clampQuality(input.quality)
-    ?? modifierQuality(componentModifiers)
-    ?? preset?.quality
-    ?? modifierQuality(preset?.modifiers)
-    ?? config.quality;
+  const quality =
+    clampQuality(input.quality) ??
+    modifierQuality(componentModifiers) ??
+    preset?.quality ??
+    modifierQuality(preset?.modifiers) ??
+    config.quality;
   const format = input.format ?? modifierFormatValue ?? preset?.format ?? modifierFormat(preset?.modifiers);
   const preload = input.preload ?? preset?.preload;
 
@@ -264,7 +276,8 @@ function resolveInput(input: ImageInput, config: ResolvedImageConfig): ResolvedI
     originalSrc: input.src,
     alt: input.alt,
     width: toNumber(input.width) ?? modifierWidth ?? preset?.width ?? modifierNumber(preset?.modifiers, 'width', 'w'),
-    height: toNumber(input.height) ?? modifierHeight ?? preset?.height ?? modifierNumber(preset?.modifiers, 'height', 'h'),
+    height:
+      toNumber(input.height) ?? modifierHeight ?? preset?.height ?? modifierNumber(preset?.modifiers, 'height', 'h'),
     sizes: input.sizes ?? preset?.sizes,
     quality,
     format,
@@ -284,7 +297,12 @@ function resolveInput(input: ImageInput, config: ResolvedImageConfig): ResolvedI
   });
 }
 
-function toProviderInput(input: ResolvedInput, config: ResolvedImageConfig, providerName: string, src = input.src): ImageProviderInput {
+function toProviderInput(
+  input: ResolvedInput,
+  config: ResolvedImageConfig,
+  providerName: string,
+  src = input.src
+): ImageProviderInput {
   const format = Array.isArray(input.format) ? input.format[0] : input.format;
   const width = widthForProvider(providerName, input.width, config);
   return stripUndefined({
@@ -312,18 +330,21 @@ function resolvePlaceholder(input: ResolvedInput, config: ResolvedImageConfig): 
     : typeof placeholder === 'number'
       ? [placeholder]
       : [10, 10, 50, 3];
-  return getImage({
-    src: input.originalSrc,
-    provider: input.provider,
-    width,
-    height,
-    quality,
-    format: Array.isArray(input.format) ? input.format[0] : input.format,
-    modifiers: {
-      ...input.modifiers,
-      blur
-    }
-  }, config).url;
+  return getImage(
+    {
+      src: input.originalSrc,
+      provider: input.provider,
+      width,
+      height,
+      quality,
+      format: Array.isArray(input.format) ? input.format[0] : input.format,
+      modifiers: {
+        ...input.modifiers,
+        blur
+      }
+    },
+    config
+  ).url;
 }
 
 function pictureFormats(input: ImageInput, resolved: ResolvedInput, config: ResolvedImageConfig): ImageFormat[] {
@@ -335,8 +356,9 @@ function pictureFormats(input: ImageInput, resolved: ResolvedInput, config: Reso
   const fromConfig = splitFormats(config.format);
   const fromResolved = splitFormats(resolved.format);
   const fallback = input.fallbackFormat ?? input.legacyFormat ?? defaultLegacyFormat(input.src);
-  return [...new Set([...(explicit ?? fromResolved ?? fromConfig ?? ['webp'])])]
-    .filter((format) => normalizeLegacyFormat(format) !== normalizeLegacyFormat(fallback));
+  return [...new Set([...(explicit ?? fromResolved ?? fromConfig ?? ['webp'])])].filter(
+    (format) => normalizeLegacyFormat(format) !== normalizeLegacyFormat(fallback)
+  );
 }
 
 function getProvider(name: string, config: ResolvedImageConfig): { name: string; provider: ImageProvider } {
@@ -361,7 +383,11 @@ function allowsOpaqueSource(providerName: string, src: string): boolean {
   return ['cloudflareimages', 'github', 'hygraph', 'picsum', 'sanity', 'uploadcare'].includes(providerName);
 }
 
-function widthForProvider(providerName: string, width: number | undefined, config: ResolvedImageConfig): number | undefined {
+function widthForProvider(
+  providerName: string,
+  width: number | undefined,
+  config: ResolvedImageConfig
+): number | undefined {
   if (!['awsAmplify', 'vercel'].includes(providerName)) {
     return width;
   }
@@ -375,22 +401,22 @@ function widthForProvider(providerName: string, width: number | undefined, confi
     return largestWidth;
   }
 
-  return validWidths.includes(width)
-    ? width
-    : validWidths.find((validWidth) => validWidth > width) ?? largestWidth;
+  return validWidths.includes(width) ? width : (validWidths.find((validWidth) => validWidth > width) ?? largestWidth);
 }
 
 function ensureConfig(config: ImageConfig | ResolvedImageConfig): ResolvedImageConfig {
-  return isResolvedConfig(config)
-    ? config
-    : resolveImageConfig(config);
+  return isResolvedConfig(config) ? config : resolveImageConfig(config);
 }
 
 function isResolvedConfig(config: ImageConfig | ResolvedImageConfig): config is ResolvedImageConfig {
   return 'providerOptions' in config && 'providers' in config && 'providerSizes' in config;
 }
 
-function scaledHeight(originalWidth: number | undefined, originalHeight: number | undefined, width: number | undefined): number | undefined {
+function scaledHeight(
+  originalWidth: number | undefined,
+  originalHeight: number | undefined,
+  width: number | undefined
+): number | undefined {
   if (!originalWidth || !originalHeight || !width) {
     return originalHeight;
   }
@@ -405,7 +431,7 @@ function modifierQuality(modifiers: ImageModifiers | undefined): number | undefi
 
 function modifierFormat(modifiers: ImageModifiers | undefined): ImageFormat | undefined {
   const value = modifiers?.format ?? modifiers?.f;
-  return typeof value === 'string' ? value as ImageFormat : undefined;
+  return typeof value === 'string' ? (value as ImageFormat) : undefined;
 }
 
 function modifierNumber(modifiers: ImageModifiers | undefined, ...keys: string[]): number | undefined {

@@ -11,7 +11,9 @@ export function cloudinaryProvider(options: CloudinaryProviderOptions = {}): Ima
   return {
     name: 'cloudinary',
     getImage(input, providerOptions = options): ImageProviderResult {
-      const baseURL = providerOptions.baseURL ?? (providerOptions.cloudName ? `https://res.cloudinary.com/${providerOptions.cloudName}` : '');
+      const baseURL =
+        providerOptions.baseURL ??
+        (providerOptions.cloudName ? `https://res.cloudinary.com/${providerOptions.cloudName}` : '');
       if (!baseURL) {
         return { url: input.src, isOptimized: false };
       }
@@ -28,7 +30,9 @@ export function cloudinaryProvider(options: CloudinaryProviderOptions = {}): Ima
         ...stableModifiers(input.modifiers)
           .filter(([key]) => !['fit', 'position', 'background'].includes(key))
           .map(([key, value]) => `${key}_${value}`)
-      ].filter(Boolean).join(',');
+      ]
+        .filter(Boolean)
+        .join(',');
       const source = deliveryType === 'fetch' ? encodeURIComponent(input.src) : stripLeadingSlash(input.src);
       return {
         url: `${baseURL.replace(/\/+$/, '')}/image/${deliveryType}/${transforms}/${source}`,

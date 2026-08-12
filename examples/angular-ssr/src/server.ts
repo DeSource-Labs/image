@@ -13,15 +13,19 @@ const commonEngine = new CommonEngine({
   allowedHosts: ['localhost', '127.0.0.1', '::1']
 });
 
-app.use(createDsImageMiddleware({
-  dirs: [browserDistFolder]
-}));
+app.use(
+  createDsImageMiddleware({
+    dirs: [browserDistFolder]
+  })
+);
 
-app.use(express.static(browserDistFolder, {
-  maxAge: '0',
-  index: false,
-  redirect: false
-}));
+app.use(
+  express.static(browserDistFolder, {
+    maxAge: '0',
+    index: false,
+    redirect: false
+  })
+);
 
 app.use((req, res, next) => {
   const protocol = req.protocol;

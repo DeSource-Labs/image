@@ -24,19 +24,25 @@ export function parseDensities(input: DensityInput | undefined, fallback: readon
   return uniqueSorted(fallback);
 }
 
-export function parseSizes(input: SizesInput | undefined, screens: Record<string, number> = DEFAULT_SCREENS): ParsedSizes | undefined {
+export function parseSizes(
+  input: SizesInput | undefined,
+  screens: Record<string, number> = DEFAULT_SCREENS
+): ParsedSizes | undefined {
   if (input === undefined || input === null) {
     return undefined;
   }
 
-  const rawEntries = typeof input === 'string'
-    ? input.trim().split(/[\s,]+/).filter(Boolean).map((token) => {
-        const match = /^([a-zA-Z0-9_-]+):(.+)$/.exec(token);
-        return match
-          ? [match[1] ?? '', match[2] ?? ''] as const
-          : [undefined, token] as const;
-      })
-    : Object.entries(input);
+  const rawEntries =
+    typeof input === 'string'
+      ? input
+          .trim()
+          .split(/[\s,]+/)
+          .filter(Boolean)
+          .map((token) => {
+            const match = /^([a-zA-Z0-9_-]+):(.+)$/.exec(token);
+            return match ? ([match[1] ?? '', match[2] ?? ''] as const) : ([undefined, token] as const);
+          })
+      : Object.entries(input);
 
   if (rawEntries.length === 0) {
     return undefined;
@@ -49,7 +55,7 @@ export function parseSizes(input: SizesInput | undefined, screens: Record<string
         return { size: String(size) };
       }
 
-      const screenWidth = screen ? screens[screen] ?? Number.parseInt(screen, 10) : undefined;
+      const screenWidth = screen ? (screens[screen] ?? Number.parseInt(screen, 10)) : undefined;
       return {
         screen,
         minWidth: Number.isFinite(screenWidth) ? screenWidth : undefined,
@@ -130,7 +136,7 @@ function toSizesAttribute(entries: ParsedSizes['entries'], screens: Record<strin
 function getSizeVariants(entries: ParsedSizes['entries'], screens: Record<string, number>): SizeVariant[] {
   return entries
     .map((entry) => {
-      const screenMaxWidth = entry.screen ? screens[entry.screen] ?? Number.parseInt(entry.screen, 10) : 1;
+      const screenMaxWidth = entry.screen ? (screens[entry.screen] ?? Number.parseInt(entry.screen, 10)) : 1;
       const normalizedSize = normalizeSize(entry.size);
       const width = normalizedSize ? widthFromSize(normalizedSize, screenMaxWidth) : undefined;
 
@@ -165,19 +171,11 @@ function getCandidateWidths(
 
   return variants.flatMap((variant, index) => {
     const next = variants[index + 1];
-    const viewportWidth = next
-      ? next.screenMaxWidth - 1
-      : variant.screen
-        ? variant.screenMaxWidth
-        : maxScreen;
-    const baseWidth = variant.fluid
-      ? widthFromSize(variant.size, viewportWidth) ?? variant.width
-      : variant.width;
+    const viewportWidth = next ? next.screenMaxWidth - 1 : variant.screen ? variant.screenMaxWidth : maxScreen;
+    const baseWidth = variant.fluid ? (widthFromSize(variant.size, viewportWidth) ?? variant.width) : variant.width;
     const densityWidths = densities.map((density) => Math.round(baseWidth * density));
     const maxDensityWidth = maxFinite(densityWidths) ?? baseWidth;
-    const providerWidths = variant.fluid
-      ? providerSizes.filter((width) => width <= maxDensityWidth)
-      : [];
+    const providerWidths = variant.fluid ? providerSizes.filter((width) => width <= maxDensityWidth) : [];
 
     return [...providerWidths, ...densityWidths];
   });
@@ -188,10 +186,12 @@ function toResponsiveSizesAttribute(variants: SizeVariant[]): string {
     return '100vw';
   }
 
-  return variants.map((variant, index) => {
-    const next = variants[index + 1];
-    return next ? `(max-width: ${next.screenMaxWidth - 1}px) ${variant.size}` : variant.size;
-  }).join(', ');
+  return variants
+    .map((variant, index) => {
+      const next = variants[index + 1];
+      return next ? `(max-width: ${next.screenMaxWidth - 1}px) ${variant.size}` : variant.size;
+    })
+    .join(', ');
 }
 
 function normalizeSize(value: string): string | undefined {
@@ -217,5 +217,8 @@ function widthFromSize(size: string, screenMaxWidth: number): number | undefined
 }
 
 function maxFinite(values: readonly number[]): number | undefined {
-  return values.filter((value) => Number.isFinite(value)).sort((a, b) => a - b).at(-1);
+  return values
+    .filter((value) => Number.isFinite(value))
+    .sort((a, b) => a - b)
+    .at(-1);
 }

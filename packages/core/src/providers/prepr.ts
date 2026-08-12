@@ -10,13 +10,18 @@ export function preprProvider(options: PreprProviderOptions = {}): ImageProvider
     name: 'prepr',
     getImage(input, providerOptions = defaults): ImageProviderResult {
       const projectName = providerOptions.projectName ?? '';
-      const operations = pathOperations(input, {
-        crop: 'c',
-        format: 'format',
-        height: 'h',
-        quality: 'q',
-        width: 'w'
-      }, { format: formatJpgValue }, (key, value) => value === true ? key : `${key}_${value}`);
+      const operations = pathOperations(
+        input,
+        {
+          crop: 'c',
+          format: 'format',
+          height: 'h',
+          quality: 'q',
+          width: 'w'
+        },
+        { format: formatJpgValue },
+        (key, value) => (value === true ? key : `${key}_${value}`)
+      );
       const baseURL = projectName ? `https://${projectName}.stream.prepr.io` : '';
       return {
         url: joinURLParts(baseURL, operations, input.src),

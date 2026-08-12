@@ -15,13 +15,25 @@ export interface GenericProviderOptions {
 }
 
 export type ModifierKeyMap = Record<string, string>;
-export type ModifierValueMap = Record<string, Record<string, ModifierValue> | ((value: Exclude<ModifierValue, undefined | null>) => ModifierValue)>;
+export type ModifierValueMap = Record<
+  string,
+  Record<string, ModifierValue> | ((value: Exclude<ModifierValue, undefined | null>) => ModifierValue)
+>;
 
 export function isTransformable(input: ImageProviderInput): boolean {
-  return Boolean(input.width || input.height || input.quality || input.format || (input.modifiers && Object.keys(input.modifiers).length > 0));
+  return Boolean(
+    input.width ||
+    input.height ||
+    input.quality ||
+    input.format ||
+    (input.modifiers && Object.keys(input.modifiers).length > 0)
+  );
 }
 
-export function withStandardParams(input: ImageProviderInput, aliases: Record<string, ModifierValue>): Record<string, ModifierValue> {
+export function withStandardParams(
+  input: ImageProviderInput,
+  aliases: Record<string, ModifierValue>
+): Record<string, ModifierValue> {
   return {
     ...aliases,
     w: input.width,
@@ -31,7 +43,11 @@ export function withStandardParams(input: ImageProviderInput, aliases: Record<st
   };
 }
 
-export function appendProviderModifiers(params: Record<string, ModifierValue>, modifiers: ImageModifiers | undefined, reserved: readonly string[] = []): Record<string, ModifierValue> {
+export function appendProviderModifiers(
+  params: Record<string, ModifierValue>,
+  modifiers: ImageModifiers | undefined,
+  reserved: readonly string[] = []
+): Record<string, ModifierValue> {
   const result = { ...params };
   const reservedSet = new Set(reserved);
   for (const [key, value] of stableModifiers(modifiers)) {
@@ -55,7 +71,7 @@ export function joinURLParts(...parts: Array<string | number | undefined | null>
   return parts
     .filter((part) => part !== undefined && part !== null && part !== '')
     .map(String)
-    .reduce((url, part) => url ? joinURL(url, part) : part, '');
+    .reduce((url, part) => (url ? joinURL(url, part) : part), '');
 }
 
 export function sourcePath(src: string): string {
@@ -76,7 +92,12 @@ function standardModifierObject(input: ImageProviderInput): Record<string, Modif
   };
 }
 
-export function mappedModifiers(input: ImageProviderInput, keyMap: ModifierKeyMap = {}, valueMap: ModifierValueMap = {}, reserved: readonly string[] = []): Record<string, ModifierValue> {
+export function mappedModifiers(
+  input: ImageProviderInput,
+  keyMap: ModifierKeyMap = {},
+  valueMap: ModifierValueMap = {},
+  reserved: readonly string[] = []
+): Record<string, ModifierValue> {
   const result: Record<string, ModifierValue> = {};
   const reservedSet = new Set(reserved);
 
@@ -86,11 +107,12 @@ export function mappedModifiers(input: ImageProviderInput, keyMap: ModifierKeyMa
     }
 
     const mapper = valueMap[key];
-    const value = typeof mapper === 'function'
-      ? mapper(rawValue)
-      : mapper && typeof rawValue === 'string'
-        ? mapper[rawValue] ?? rawValue
-        : rawValue;
+    const value =
+      typeof mapper === 'function'
+        ? mapper(rawValue)
+        : mapper && typeof rawValue === 'string'
+          ? (mapper[rawValue] ?? rawValue)
+          : rawValue;
 
     result[keyMap[key] ?? key] = value;
   }
@@ -98,7 +120,12 @@ export function mappedModifiers(input: ImageProviderInput, keyMap: ModifierKeyMa
   return result;
 }
 
-export function mappedQueryURL(input: ImageProviderInput, options: GenericProviderOptions, keyMap: ModifierKeyMap = {}, valueMap: ModifierValueMap = {}): string {
+export function mappedQueryURL(
+  input: ImageProviderInput,
+  options: GenericProviderOptions,
+  keyMap: ModifierKeyMap = {},
+  valueMap: ModifierValueMap = {}
+): string {
   const src = sourceWithBase(input.src, options.baseURL);
   const params = {
     ...options.defaultParams,
@@ -107,7 +134,12 @@ export function mappedQueryURL(input: ImageProviderInput, options: GenericProvid
   return appendQuery(src, params);
 }
 
-export function createMappedQueryProvider(name: string, defaults: GenericProviderOptions = {}, keyMap: ModifierKeyMap = {}, valueMap: ModifierValueMap = {}): ImageProvider<GenericProviderOptions> {
+export function createMappedQueryProvider(
+  name: string,
+  defaults: GenericProviderOptions = {},
+  keyMap: ModifierKeyMap = {},
+  valueMap: ModifierValueMap = {}
+): ImageProvider<GenericProviderOptions> {
   return {
     name,
     getImage(input, providerOptions = defaults): ImageProviderResult {
@@ -120,7 +152,14 @@ export function createMappedQueryProvider(name: string, defaults: GenericProvide
   };
 }
 
-export function pathOperations(input: ImageProviderInput, keyMap: ModifierKeyMap = {}, valueMap: ModifierValueMap = {}, formatter: (key: string, value: Exclude<ModifierValue, undefined | null>) => string = (key, value) => `${key}_${value}`, joinWith = ','): string {
+export function pathOperations(
+  input: ImageProviderInput,
+  keyMap: ModifierKeyMap = {},
+  valueMap: ModifierValueMap = {},
+  formatter: (key: string, value: Exclude<ModifierValue, undefined | null>) => string = (key, value) =>
+    `${key}_${value}`,
+  joinWith = ','
+): string {
   return stableModifiers(mappedModifiers(input, keyMap, valueMap))
     .map(([key, value]) => formatter(key, value))
     .join(joinWith);

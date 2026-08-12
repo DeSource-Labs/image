@@ -1,4 +1,14 @@
-export { awsAmplifyProvider, createDefaultProviders, ipxProvider, ipxStaticProvider, netlifyImageCdnProvider, netlifyLargeMediaProvider, netlifyProvider, noneProvider, vercelProvider } from './default';
+export {
+  awsAmplifyProvider,
+  createDefaultProviders,
+  ipxProvider,
+  ipxStaticProvider,
+  netlifyImageCdnProvider,
+  netlifyLargeMediaProvider,
+  netlifyProvider,
+  noneProvider,
+  vercelProvider
+} from './default';
 export { BUILT_IN_PROVIDER_NAMES, createBuiltInProviders } from './registry';
 export { aliyunProvider } from './aliyun';
 export { bunnyProvider } from './bunny';
@@ -37,7 +47,13 @@ export { uploadcareProvider } from './uploadcare';
 export { wagtailProvider } from './wagtail';
 export { weservProvider } from './weserv';
 
-export type { AwsAmplifyProviderOptions, IpxProviderOptions, NetlifyLargeMediaProviderOptions, NetlifyProviderOptions, VercelProviderOptions } from './default';
+export type {
+  AwsAmplifyProviderOptions,
+  IpxProviderOptions,
+  NetlifyLargeMediaProviderOptions,
+  NetlifyProviderOptions,
+  VercelProviderOptions
+} from './default';
 export type { BuiltInProviderName } from './registry';
 export type { GenericProviderOptions } from '../provider-utils';
 export type { AliyunProviderOptions } from './aliyun';
@@ -76,4 +92,7 @@ export type { UploadcareProviderOptions } from './uploadcare';
 export type { WagtailProviderOptions } from './wagtail';
 export type { WeservProviderOptions } from './weserv';
 export type { SirvProviderOptions } from './sirv';
-export type { IpxProviderOptions as IpxStaticProviderOptions, NetlifyProviderOptions as NetlifyImageCdnProviderOptions } from './default';
+export type {
+  IpxProviderOptions as IpxStaticProviderOptions,
+  NetlifyProviderOptions as NetlifyImageCdnProviderOptions
+} from './default';

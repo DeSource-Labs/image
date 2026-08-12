@@ -11,9 +11,10 @@ export function imgixProvider(options: ImgixProviderOptions = {}): ImageProvider
   return {
     name: 'imgix',
     getImage(input, providerOptions = options): ImageProviderResult {
-      const src = providerOptions.baseURL && !input.src.startsWith('http')
-        ? joinURL(providerOptions.baseURL, input.src)
-        : input.src;
+      const src =
+        providerOptions.baseURL && !input.src.startsWith('http')
+          ? joinURL(providerOptions.baseURL, input.src)
+          : input.src;
       const params = appendProviderModifiers(
         withStandardParams(input, {
           fit: input.modifiers?.fit,

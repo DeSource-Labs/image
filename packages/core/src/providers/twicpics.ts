@@ -10,22 +10,32 @@ export function twicpicsProvider(options: TwicpicsProviderOptions = {}): ImagePr
   return {
     name: 'twicpics',
     getImage(input, providerOptions = defaults): ImageProviderResult {
-      const transforms: Record<string, ModifierValue> = mappedModifiers(input, {
-        format: 'output',
-        quality: 'quality',
-        background: 'background',
-        focus: 'focus',
-        zoom: 'zoom'
-      }, {
-        background: cleanColor
-      }, ['width', 'height', 'fit']);
+      const transforms: Record<string, ModifierValue> = mappedModifiers(
+        input,
+        {
+          format: 'output',
+          quality: 'quality',
+          background: 'background',
+          focus: 'focus',
+          zoom: 'zoom'
+        },
+        {
+          background: cleanColor
+        },
+        ['width', 'height', 'fit']
+      );
       if (input.width || input.height) {
-        const fit = input.modifiers?.fit === 'outside' ? 'contain' : input.modifiers?.fit ?? 'cover';
+        const fit = input.modifiers?.fit === 'outside' ? 'contain' : (input.modifiers?.fit ?? 'cover');
         transforms[String(fit)] = `${input.width ?? '-'}x${input.height ?? '-'}`;
       }
-      const operations = stableModifiers(transforms).map(([key, value]) => `${key}=${value}`).join('/');
+      const operations = stableModifiers(transforms)
+        .map(([key, value]) => `${key}=${value}`)
+        .join('/');
       return {
-        url: sourceWithBase(input.src + (operations ? `?twic=v1/${operations}` : ''), providerBaseURL(providerOptions, defaults)),
+        url: sourceWithBase(
+          input.src + (operations ? `?twic=v1/${operations}` : ''),
+          providerBaseURL(providerOptions, defaults)
+        ),
         isOptimized: isTransformable(input)
       };
     }

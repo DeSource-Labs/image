@@ -31,7 +31,9 @@ export function cloudflareProvider(options: CloudflareProviderOptions = {}): Ima
           input.modifiers,
           ['fit', 'position', 'background']
         )
-      ).map(([key, value]) => `${key}=${encodeURIComponent(String(value))}`).join(',');
+      )
+        .map(([key, value]) => `${key}=${encodeURIComponent(String(value))}`)
+        .join(',');
 
       return {
         url: `${base}${path}/${optionsSegment}/${encodeRemoteOrPath(input.src)}`,

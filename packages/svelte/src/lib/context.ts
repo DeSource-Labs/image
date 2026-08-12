@@ -1,5 +1,11 @@
 import { getContext, setContext } from 'svelte';
-import { createImage, resolveImageConfig, type DesourceImage, type ImageConfig, type ResolvedImageConfig } from '@desource/image';
+import {
+  createImage,
+  resolveImageConfig,
+  type DesourceImage,
+  type ImageConfig,
+  type ResolvedImageConfig
+} from '@desource/image';
 
 const IMAGE_CONFIG_KEY = Symbol('desource-image-config');
 
@@ -8,9 +14,7 @@ export function createImageConfig(config: ImageConfig = {}): ResolvedImageConfig
 }
 
 export function setImageConfig(config: ImageConfig | ResolvedImageConfig = {}): ResolvedImageConfig {
-  const resolved = isResolvedImageConfig(config)
-    ? config
-    : resolveImageConfig(config);
+  const resolved = isResolvedImageConfig(config) ? config : resolveImageConfig(config);
   setContext(IMAGE_CONFIG_KEY, resolved);
   return resolved;
 }
