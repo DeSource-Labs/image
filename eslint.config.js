@@ -16,13 +16,17 @@ const ANGULAR_TEMPLATE_FILES = ['packages/angular/**/*.html'];
 const SVELTE_FILES = [
   'packages/svelte/**/*.svelte',
   'packages/svelte/**/*.svelte.ts',
-  'packages/svelte/**/*.svelte.js'
+  'packages/svelte/**/*.svelte.js',
+  'demo/**/*.svelte',
+  'demo/**/*.svelte.ts',
+  'demo/**/*.svelte.js'
 ];
 
 const BROWSER_FILES = [
   'packages/core/src/**/*.{ts,mts,cts}',
   'packages/svelte/**/*.{ts,js,mts,cts,svelte}',
-  'packages/angular/**/*.{ts,js,mts,cts}'
+  'packages/angular/**/*.{ts,js,mts,cts}',
+  'demo/**/*.{ts,js,mts,cts,svelte}'
 ];
 
 const NODE_FILES = [
@@ -32,7 +36,10 @@ const NODE_FILES = [
   '**/vite.config.{js,mjs,cjs,ts,mts,cts}',
   '**/vitest.config.{js,mjs,cjs,ts,mts,cts}',
   '**/vitest.*.config.{js,mjs,cjs,ts,mts,cts}',
-  '**/playwright.config.{js,mjs,cjs,ts,mts,cts}'
+  '**/playwright.config.{js,mjs,cjs,ts,mts,cts}',
+  'packages/svelte/src/lib/server.ts',
+  'packages/svelte/src/lib/vite.ts',
+  'packages/angular/server/**/*.ts'
 ];
 
 const svelteRecommendedRules = Object.assign(
@@ -47,8 +54,12 @@ export default [
       '**/dist/**',
       '**/.angular/**',
       '**/.output/**',
+      '**/.vercel/**',
       '**/.svelte-kit/**',
       '**/coverage/**',
+      '**/test-results/**',
+      '**/playwright-report/**',
+      '.playwright-cli/**',
       '**/*.min.js',
       '**/*.min.css',
       'pnpm-lock.yaml',
