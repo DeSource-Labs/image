@@ -4,6 +4,8 @@ node_modules
 .svelte-kit
 .output
 .cache
+.playwright-cli
+output/playwright
 coverage
 *.min.js
 *.min.css
