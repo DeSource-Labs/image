@@ -2,9 +2,16 @@ node_modules
 dist
 build
 coverage
+test-results
+playwright-report
+.playwright-cli
+output/playwright
+blob-report
+coverage-pr-report.md
 .angular
 .svelte-kit
 .vercel
+.netlify
 .env
 .DS_Store
 .idea
