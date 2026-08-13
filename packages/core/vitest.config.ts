@@ -16,6 +16,11 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['test/**/*.test.ts'],
+    server: {
+      deps: {
+        inline: ['@nuxt/image']
+      }
+    },
     coverage: {
       include: ['src/**/*.ts'],
       exclude: ['src/**/*.d.ts'],

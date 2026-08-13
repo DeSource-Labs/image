@@ -22,9 +22,9 @@ afterEach(() => {
 describe('image context and metadata', () => {
   const metadataProvider: ImageProvider = {
     name: 'metadata',
-    getImage(input) {
+    getImage(src) {
       return {
-        url: `/metadata${input.src}`,
+        url: `/metadata${src}`,
         getMeta: async () => ({ width: 1200, height: 800, ratio: 1.5 })
       };
     }

@@ -542,7 +542,7 @@ describe('attrs and picture output', () => {
 
     const setup = defineProvider({
       name: 'test',
-      getImage: (input) => ({ url: input.src })
+      getImage: (src) => ({ url: src })
     });
 
     expect(setup()).toBe(setup());

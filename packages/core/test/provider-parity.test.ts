@@ -7,9 +7,12 @@ interface ProviderModule {
 }
 
 const localModules = import.meta.glob<ProviderModule>('../src/providers/*.ts', { eager: true });
-const referenceModules = import.meta.glob<ProviderModule>('../../../nuxt_image/src/runtime/providers/*.ts', {
-  eager: true
-});
+const referenceModules = import.meta.glob<ProviderModule>(
+  '../../../node_modules/@nuxt/image/dist/runtime/providers/*.js',
+  {
+    eager: true
+  }
+);
 
 const contexts = {
   local: {
@@ -76,13 +79,13 @@ function clone<T>(value: T): T {
 }
 
 const parityCases = Object.entries(referenceModules)
-  .map(([path, module]) => ({ name: path.match(/([^/]+)\.ts$/)?.[1] ?? '', reference: module }))
+  .map(([path, module]) => ({ name: path.match(/([^/]+)\.js$/)?.[1] ?? '', reference: module }))
   .filter(({ name, reference }) => name && reference.default && name !== 'netlify')
   .sort((a, b) => a.name.localeCompare(b.name));
 
-describe('bundled Nuxt Image provider parity', () => {
+describe('pinned Nuxt Image provider parity', () => {
   it('covers every reference provider module', () => {
-    expect(parityCases.map(({ name }) => name)).toHaveLength(43);
+    expect(parityCases.map(({ name }) => name)).toHaveLength(45);
   });
 
   for (const { name, reference } of parityCases) {

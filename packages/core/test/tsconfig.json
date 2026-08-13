@@ -1,0 +1,18 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "rootDir": "../../..",
+    "outDir": "../test-results/tsc",
+    "types": ["vitest/globals", "node", "vite/client"],
+    "paths": {
+      "@desource/image": ["../src/index.ts"],
+      "@desource/image/kit": ["../src/kit.ts"],
+      "@desource/image/providers": ["../src/providers/index.ts"],
+      "@desource/image/providers/*": ["../src/providers/*.ts"],
+      "#imports": ["./nuxt-stubs.ts"]
+    }
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["../dist", "../coverage", "../test-results"]
+}
