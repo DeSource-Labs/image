@@ -5,7 +5,6 @@
     "rootDir": "../..",
     "outDir": "dist",
     "tsBuildInfoFile": "dist/.tsbuildinfo",
-    "ignoreDeprecations": "6.0",
     "types": ["svelte", "node"],
     "paths": {
       "@desource/image": ["../core/src/index.ts"],

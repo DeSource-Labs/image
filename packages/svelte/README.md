@@ -228,7 +228,7 @@ Pass `true` as the second argument when the full image has already loaded and a 
 
 ## Responsive images, placeholders, and preloads
 
-`sizes` accepts Nuxt-style breakpoint strings such as `100vw sm:50vw lg:600px` or a record. `densities` accepts strings, numbers, or arrays. Candidate widths are deduplicated and normalized for the selected provider.
+`sizes` accepts breakpoint strings such as `100vw sm:50vw lg:600px` or a record. `densities` accepts strings, numbers, or arrays. Candidate widths are deduplicated and normalized for the selected provider.
 
 ```svelte
 <Image src="/img/hero.jpg" alt="Hero" width={1200} placeholder placeholderClass="blur" />

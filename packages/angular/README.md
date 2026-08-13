@@ -148,7 +148,7 @@ Directive outputs intentionally use `(dsLoad)` and `(dsError)` so they do not re
 
 ## Responsive images
 
-`sizes` accepts either Nuxt-style breakpoint syntax or a record:
+`sizes` accepts either breakpoint string syntax or a record:
 
 ```html
 <ds-image src="/img/gallery.jpg" alt="Gallery" width="1200" sizes="100vw sm:50vw lg:600px" densities="1x 2x" />

@@ -25,7 +25,6 @@ export default defineConfig({
     restoreMocks: true,
     coverage: {
       provider: 'v8',
-      all: true,
       include: ['src/lib/**/*.{ts,svelte}'],
       exclude: ['src/lib/index.ts'],
       reporter: ['text', 'lcov'],

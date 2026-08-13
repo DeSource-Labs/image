@@ -8,7 +8,7 @@ Production-grade image optimization for Angular and Svelte/SvelteKit, with the d
 
 One configuration powers responsive `srcset`, `<picture>` formats, presets, aliases, placeholders, preload links, source validation, custom providers, and more than 40 built-in image services. URL generation lives in a small framework-independent package; Angular and Svelte own their DOM and lifecycle behavior.
 
-> Desource Image is an original Angular/Svelte implementation inspired by Nuxt Image's public behavior. Nuxt applications should continue to use Nuxt Image.
+> Desource Image is an original Angular/Svelte implementation inspired by the Nuxt Image library's public behavior. Nuxt applications should continue to use Nuxt Image.
 
 ## Packages
 
@@ -30,7 +30,7 @@ Desource Image gives Angular and Svelte the same declarative image model:
 - AVIF/WebP picture sources with a legacy fallback;
 - platform autodetection for Vercel, Netlify, and AWS Amplify;
 - local IPX transformation endpoints for development and Node SSR;
-- typed custom providers compatible with the Nuxt-style provider contract;
+- typed custom providers compatible with the Desource provider contract;
 - strict remote-domain controls on server-side optimizers;
 - per-provider imports so applications ship only what they configure.
 
@@ -135,7 +135,7 @@ All three packages accept the same core inputs.
 | ------------------------------------------ | -------------------------------------------------------------------------- |
 | `src`, `alt`                               | Source and accessible alternative text. Framework renderers require `alt`. |
 | `width`, `height`                          | Intrinsic dimensions and the aspect ratio used for responsive candidates.  |
-| `sizes`                                    | Nuxt-style string such as `100vw md:760px`, or an object keyed by screen.  |
+| `sizes`                                    | Breakpoint string such as `100vw md:760px`, or an object keyed by screen.  |
 | `densities`                                | Density candidates such as `1x 2x`, `[1, 2]`, or `1`.                      |
 | `format`, `formats`                        | Output format or ordered picture formats.                                  |
 | `fallbackFormat`, `legacyFormat`           | Fallback `<img>` format for picture output.                                |
@@ -272,11 +272,11 @@ Supported provider modules:
 
 `aliyun`, `awsAmplify`, `builderio`, `bunny`, `caisy`, `cloudflare`, `cloudflareimages`, `cloudimage`, `cloudinary`, `contentful`, `directus`, `edgeonePages`, `fastly`, `filerobot`, `flyimg`, `github`, `glide`, `gumlet`, `hygraph`, `imageengine`, `imagekit`, `imgix`, `imgproxy`, `ipx`, `ipxStatic`, `netlify`, `netlifyImageCdn`, `netlifyLargeMedia`, `none`, `picsum`, `prepr`, `prismic`, `sanity`, `shopify`, `sirv`, `storyblok`, `strapi`, `strapi5`, `supabase`, `twicpics`, `umbraco`, `unsplash`, `uploadcare`, `vercel`, `wagtail`, and `weserv`.
 
-Provider behavior is tested against the pinned Nuxt Image package with standard, empty, and alternate modifier scenarios.
+Provider behavior is tested against the pinned Nuxt Image package with standard, empty, and alternate modifier scenarios. The provider catalog and modifier semantics are inspired by the Nuxt Image library, while the framework integrations remain native to Angular and Svelte.
 
 ## Custom providers
 
-Nuxt-style providers receive the normalized source, merged provider options, and an image context:
+Custom providers receive the normalized source, merged provider options, and an image context:
 
 ```ts
 import { configureProvider, defineProvider } from '@desource/image';

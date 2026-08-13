@@ -79,7 +79,7 @@ export function testImageBehavior(adapter: ImageBehaviorAdapter): void {
       expect($img('/unsplash/photo-id', { width: 640 })).toBe('/_ipx/w_640/unsplash/photo-id');
     });
 
-    it('uses direct Nuxt-style custom providers without framework glue', () => {
+    it('uses direct custom providers without framework glue', () => {
       const customProvider = {
         getImage(src: string, { modifiers }: { modifiers: { width?: number | string } }) {
           return { url: `/custom?src=${encodeURIComponent(src)}&w=${modifiers.width ?? ''}` };

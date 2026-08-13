@@ -196,7 +196,7 @@ export const defaultFitValue = {
   outside: 'max'
 };
 
-/** Defines a Nuxt-style provider and memoizes factory setup. */
+/** Defines a provider and memoizes factory setup. */
 export function defineProvider<TOptions = Record<string, unknown>>(
   setup: ImageProvider<TOptions> | (() => ImageProvider<TOptions>)
 ): ImageProviderSetup<TOptions> {

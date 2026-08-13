@@ -2,8 +2,8 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "baseUrl": ".",
+    "rootDir": "../..",
     "outDir": "./test-results/tsc",
-    "ignoreDeprecations": "6.0",
     "types": ["vitest/globals", "node"],
     "paths": {
       "@desource/image": ["../core/src/index.ts"],

@@ -196,7 +196,9 @@ All provider files use stable ESM subpaths under `@desource/image/providers/*`. 
 
 ## Custom providers
 
-### Nuxt-style contract
+The provider API is Desource's own contract, inspired by the Nuxt Image library's provider shape so provider behavior remains easy to compare.
+
+### Provider contract
 
 ```ts
 import { configureProvider, defineProvider } from '@desource/image';

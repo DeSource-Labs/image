@@ -120,7 +120,7 @@ describe('image edge behavior', () => {
     expect(() => getImage({ src: '/photo.jpg', provider: 'missing' })).toThrow(/Unknown image provider "missing"/);
   });
 
-  it('lets Nuxt-style providers use the memoized context image helper', () => {
+  it('lets providers use the memoized context image helper', () => {
     let helperCalls = 0;
     const bridge = defineProvider({
       getImage(src, _options, context) {

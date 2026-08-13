@@ -79,7 +79,7 @@ export type ImageProviderGetImage<TOptions = Record<string, unknown>> = {
   ): ImageProviderResult;
 }['getImage'];
 
-/** Nuxt-style provider contract used by `defineProvider` and direct provider registrations. */
+/** Provider contract used by `defineProvider` and direct provider registrations. */
 export interface ImageProvider<TOptions = Record<string, unknown>> {
   name?: string;
   validateDomains?: boolean;
