@@ -1,0 +1,11 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node", "vitest/globals"],
+    "paths": {
+      "@desource/image": ["../packages/core/src/index.ts"],
+      "@desource/image/kit": ["../packages/core/src/kit.ts"]
+    }
+  },
+  "include": ["test/**/*.ts"]
+}

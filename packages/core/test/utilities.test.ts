@@ -63,7 +63,7 @@ describe('framework kit utilities', () => {
       delete candidate[key];
       expect(isResolvedImageConfig(candidate)).toBe(false);
     }
-    expect(isResolvedImageConfig({ ...resolved, screens: null })).toBe(false);
+    expect(isResolvedImageConfig({ ...resolved, screens: undefined })).toBe(false);
   });
 
   it('normalizes attributes without dropping intentional falsy values', () => {

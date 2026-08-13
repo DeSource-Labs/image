@@ -161,7 +161,8 @@ describe('responsive parsing edge cases', () => {
   });
 
   it('rejects empty and unusable size inputs', () => {
-    expect(parseSizes(null)).toBeUndefined();
+    expect(parseSizes(undefined)).toBeUndefined();
+    expect(parseSizes(null as unknown as undefined)).toBeUndefined();
     expect(parseSizes('')).toBeUndefined();
     expect(parseSizes('unknown:50vw')).toBeUndefined();
   });
