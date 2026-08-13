@@ -21,7 +21,7 @@ export default defineConfig({
   },
   test: {
     environment: 'node',
-    include: ['./test/svelte.test.ts', './test/unit/**/*.test.ts'],
+    include: ['./test/unit/**/*.test.ts'],
     restoreMocks: true,
     coverage: {
       provider: 'v8',

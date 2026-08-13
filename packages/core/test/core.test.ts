@@ -26,14 +26,6 @@ import {
 import { BUILT_IN_PROVIDER_NAMES, createBuiltInProviders } from '../src/providers/index';
 import { cloudinaryProvider } from '../src/providers/cloudinary';
 import { imgixProvider } from '../src/providers/imgix';
-import { testImageBehavior } from '../../../common/test/unit/image-behavior';
-
-testImageBehavior({
-  name: 'core',
-  createImage,
-  getImageAttrs,
-  getPictureAttrs
-});
 
 describe('sizes and densities', () => {
   it('parses responsive sizes', () => {

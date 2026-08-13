@@ -1,6 +1,4 @@
 import { describe, expect, it, vi } from 'vitest';
-import { createImage, getImageAttrs, getPictureAttrs } from '@desource/image';
-import { testImageBehavior } from '../../../common/test/unit/image-behavior';
 import {
   coerceBoolean,
   coerceCrossorigin,
@@ -11,13 +9,6 @@ import {
   styleWithPlaceholder
 } from '../src/lib/coercion';
 import { createDsImageMiddleware } from '../server/src/public-api';
-
-testImageBehavior({
-  name: 'angular',
-  createImage,
-  getImageAttrs,
-  getPictureAttrs
-});
 
 describe('angular helpers', () => {
   it('coerces Angular template inputs to Nuxt-compatible values', () => {

@@ -2,6 +2,7 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "baseUrl": ".",
+    "rootDir": "../..",
     "outDir": "./test-results/tsc",
     "types": ["vitest/globals", "node"],
     "paths": {
@@ -12,6 +13,6 @@
   "angularCompilerOptions": {
     "strictTemplates": true
   },
-  "include": ["src/**/*.ts", "server/src/**/*.ts", "test/**/*.ts"],
+  "include": ["src/**/*.ts", "server/src/**/*.ts", "test/**/*.ts", "../../common/test/unit/**/*.ts"],
   "exclude": ["test/e2e/**/*.ts", "dist", "demo"]
 }
