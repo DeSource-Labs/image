@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1080" viewBox="0 0 1440 1080" role="img" aria-labelledby="title desc">
+  <title id="title">Aurora above a mountain lake</title>
+  <desc id="desc">An abstract indigo and mint landscape used by the image component demo.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#090d2b"/>
+      <stop offset="0.55" stop-color="#3544a5"/>
+      <stop offset="1" stop-color="#4dc7ae"/>
+    </linearGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#162552"/>
+      <stop offset="1" stop-color="#050817"/>
+    </linearGradient>
+    <filter id="blur"><feGaussianBlur stdDeviation="28"/></filter>
+  </defs>
+  <rect width="1440" height="1080" fill="url(#sky)"/>
+  <path d="M-80 270 C240 30 390 420 720 120 C960 -70 1120 250 1520 40" fill="none" stroke="#95ffd7" stroke-opacity=".5" stroke-width="90" filter="url(#blur)"/>
+  <circle cx="1110" cy="190" r="72" fill="#f5f1d6" opacity=".92"/>
+  <path d="M0 690 290 390 470 610 700 285 940 610 1110 420 1440 705V830H0Z" fill="#111833"/>
+  <path d="M0 730 320 485 505 684 724 370 935 667 1125 510 1440 735V840H0Z" fill="#202d58"/>
+  <path d="m640 475 84-105 83 134-52-30-31 44-24-38z" fill="#d9e8f4" opacity=".8"/>
+  <path d="M0 770h1440v310H0z" fill="url(#water)"/>
+  <path d="M0 830c260-75 410 75 670 8 260-68 490 54 770-28v270H0z" fill="#071026" opacity=".78"/>
+  <g fill="#8cf6d2" opacity=".3">
+    <ellipse cx="720" cy="800" rx="380" ry="9"/>
+    <ellipse cx="720" cy="865" rx="260" ry="6"/>
+    <ellipse cx="720" cy="925" rx="170" ry="4"/>
+  </g>
+</svg>

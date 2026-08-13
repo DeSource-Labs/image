@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { createImage, getImageAttrs, getPictureAttrs } from '@desource/image';
-import { testImageBehavior } from '../../../common/tests/image-behavior';
+import { testImageBehavior } from '../../../common/test/unit/image-behavior';
 import {
   coerceBoolean,
   coerceCrossorigin,
@@ -10,7 +10,7 @@ import {
   mergeClassNames,
   styleWithPlaceholder
 } from '../src/lib/coercion';
-import { createDsImageMiddleware } from '../src/server';
+import { createDsImageMiddleware } from '../server/src/public-api';
 
 testImageBehavior({
   name: 'angular',
@@ -26,8 +26,11 @@ describe('angular helpers', () => {
     expect(coerceBoolean('true')).toBe(true);
     expect(coerceBoolean('false')).toBe(false);
     expect(coercePlaceholder('')).toBe(true);
+    expect(coercePlaceholder([12, 8, 40, 2])).toEqual([12, 8, 40, 2]);
     expect(coercePlaceholder('data:image/png;base64,x')).toBe('data:image/png;base64,x');
+    expect(coercePreload('')).toBe(true);
     expect(coercePreload({ fetchPriority: 'high' })).toEqual({ fetchPriority: 'high' });
+    expect(coercePreload('invalid')).toBeUndefined();
     expect(coerceCrossorigin(true)).toBe('anonymous');
     expect(coerceCrossorigin('use-credentials')).toBe('use-credentials');
     expect(coerceCrossorigin('invalid')).toBeUndefined();

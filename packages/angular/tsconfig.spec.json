@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "outDir": "./test-results/tsc",
+    "types": ["vitest/globals", "node"],
+    "paths": {
+      "@desource/image": ["../core/src/index.ts"],
+      "@desource/image/kit": ["../core/src/kit.ts"]
+    }
+  },
+  "angularCompilerOptions": {
+    "strictTemplates": true
+  },
+  "include": ["src/**/*.ts", "server/src/**/*.ts", "test/**/*.ts"],
+  "exclude": ["test/e2e/**/*.ts", "dist", "demo"]
+}

@@ -1,92 +1,71 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  Renderer2,
-  ViewEncapsulation,
-  computed,
-  effect,
-  inject,
-  input,
-  signal,
-  viewChild
-} from '@angular/core';
-import {
-  type DensityInput,
-  type ImageDecoding,
-  type ImageFetchPriority,
-  type ImageFit,
-  type ImageFormat,
-  type ImageInput,
-  type ImageLoading,
-  type ImageModifiers,
-  type ImagePlaceholder,
-  type ImagePreload,
-  type SizesInput,
-  getPictureAttrs
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import type {
+  DensityInput,
+  ImageDecoding,
+  ImageFetchPriority,
+  ImageFit,
+  ImageFormat,
+  ImageLoading,
+  ImageModifiers,
+  ImagePlaceholder,
+  ImagePreload,
+  SizesInput
 } from '@desource/image';
-import { DS_IMAGE_CONFIG } from './config.js';
-import {
-  coerceBoolean,
-  coerceCrossorigin,
-  coerceNumber,
-  coercePlaceholder,
-  coercePreload,
-  mergeClassNames,
-  stripUndefined,
-  styleWithPlaceholder
-} from './coercion.js';
-
-type NativeAttrs = Record<string, string | number | boolean | null | undefined>;
+import { coerceBoolean, coerceCrossorigin, coerceNumber, coercePlaceholder, coercePreload } from './coercion.js';
+import { DsPictureDirective } from './ds-picture.directive.js';
+import type { DsNativeImageAttrs } from './types.js';
 
 @Component({
   selector: 'ds-picture',
   standalone: true,
-  encapsulation: ViewEncapsulation.None,
+  imports: [DsPictureDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: {
-    '[style.display]': '"contents"'
-  },
+  host: { '[style.display]': '"contents"' },
   template: `
-    <picture>
-      @for (source of picture().sources; track source.type) {
-        <source [attr.type]="source.type" [attr.srcset]="source.srcset" [attr.sizes]="source.sizes" />
-      }
-      <img
-        #image
-        [attr.src]="picture().img.src"
-        [attr.srcset]="picture().img.srcset"
-        [attr.sizes]="picture().img.sizes"
-        [attr.width]="picture().img.width"
-        [attr.height]="picture().img.height"
-        [attr.alt]="picture().img.alt ?? ''"
-        [attr.loading]="picture().img.loading"
-        [attr.decoding]="picture().img.decoding"
-        [attr.fetchpriority]="picture().img.fetchpriority"
-        [attr.class]="imageClass()"
-        [attr.style]="imageStyle()"
-        [attr.id]="id()"
-        [attr.role]="role()"
-        [attr.aria-label]="ariaLabel()"
-        [attr.aria-describedby]="ariaDescribedby()"
-        [attr.referrerpolicy]="referrerpolicy()"
-        [attr.crossorigin]="crossorigin()"
-        [attr.nonce]="nonce()"
-        [attr.usemap]="usemap()"
-        [attr.data-testid]="dataTestid()"
-        (load)="loaded.set(true)"
-        (error)="handleError($event)"
-      />
+    <picture
+      [dsPicture]="src()"
+      [alt]="alt()"
+      [width]="width()"
+      [height]="height()"
+      [sizes]="sizes()"
+      [quality]="quality()"
+      [format]="format()"
+      [formats]="formats()"
+      [fallbackFormat]="fallbackFormat()"
+      [legacyFormat]="legacyFormat()"
+      [fit]="fit()"
+      [position]="position()"
+      [background]="background()"
+      [modifiers]="modifiers()"
+      [provider]="provider()"
+      [preset]="preset()"
+      [densities]="densities()"
+      [loading]="loading()"
+      [decoding]="decoding()"
+      [fetchpriority]="fetchpriority()"
+      [priority]="priority()"
+      [preload]="preload()"
+      [placeholder]="placeholder()"
+      [placeholderClass]="placeholderClass()"
+      [crossorigin]="crossorigin()"
+      [nonce]="nonce()"
+      [imgAttrs]="mergedImgAttrs()"
+      [attr.class]="pictureClass()"
+      [attr.style]="style()"
+      [attr.id]="id()"
+      [attr.role]="role()"
+      [attr.aria-label]="ariaLabel()"
+      [attr.data-testid]="dataTestid()"
+      (dsLoad)="load.emit($event)"
+      (dsError)="error.emit($event)"
+    >
+      <img [attr.alt]="alt()" />
     </picture>
   `
 })
 export class DsPictureComponent {
-  private readonly config = inject(DS_IMAGE_CONFIG);
-  private readonly renderer = inject(Renderer2);
-  private readonly imageRef = viewChild<ElementRef<HTMLImageElement>>('image');
-
   readonly src = input.required<string>();
-  readonly alt = input<string>('');
+  readonly alt = input.required<string>();
   readonly width = input<number | undefined, unknown>(undefined, { transform: coerceNumber });
   readonly height = input<number | undefined, unknown>(undefined, { transform: coerceNumber });
   readonly sizes = input<SizesInput | undefined>();
@@ -109,122 +88,31 @@ export class DsPictureComponent {
   readonly preload = input<ImagePreload | undefined, unknown>(undefined, { transform: coercePreload });
   readonly placeholder = input<ImagePlaceholder | undefined, unknown>(undefined, { transform: coercePlaceholder });
   readonly placeholderClass = input<string | undefined>();
-
-  readonly imgClass = input<string | undefined>(undefined, { alias: 'class' });
-  readonly style = input<string | undefined>();
-  readonly id = input<string | undefined>();
-  readonly role = input<string | undefined>();
-  readonly ariaLabel = input<string | undefined>(undefined, { alias: 'aria-label' });
-  readonly ariaDescribedby = input<string | undefined>(undefined, { alias: 'aria-describedby' });
-  readonly referrerpolicy = input<string | undefined>();
   readonly crossorigin = input<'anonymous' | 'use-credentials' | undefined, unknown>(undefined, {
     transform: coerceCrossorigin
   });
   readonly nonce = input<string | undefined>();
-  readonly usemap = input<string | undefined>();
+  readonly imgAttrs = input<DsNativeImageAttrs>({});
+
+  readonly pictureClass = input<string | undefined>(undefined, { alias: 'class' });
+  readonly style = input<string | undefined>();
+  readonly id = input<string | undefined>();
+  readonly role = input<string | undefined>();
+  readonly ariaLabel = input<string | undefined>(undefined, { alias: 'aria-label' });
   readonly dataTestid = input<string | undefined>(undefined, { alias: 'data-testid' });
-  readonly nativeAttrs = input<NativeAttrs>({});
-  readonly imgAttrs = input<NativeAttrs>({});
+  readonly imgClass = input<string | undefined>();
+  readonly imgStyle = input<string | undefined>();
+  readonly referrerpolicy = input<string | undefined>();
+  readonly usemap = input<string | undefined>();
 
-  readonly loaded = signal(false);
+  readonly load = output<Event>();
+  readonly error = output<Event>();
 
-  readonly imageInput = computed<ImageInput>(() =>
-    stripUndefined({
-      src: this.src(),
-      alt: this.alt(),
-      width: this.width(),
-      height: this.height(),
-      sizes: this.sizes(),
-      quality: this.quality(),
-      format: this.format(),
-      formats: this.formats(),
-      fallbackFormat: this.fallbackFormat(),
-      legacyFormat: this.legacyFormat(),
-      fit: this.fit(),
-      position: this.position(),
-      background: this.background(),
-      modifiers: this.modifiers(),
-      provider: this.provider(),
-      preset: this.preset(),
-      densities: this.densities(),
-      loading: this.loading(),
-      decoding: this.decoding(),
-      fetchpriority: this.fetchpriority(),
-      priority: this.priority(),
-      preload: this.preload(),
-      placeholder: this.placeholder(),
-      placeholderClass: this.placeholderClass()
-    })
-  );
-
-  readonly picture = computed(() => getPictureAttrs(this.imageInput(), this.config));
-
-  readonly imageClass = computed(() =>
-    mergeClassNames([
-      this.imgClass(),
-      this.picture().img.placeholderSrc && !this.loaded() ? this.picture().img.placeholderClass : undefined
-    ])
-  );
-
-  readonly imageStyle = computed(() =>
-    styleWithPlaceholder(this.style(), this.picture().img.placeholderSrc, this.loaded())
-  );
-
-  handleError(event: Event): void {
-    const image = event.target;
-
-    if (!(image instanceof HTMLImageElement)) {
-      return;
-    }
-
-    this.applyFallback(image);
-  }
-
-  constructor() {
-    effect(() => {
-      const image = this.imageRef()?.nativeElement;
-      if (!image) {
-        return;
-      }
-
-      for (const [name, value] of Object.entries({ ...this.nativeAttrs(), ...this.imgAttrs() })) {
-        if (value === false || value === null || value === undefined) {
-          this.renderer.removeAttribute(image, name);
-        } else {
-          this.renderer.setAttribute(image, name, value === true ? '' : String(value));
-        }
-      }
-    });
-
-    effect(() => {
-      const image = this.imageRef()?.nativeElement;
-      const fallbackSrc = this.picture().img.fallbackSrc;
-
-      if (!image || !fallbackSrc || typeof globalThis.setTimeout === 'undefined') {
-        return;
-      }
-
-      const check = () => {
-        if (image.complete && image.naturalWidth === 0) {
-          this.applyFallback(image);
-        }
-      };
-
-      globalThis.setTimeout(check, 0);
-      globalThis.setTimeout(check, 300);
-    });
-  }
-
-  private applyFallback(image: HTMLImageElement): void {
-    const fallbackSrc = this.picture().img.fallbackSrc;
-
-    if (!fallbackSrc || image.dataset['dsFallbackApplied'] === 'true') {
-      return;
-    }
-
-    image.dataset['dsFallbackApplied'] = 'true';
-    image.removeAttribute('srcset');
-    image.removeAttribute('sizes');
-    image.src = fallbackSrc;
-  }
+  readonly mergedImgAttrs = computed<DsNativeImageAttrs>(() => ({
+    ...this.imgAttrs(),
+    class: this.imgClass() ?? this.imgAttrs()['class'],
+    style: this.imgStyle() ?? this.imgAttrs()['style'],
+    referrerpolicy: this.referrerpolicy() ?? this.imgAttrs()['referrerpolicy'],
+    usemap: this.usemap() ?? this.imgAttrs()['usemap']
+  }));
 }
