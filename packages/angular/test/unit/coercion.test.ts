@@ -7,7 +7,7 @@ import {
   coercePreload,
   mergeClassNames,
   styleWithPlaceholder
-} from '../../src/lib/coercion';
+} from '@src/coercion';
 
 describe('coercion', () => {
   it('coerces Angular template inputs to image-compatible values', () => {

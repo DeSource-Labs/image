@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { defineProvider } from '@desource/image';
-import { DsImageService, provideDsImage } from '../../src/public-api.js';
+import { DsImageService, provideDsImage } from '@lib';
 
 describe('DsImageService', () => {
   beforeEach(() => TestBed.resetTestingModule());

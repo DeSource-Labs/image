@@ -1,20 +1,23 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "baseUrl": ".",
-    "rootDir": "../..",
-    "outDir": "./test-results/tsc",
+    "rootDir": ".",
     "types": ["vitest/globals", "node"],
     "paths": {
-      "@desource/image": ["../core/src/index.ts"],
-      "@desource/image/kit": ["../core/src/kit.ts"],
-      "@desource/image-angular": ["src/public-api.ts"],
-      "@desource/image-angular/server": ["server/src/public-api.ts"]
+      "@desource/image-angular": ["./src/public-api.ts"],
+      "@desource/image-angular/server": ["./server/src/public-api.ts"]
     }
   },
   "angularCompilerOptions": {
     "strictTemplates": true
   },
-  "include": ["src/**/*.ts", "server/src/**/*.ts", "test/**/*.ts", "demo/src/**/*.ts"],
+  "include": [
+    "src/**/*.ts",
+    "server/src/**/*.ts",
+    "test/**/*.ts",
+    "demo/src/**/*.ts",
+    "playwright.config.ts",
+    "vitest.config.ts"
+  ],
   "exclude": ["test/e2e/**/*.ts", "dist", "demo/dist"]
 }

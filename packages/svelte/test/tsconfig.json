@@ -4,8 +4,7 @@
     "types": ["vitest/globals", "node", "vite/client"],
     "paths": {
       "@common/*": ["../../../common/*"],
-      "@src/*": ["../src/*"],
-      "#imports": ["./unit/setup/nuxt-stubs.ts"]
+      "@src/*": ["../src/lib/*"]
     }
   },
   "include": ["./**/*", "../src/**/*"]

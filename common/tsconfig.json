@@ -3,8 +3,7 @@
   "compilerOptions": {
     "types": ["node", "vitest/globals"],
     "paths": {
-      "@desource/image": ["../packages/core/src/index.ts"],
-      "@desource/image/kit": ["../packages/core/src/kit.ts"]
+      "@desource/image": ["../packages/core/src/index.ts"]
     }
   },
   "include": ["test/**/*.ts"]

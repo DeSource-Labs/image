@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { clone, localProviderContext, providerOptionsFor, providerSourceFor, referenceProviderContext } from './shared';
+import {
+  clone,
+  localProviderContext,
+  providerOptionsFor,
+  providerSourceFor,
+  referenceProviderContext
+} from '../setup/shared';
 
 interface ProviderModule {
   default?: () => {
@@ -7,9 +13,9 @@ interface ProviderModule {
   };
 }
 
-const localModules = import.meta.glob<ProviderModule>('../../src/providers/*.ts', { eager: true });
+const localModules = import.meta.glob<ProviderModule>('../../../src/providers/*.ts', { eager: true });
 const referenceModules = import.meta.glob<ProviderModule>(
-  '../../../../node_modules/@nuxt/image/dist/runtime/providers/*.js',
+  '../../../../../node_modules/@nuxt/image/dist/runtime/providers/*.js',
   {
     eager: true
   }
@@ -27,7 +33,7 @@ describe('pinned Nuxt Image provider parity', () => {
 
   for (const { name, reference } of parityCases) {
     it(name, () => {
-      const local = localModules[`../../src/providers/${name}.ts`];
+      const local = localModules[`../../../src/providers/${name}.ts`];
       expect(local?.default, `missing local provider ${name}`).toBeTypeOf('function');
 
       const source = providerSourceFor(name);

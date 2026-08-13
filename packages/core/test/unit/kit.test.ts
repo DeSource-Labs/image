@@ -6,7 +6,7 @@ import {
   resolveImageConfig,
   stripUndefined,
   styleWithPlaceholder
-} from '../src/index';
+} from '@src/index';
 
 describe('framework kit utilities', () => {
   it('recognizes only fully resolved image configurations', () => {

@@ -19,7 +19,7 @@ import {
   stripLeadingSlash,
   toNumber,
   uniqueSorted
-} from '../src/index';
+} from '@src/index';
 
 describe('generic value and URL utilities', () => {
   it('maps operation keys and values with object and function mappers', () => {

@@ -12,7 +12,7 @@ import {
   pictureAttachment,
   preloadImage,
   splitPictureAttributes
-} from '../../src/lib/bindings.js';
+} from '@src/bindings';
 
 function createConfig(setup = vi.fn()) {
   const provider = defineProvider(() => {

@@ -2,8 +2,8 @@ import { By } from '@angular/platform-browser';
 import { Component, signal } from '@angular/core';
 import { TestBed, type ComponentFixture } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { imageComponentTestConfig } from '../../../../common/test/unit/setup/image-test-provider';
-import { DsPictureDirective, provideDsImage } from '../../src/public-api.js';
+import { imageComponentTestConfig } from '@common/test/unit/setup/image-test-provider';
+import { DsPictureDirective, provideDsImage } from '@lib';
 
 const providers = () => [provideDsImage(imageComponentTestConfig)];
 

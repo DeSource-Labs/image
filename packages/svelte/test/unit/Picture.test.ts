@@ -2,8 +2,8 @@
 
 import { mount, tick, unmount } from 'svelte';
 import { afterEach, vi } from 'vitest';
-import { testPictureComponent, type PictureComponentSetupOptions } from '../../../../common/test/unit/Picture';
-import type { NativeImageAttrs, PictureComponentProps } from '../../src/lib/index.js';
+import { testPictureComponent, type PictureComponentSetupOptions } from '@common/test/unit/Picture';
+import type { NativeImageAttrs, PictureComponentProps } from '@src/index';
 import PictureHarness from './setup/PictureHarness.svelte';
 
 type PictureHarnessExports = {

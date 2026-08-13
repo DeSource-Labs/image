@@ -1,7 +1,7 @@
 import { IMAGE_LOADER } from '@angular/common';
 import { TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { imageComponentTestConfig } from '../../../../common/test/unit/setup/image-test-provider';
+import { imageComponentTestConfig } from '@common/test/unit/setup/image-test-provider';
 import {
   DS_IMAGE_CONFIG,
   createAngularImageLoader,
@@ -9,7 +9,7 @@ import {
   provideDsImage,
   provideDsIpxImage,
   provideDsVercelImage
-} from '../../src/public-api.js';
+} from '@lib';
 
 const providers = () => [provideDsImage(imageComponentTestConfig)];
 

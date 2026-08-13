@@ -1,8 +1,8 @@
 import { createServer } from 'node:http';
 import { resolve } from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
-import { createDsImageHandle, createDsImageNodeMiddleware, createDsImageWebHandler } from '../../src/lib/server.js';
-import { desourceImage } from '../../src/lib/vite.js';
+import { createDsImageHandle, createDsImageNodeMiddleware, createDsImageWebHandler } from '@src/server';
+import { desourceImage } from '@src/vite';
 
 describe('SvelteKit and Vite server integrations', () => {
   it('passes unrelated Node and Web requests through without loading IPX', async () => {

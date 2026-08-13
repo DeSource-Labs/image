@@ -8,7 +8,7 @@ import {
   validateSource,
   vercelProvider,
   type ResolvedImageConfig
-} from '../src/index';
+} from '@src/index';
 
 describe('aliases, validation and merge order', () => {
   it('resolves source aliases before provider URL generation', () => {

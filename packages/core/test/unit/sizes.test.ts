@@ -6,7 +6,7 @@ import {
   parseSizes,
   resolveImageConfig,
   vercelProvider
-} from '../src/index';
+} from '@src/index';
 
 describe('sizes and densities', () => {
   it('parses responsive sizes', () => {

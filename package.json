@@ -27,7 +27,7 @@
     "changeset:publish": "pnpm build && changeset publish --no-git-tag",
     "release:prepare": "node scripts/prepare-github-release.mts",
     "validate:packages": "pnpm -r --filter \"./packages/**\" --if-present --stream run publish:check",
-    "test:e2e": "pnpm -r --filter \"./packages/**\" --filter @desource/image-demo --if-present --stream --workspace-concurrency=1 run test:e2e",
+    "test:e2e": "pnpm -r --filter \"./packages/**\" --if-present --stream --workspace-concurrency=1 run test:e2e",
     "test:unit": "pnpm -r --filter \"./packages/**\" --if-present --stream run test:unit",
     "test:unit:coverage": "pnpm -r --filter \"./packages/**\" --if-present --stream run test:unit:coverage",
     "typecheck": "pnpm typecheck:scripts && pnpm -r --if-present --stream run typecheck",

@@ -1,4 +1,4 @@
-import { testPictureComponent } from '../../../../common/test/e2e/Picture';
+import { testPictureComponent } from '@common/test/e2e/Picture';
 
 testPictureComponent({
   heading: 'Components, actions, and attachments in one engine.',

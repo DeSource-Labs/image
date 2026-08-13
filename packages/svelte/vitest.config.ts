@@ -2,22 +2,15 @@ import { fileURLToPath } from 'node:url';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 import { defineConfig } from 'vitest/config';
 
-const workspace = fileURLToPath(new URL('../..', import.meta.url));
-
 export default defineConfig({
   plugins: [svelte()],
   resolve: {
     conditions: ['browser'],
-    alias: [
-      {
-        find: '@desource/image/kit',
-        replacement: `${workspace}/packages/core/src/kit.ts`
-      },
-      {
-        find: /^@desource\/image$/,
-        replacement: `${workspace}/packages/core/src/index.ts`
-      }
-    ]
+    alias: {
+      '@desource/image': fileURLToPath(new URL('../../packages/core/src', import.meta.url)),
+      '@common': fileURLToPath(new URL('../../common', import.meta.url)),
+      '@src': fileURLToPath(new URL('./src/lib', import.meta.url))
+    }
   },
   test: {
     environment: 'node',

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import * as image from '../src/index';
+import * as image from '@src/index';
 
 describe('public index exports', () => {
   it('exposes core factories, utilities and default providers from the package root', () => {

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { createImageContext, detectImageProvider, resolveImageConfig } from '../src/index';
+import { createImageContext, detectImageProvider, resolveImageConfig } from '@src/index';
 
 describe('resolveImageConfig', () => {
   it('resolves defaults, aliases and provider detection without package-specific env variables', () => {

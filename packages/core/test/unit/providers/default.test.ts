@@ -8,10 +8,10 @@ import {
   ipxProvider,
   resolveImageConfig,
   vercelProvider
-} from '../../src/index';
-import { BUILT_IN_PROVIDER_NAMES, createBuiltInProviders } from '../../src/providers/index';
-import { cloudinaryProvider } from '../../src/providers/cloudinary';
-import { imgixProvider } from '../../src/providers/imgix';
+} from '@src/index';
+import { BUILT_IN_PROVIDER_NAMES, createBuiltInProviders } from '@src/providers';
+import { cloudinaryProvider } from '@src/providers/cloudinary';
+import { imgixProvider } from '@src/providers/imgix';
 
 describe('providers', () => {
   it('keeps default providers small and exposes every built-in provider on demand', () => {

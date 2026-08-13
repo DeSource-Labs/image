@@ -1,4 +1,4 @@
-import { createImage, resolveImageConfig, type ImageProviderContext } from '@desource/image';
+import { createImage, resolveImageConfig, type ImageProviderContext } from '@src/index';
 
 export const localProviderContext: ImageProviderContext = {
   options: resolveImageConfig({ baseURL: '/' }),

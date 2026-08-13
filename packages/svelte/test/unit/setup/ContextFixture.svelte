@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { setImageConfig, useImage } from '../../../src/lib/context.js';
+  import { setImageConfig, useImage } from '@src/context';
 
   setImageConfig({ provider: 'ipx' });
   const image = useImage();

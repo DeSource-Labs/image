@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { afterEach, describe, expect, it } from 'vitest';
-import { imageComponentTestConfig } from '../../../../common/test/unit/setup/image-test-provider';
-import { provideDsImage } from '../../src/public-api.js';
-import { DsImageHeadService } from '../../src/lib/ds-image-head.service.js';
+import { imageComponentTestConfig } from '@common/test/unit/setup/image-test-provider';
+import { provideDsImage } from '@lib';
+import { DsImageHeadService } from '@src/ds-image-head.service';
 
 const providers = () => [provideDsImage(imageComponentTestConfig)];
 

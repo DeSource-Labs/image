@@ -19,7 +19,7 @@ import {
   withStandardParams,
   type ImageProviderInput,
   type ModifierValueMap
-} from '../src/index';
+} from '@src/index';
 
 describe('provider-authoring utilities', () => {
   const input = (overrides: Partial<ImageProviderInput> = {}): ImageProviderInput => ({

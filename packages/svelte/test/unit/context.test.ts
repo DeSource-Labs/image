@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { render } from 'svelte/server';
 import ContextFixture from './setup/ContextFixture.svelte';
-import { createImageConfig, imageForConfig, resolveCachedConfig } from '../../src/lib/context.js';
+import { createImageConfig, imageForConfig, resolveCachedConfig } from '@src/context';
 
 describe('Svelte image context', () => {
   it('memoizes unresolved configs and callable image helpers', () => {

@@ -1,21 +1,17 @@
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vitest/config';
 
-const source = fileURLToPath(new URL('./src', import.meta.url));
-
 export default defineConfig({
   resolve: {
-    alias: [
-      { find: /^@desource\/image$/, replacement: `${source}/index.ts` },
-      { find: /^@desource\/image\/kit$/, replacement: `${source}/kit.ts` },
-      { find: /^@desource\/image\/providers$/, replacement: `${source}/providers/index.ts` },
-      { find: /^@desource\/image\/providers\/(.+)$/, replacement: `${source}/providers/$1.ts` },
-      { find: '#imports', replacement: fileURLToPath(new URL('./test/providers/nuxt-stubs.ts', import.meta.url)) }
-    ]
+    alias: {
+      '@common': fileURLToPath(new URL('../../common', import.meta.url)),
+      '@src': fileURLToPath(new URL('./src', import.meta.url)),
+      '#imports': fileURLToPath(new URL('./test/unit/setup/nuxt-stubs.ts', import.meta.url))
+    }
   },
   test: {
     environment: 'node',
-    include: ['test/**/*.test.ts'],
+    include: ['test/unit/**/*.test.ts'],
     server: {
       deps: {
         inline: ['@nuxt/image']

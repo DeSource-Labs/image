@@ -3,8 +3,8 @@ import { By } from '@angular/platform-browser';
 import { Component, PLATFORM_ID, signal } from '@angular/core';
 import { TestBed, type ComponentFixture } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { imageComponentTestConfig } from '../../../../common/test/unit/setup/image-test-provider';
-import { DsImageDirective, provideDsImage } from '../../src/public-api.js';
+import { imageComponentTestConfig } from '@common/test/unit/setup/image-test-provider';
+import { DsImageDirective, provideDsImage } from '@lib';
 
 const providers = () => [provideDsImage(imageComponentTestConfig)];
 

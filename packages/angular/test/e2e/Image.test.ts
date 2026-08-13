@@ -1,4 +1,4 @@
-import { testImageComponent } from '../../../../common/test/e2e/Image';
+import { testImageComponent } from '@common/test/e2e/Image';
 
 testImageComponent({
   heading: 'One image API, four Angular surfaces.',

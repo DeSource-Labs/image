@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { collectConsoleErrors } from './browser';
+import { collectConsoleErrors } from './setup/browser';
 
 export interface PictureComponentE2EOptions {
   heading: string | RegExp;

@@ -1,6 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { createDsImageMiddleware } from '../../server/src/public-api';
+import { createDsImageMiddleware } from '@server';
 
 const handledUrls = vi.hoisted((): string[] => []);
 const ipxHandler = vi.hoisted(() =>

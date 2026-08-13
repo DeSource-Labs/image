@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { Image, setImageConfig, type ImageComponentProps } from '../../../src/lib/index.js';
-  import { imageComponentTestConfig } from '../../../../../common/test/unit/setup/image-test-provider';
+  import { Image, setImageConfig, type ImageComponentProps } from '@src/index';
+  import { imageComponentTestConfig } from '@common/test/unit/setup/image-test-provider';
 
   let {
     props,

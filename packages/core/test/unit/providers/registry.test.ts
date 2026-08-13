@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import type { ImageProviderContext, ImageProviderResult } from '@desource/image';
+import type { ImageProviderContext, ImageProviderResult } from '@src/index';
 import {
   BUILT_IN_PROVIDER_NAMES,
   createBuiltInProviders,
   createDefaultProviders,
   type BuiltInProviderName
-} from '@desource/image/providers';
-import { clone, localProviderContext, providerOptionsFor, providerSourceFor } from './shared';
+} from '@src/providers';
+import { clone, localProviderContext, providerOptionsFor, providerSourceFor } from '../setup/shared';
 
 interface ProviderModule {
   default?: unknown;
@@ -17,7 +17,7 @@ interface ProviderLike {
   getImage(source: string, options: Record<string, unknown>, context: ImageProviderContext): ImageProviderResult;
 }
 
-const providerModules = import.meta.glob<ProviderModule>('../../src/providers/*.ts', { eager: true });
+const providerModules = import.meta.glob<ProviderModule>('../../../src/providers/*.ts', { eager: true });
 const nonProviderModuleNames = new Set(['default', 'index', 'registry']);
 const providerSourceNames = Object.keys(providerModules)
   .map((path) => path.match(/([^/]+)\.ts$/)?.[1] ?? '')

@@ -18,7 +18,7 @@ import {
   vercelProvider,
   type ImageConfig,
   type ImageProvider
-} from '../src/index';
+} from '@src/index';
 
 describe('core image behavior', () => {
   const ipxConfig: ImageConfig = {

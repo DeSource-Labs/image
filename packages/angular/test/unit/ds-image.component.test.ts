@@ -1,8 +1,8 @@
 import { TestBed, type ComponentFixture } from '@angular/core/testing';
 import { afterEach, vi } from 'vitest';
-import { testImageComponent, type ImageComponentSetupOptions } from '../../../../common/test/unit/Image';
-import { imageComponentTestConfig } from '../../../../common/test/unit/setup/image-test-provider';
-import { DsImageComponent, provideDsImage } from '../../src/public-api.js';
+import { testImageComponent, type ImageComponentSetupOptions } from '@common/test/unit/Image';
+import { imageComponentTestConfig } from '@common/test/unit/setup/image-test-provider';
+import { DsImageComponent, provideDsImage } from '@lib';
 
 const imageInputNames = {
   src: 'src',

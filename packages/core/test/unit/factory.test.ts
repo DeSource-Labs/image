@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createImage, ipxProvider } from '../src/index';
+import { createImage, ipxProvider } from '@src/index';
 
 describe('createImage', () => {
   it('creates a callable helper with preset methods and bound image operations', () => {

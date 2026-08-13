@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { collectConsoleErrors } from '../../../../common/test/e2e/browser';
+import { collectConsoleErrors } from '@common/test/e2e/setup/browser';
 
 test.describe('imageAction', () => {
   test('renders and updates a native img element', async ({ page }) => {
