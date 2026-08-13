@@ -1,0 +1,28 @@
+{
+  "name": "@desource/image-demo",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "prepare": "svelte-kit sync",
+    "predev": "pnpm --workspace-root build",
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "svelte-check --tsconfig ./tsconfig.json",
+    "test:e2e": "playwright test --config playwright.config.ts"
+  },
+  "dependencies": {
+    "@desource/image": "workspace:*",
+    "@desource/image-svelte": "workspace:*",
+    "ipx": "3.1.1"
+  },
+  "devDependencies": {
+    "@sveltejs/adapter-vercel": "6.3.4",
+    "@sveltejs/kit": "2.61.0",
+    "@sveltejs/vite-plugin-svelte": "7.1.2",
+    "svelte": "5.55.9",
+    "svelte-check": "^4.4.8",
+    "typescript": "~5.9.3",
+    "vite": "8.0.14"
+  }
+}
