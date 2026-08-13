@@ -1,5 +1,15 @@
-import type { ImageModifiers, ImageProvider, ImageProviderInput, ImageProviderResult, ModifierValue } from './types';
-import { appendQuery, joinURL, normalizeFormat, stableModifiers } from './utils';
+import type {
+  DefinedImageProvider,
+  DefinedImageProviderSetup,
+  ImageModifiers,
+  ImageProvider,
+  ImageProviderDefinition,
+  ImageProviderInput,
+  ImageProviderRegistration,
+  ImageProviderResult,
+  ModifierValue
+} from './types.js';
+import { appendQuery, joinURL, normalizeFormat, stableModifiers } from './utils.js';
 
 export interface GenericProviderOptions {
   baseURL?: string;
@@ -181,13 +191,52 @@ export const defaultFitValue = {
   outside: 'max'
 };
 
-export function defineProvider<TOptions>(
-  setup: ImageProvider<TOptions> | (() => ImageProvider<TOptions>)
-): () => ImageProvider<TOptions> {
-  let provider: ImageProvider<TOptions> | undefined;
+const definedProviders = new WeakSet<object>();
+
+/**
+ * Defines a Nuxt-style provider and memoizes factory setup. Existing providers
+ * using the object-input contract can be registered directly without this
+ * helper.
+ */
+export function defineProvider<TOptions = Record<string, unknown>>(
+  setup: DefinedImageProvider<TOptions> | (() => DefinedImageProvider<TOptions>)
+): DefinedImageProviderSetup<TOptions> {
+  let provider: DefinedImageProvider<TOptions> | undefined;
 
   return () => {
     provider ??= typeof setup === 'function' ? setup() : setup;
+    definedProviders.add(provider);
     return provider;
   };
+}
+
+export type ProviderOptionsOf<TSetup> =
+  TSetup extends DefinedImageProviderSetup<infer TOptions> ? TOptions : Record<string, unknown>;
+
+/** Creates an isolated configured provider from a memoized provider setup. */
+export function configureProvider<TOptions>(
+  setup: DefinedImageProviderSetup<TOptions>,
+  defaults: Partial<TOptions> = {},
+  name?: string,
+  capabilities: Pick<DefinedImageProvider<TOptions>, 'acceptsOpaqueSource'> = {}
+): DefinedImageProvider<TOptions> {
+  const provider = setup();
+  const configured = {
+    ...provider,
+    ...capabilities,
+    name: name ?? provider.name,
+    defaults: { ...provider.defaults, ...defaults }
+  } as DefinedImageProvider<TOptions>;
+  definedProviders.add(configured);
+  return configured;
+}
+
+export function isDefinedProvider(provider: ImageProviderDefinition): provider is DefinedImageProvider {
+  return definedProviders.has(provider);
+}
+
+export function resolveProviderRegistration<TOptions>(
+  registration: ImageProviderRegistration<TOptions>
+): ImageProviderDefinition<TOptions> {
+  return typeof registration === 'function' ? registration() : registration;
 }

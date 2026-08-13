@@ -1,5 +1,6 @@
-import { resolveImageConfig } from './config';
-import { generateSrcset, getImage, getImageAttrs, getImagePreloadLink, getPictureAttrs } from './image';
+import { resolveImageConfig } from './config.js';
+import { getImage, getImageAttrs, getImageMeta, getImagePreloadLink, getImageSizes, getPictureAttrs } from './image.js';
+import { isResolvedImageConfig } from './kit.js';
 import type {
   DesourceImage,
   ImageConfig,
@@ -9,10 +10,10 @@ import type {
   ImageProviderResult,
   ImageSizes,
   ResolvedImageConfig
-} from './types';
+} from './types.js';
 
 export function createImage(config: ImageConfig | ResolvedImageConfig = {}): DesourceImage {
-  const resolved = isResolvedConfig(config) ? config : resolveImageConfig(config);
+  const resolved = isResolvedImageConfig(config) ? config : resolveImageConfig(config);
 
   const image = ((source: string, modifiers?: ImageModifiers, options?: ImageOptions) => {
     return image.getImage(source, { ...options, modifiers: { ...options?.modifiers, ...modifiers } }).url;
@@ -23,16 +24,9 @@ export function createImage(config: ImageConfig | ResolvedImageConfig = {}): Des
     return getImage(toImageInput(source, options), resolved);
   };
   image.getSizes = (source: string, options: ImageOptions = {}): ImageSizes => {
-    const input = toImageInput(source, options);
-    const srcset = generateSrcset(input, resolved);
-    const attrs = getImageAttrs(input, resolved);
-    return {
-      srcset: srcset.srcset ?? '',
-      sizes: srcset.sizes,
-      src: attrs.src,
-      widths: srcset.widths
-    };
+    return getImageSizes(toImageInput(source, options), resolved);
   };
+  image.getMeta = (source: string, options: ImageOptions = {}) => getImageMeta(toImageInput(source, options), resolved);
   image.getAttrs = (input: ImageInput) => getImageAttrs(input, resolved);
   image.getPicture = (input: ImageInput) => getPictureAttrs(input, resolved);
   image.getPreloadLink = (input: ImageInput) => getImagePreloadLink(input, resolved);
@@ -83,8 +77,4 @@ function stringValue(modifiers: ImageModifiers | undefined, ...keys: string[]): 
 function formatValue(modifiers: ImageModifiers | undefined): ImageInput['format'] {
   const value = stringValue(modifiers, 'format', 'f');
   return value as ImageInput['format'];
-}
-
-function isResolvedConfig(config: ImageConfig | ResolvedImageConfig): config is ResolvedImageConfig {
-  return 'providerOptions' in config && 'providers' in config && 'providerSizes' in config;
 }

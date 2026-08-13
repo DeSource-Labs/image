@@ -1,53 +1,100 @@
-import type { ImageProvider, ImageProviderResult } from '../types';
-import { joinURLParts, pathOperations } from '../provider-utils';
-import type { GenericProviderOptions } from '../provider-utils';
+import type { ImageModifiers } from '../types.js';
+import { joinURL, encodeQueryItem } from 'ufo';
+import { createOperationsGenerator } from '../utils.js';
+import { configureProvider, defineProvider, type ProviderOptionsOf } from '../provider-utils.js';
 
-export type CloudflareImagesProviderOptions = GenericProviderOptions;
+export interface CloudflareImagesModifiers extends ImageModifiers {
+  dpr: number;
+  gravity: 'auto' | 'face' | 'left' | 'right' | 'top' | 'bottom' | string;
+  sharpen: number;
+  rotate: 90 | 180 | 270;
+  brightness: number;
+  contrast: number;
+  gamma: number;
+  saturation: number;
+  anim: 'true' | 'false';
+  metadata: 'copyright' | 'keep' | 'none';
+  onerror: 'redirect';
+  compression: 'fast';
+  flip: 'h' | 'v' | 'hv';
+  zoom: number;
+  segment: 'foreground';
+  /**
+   * The variant of the image to deliver (e.g., 'public', 'thumbnail', etc.)
+   * This gets priority over other modifiers.
+   * @default 'public' if no modifiers is provided
+   * @see https://developers.cloudflare.com/images/manage-images/create-variants/
+   */
+  variant: string;
+}
 
-export function cloudflareImagesProvider(
-  options: CloudflareImagesProviderOptions = {}
-): ImageProvider<CloudflareImagesProviderOptions> {
-  const defaults = {
-    baseURL: options.baseURL ?? 'https://imagedelivery.net',
-    accountHash: options.accountHash,
-    variant: options.variant
-  };
-  return {
-    name: 'cloudflareimages',
-    getImage(input, providerOptions = defaults): ImageProviderResult {
-      const options = { ...defaults, ...providerOptions };
-      const accountHash = options.accountHash ?? '';
-      const variant = String(input.modifiers?.variant ?? options.variant ?? 'public');
-      const rest = { ...input.modifiers };
-      delete rest.variant;
-      const hasTransforms =
-        input.width || input.height || input.quality || input.format || Object.keys(rest).length > 0;
-      const operations = hasTransforms
-        ? pathOperations(
-            { ...input, modifiers: rest },
-            {
-              width: 'w',
-              height: 'h',
-              quality: 'q',
-              format: 'f',
-              gravity: 'g'
-            },
-            {
-              fit: {
-                cover: 'cover',
-                contain: 'contain',
-                fill: 'pad',
-                inside: 'scale-down',
-                outside: 'crop'
-              }
-            },
-            (key, value) => `${key}=${encodeURIComponent(String(value))}`
-          )
-        : variant;
+const operationsGenerator = createOperationsGenerator({
+  keyMap: {
+    width: 'w',
+    height: 'h',
+    dpr: 'dpr',
+    fit: 'fit',
+    gravity: 'g',
+    quality: 'q',
+    format: 'f'
+  },
+  valueMap: {
+    fit: {
+      cover: 'cover',
+      contain: 'contain',
+      fill: 'pad',
+      outside: 'crop',
+      inside: 'scale-down'
+    },
+    gravity: {
+      auto: 'auto',
+      left: 'left',
+      right: 'right',
+      top: 'top',
+      bottom: 'bottom',
+      face: 'face'
+    },
+    format: {
+      auto: 'auto',
+      avif: 'avif',
+      webp: 'webp',
+      jpeg: 'jpeg',
+      png: 'png',
+      json: 'json'
+    }
+  },
+  joinWith: ',',
+  formatter: (key, val) => encodeQueryItem(key, val)
+});
+
+export interface CloudflareImagesOptions {
+  baseURL?: string;
+  accountHash: string;
+  modifiers?: Partial<CloudflareImagesModifiers>;
+}
+
+const providerSetup = defineProvider<CloudflareImagesOptions>({
+  getImage(imageId: string, { modifiers = {}, baseURL = 'https://imagedelivery.net/', accountHash }) {
+    const { variant, ...restModifiers } = modifiers;
+
+    if (Object.keys(restModifiers).length === 0 || variant) {
       return {
-        url: joinURLParts(options.baseURL ?? '', accountHash, input.src, operations || variant),
-        isOptimized: true
+        url: joinURL(baseURL, accountHash, imageId, variant ?? 'public')
       };
     }
-  };
+
+    const operations = operationsGenerator(restModifiers);
+
+    return {
+      url: joinURL(baseURL, accountHash, imageId, operations)
+    };
+  }
+});
+
+export type CloudflareImagesProviderOptions = Partial<ProviderOptionsOf<typeof providerSetup>>;
+
+export function cloudflareImagesProvider(options: CloudflareImagesProviderOptions = {}) {
+  return configureProvider(providerSetup, options, 'cloudflareimages');
 }
+
+export default providerSetup;

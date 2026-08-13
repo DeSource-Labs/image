@@ -1,47 +1,70 @@
-import type { ImageProvider, ImageProviderResult } from '../types';
-import { isTransformable, pathOperations, providerBaseURL, sourceWithBase } from '../provider-utils';
-import type { GenericProviderOptions } from '../provider-utils';
+import { joinURL, encodePath } from 'ufo';
+import { createOperationsGenerator } from '../utils.js';
+import { configureProvider, defineProvider, type ProviderOptionsOf } from '../provider-utils.js';
 
-export type ImageEngineProviderOptions = GenericProviderOptions;
+const operationsGenerator = createOperationsGenerator({
+  keyMap: {
+    width: 'w',
+    height: 'h',
+    quality: 'cmpr',
+    format: 'f',
+    fit: 'm',
+    passThrough: 'pass',
+    sharpen: 's',
+    rotate: 'r',
+    screenPercent: 'pc',
+    crop: 'cr',
+    inline: 'in',
+    metadata: 'meta',
+    maxDpr: 'maxdpr',
+    download: 'dl'
+  },
+  valueMap: {
+    fit: {
+      cover: 'cropbox',
+      contain: 'letterbox',
+      fill: 'stretch',
+      inside: 'box',
+      outside: 'box',
+      productletterbox: 'productletterbox'
+    },
+    format: {
+      jpeg: 'jpg'
+    },
+    quality(value: string) {
+      // ImageEngine uses compression, which is the opposite of quality,
+      // so quality 90 == compression 10.  Convert using: compression = 100 - quality
+      let compression = 100 - Number.parseInt(value, 10);
 
-export function imageEngineProvider(
-  options: ImageEngineProviderOptions = {}
-): ImageProvider<ImageEngineProviderOptions> {
-  const defaults = { baseURL: options.baseURL ?? '/' };
-  return {
-    name: 'imageengine',
-    getImage(input, providerOptions = defaults): ImageProviderResult {
-      const operations = pathOperations(
-        input,
-        {
-          width: 'w',
-          height: 'h',
-          quality: 'cmpr',
-          format: 'f',
-          fit: 'm'
-        },
-        {
-          quality(value) {
-            return Math.min(99, Math.max(0, 100 - Number(value)));
-          },
-          fit: {
-            cover: 'cropbox',
-            contain: 'letterbox',
-            fill: 'stretch',
-            inside: 'box',
-            outside: 'box'
-          }
-        },
-        (key, value) => `${key}_${value}`,
-        '/'
-      );
-      return {
-        url: sourceWithBase(
-          input.src + (operations ? `?imgeng=/${operations}` : ''),
-          providerBaseURL(providerOptions, defaults)
-        ),
-        isOptimized: isTransformable(input)
-      };
+      // ImageEngine's values are 0-99 (100 values), whereas Nuxt uses 0-100 (101 values)
+      // so we clip the upper bound at 99 if 100 was requested.
+      if (compression === 100) {
+        compression = 99;
+      }
+      return compression.toString();
     }
-  };
+  },
+  joinWith: '/',
+  formatter: (key, value: string | number) => encodePath(`${key}_${value}`)
+});
+
+interface ImageEngineOptions {
+  baseURL?: string;
 }
+
+const providerSetup = defineProvider<ImageEngineOptions>({
+  getImage: (src, { modifiers, baseURL = '/' }) => {
+    const operations = operationsGenerator(modifiers);
+    return {
+      url: joinURL(baseURL, src + (operations ? '?imgeng=/' + operations : ''))
+    };
+  }
+});
+
+export type ImageEngineProviderOptions = Partial<ProviderOptionsOf<typeof providerSetup>>;
+
+export function imageEngineProvider(options: ImageEngineProviderOptions = {}) {
+  return configureProvider(providerSetup, options, 'imageengine');
+}
+
+export default providerSetup;

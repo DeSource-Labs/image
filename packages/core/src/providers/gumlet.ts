@@ -1,29 +1,90 @@
-import type { ImageProvider } from '../types';
-import { createMappedQueryProvider } from '../provider-utils';
-import type { GenericProviderOptions } from '../provider-utils';
+import { joinURL } from 'ufo';
+import { createOperationsGenerator } from '../utils.js';
+import { configureProvider, defineProvider, type ProviderOptionsOf } from '../provider-utils.js';
 
-export type GumletProviderOptions = GenericProviderOptions;
-
-export function gumletProvider(options: GumletProviderOptions = {}): ImageProvider<GumletProviderOptions> {
-  return createMappedQueryProvider(
-    'gumlet',
-    { baseURL: options.baseURL ?? '/' },
-    {
-      width: 'w',
-      height: 'h',
-      quality: 'q',
-      backgroundColor: 'bg',
-      rotate: 'rot',
-      pixelDensity: 'dpr'
+const operationsGenerator = createOperationsGenerator({
+  keyMap: {
+    width: 'w',
+    height: 'h',
+    format: 'format',
+    quality: 'q',
+    backgroundColor: 'bg',
+    rotate: 'rot',
+    mask: 'mask',
+    auto: 'auto',
+    crop: 'crop',
+    brightness: 'bri',
+    contrast: 'con',
+    exposure: 'exp',
+    gamma: 'gam',
+    highlight: 'high',
+    hueShift: 'hue',
+    invert: 'invert',
+    saturation: 'sat',
+    sharpen: 'sharp',
+    padding: 'pad',
+    paletteColorCount: 'colors',
+    colorPaletteExtraction: 'palette',
+    cssPrefix: 'prefix',
+    jsonFaceData: 'faces',
+    fillMode: 'fill',
+    fillColor: 'fill-color',
+    transparency: 'transparency',
+    focalPointDebug: 'fp-debug',
+    focalPointXPosition: 'fp-x',
+    focalPointYPosition: 'fp-y',
+    focalPointZoom: 'fp-z',
+    chromaSubsampling: 'chromasub',
+    colorQuantization: 'colorquant',
+    colorSpace: 'colorspace',
+    dotsPerInch: 'dpi',
+    pdfPageNumber: 'page',
+    pixelDensity: 'dpr',
+    aspectRatio: 'ar',
+    sourceRectangleRegion: 'rect',
+    monochrome: 'monochrome'
+  },
+  valueMap: {
+    fit: {
+      fill: 'scale',
+      inside: 'max',
+      outside: 'min',
+      cover: 'crop',
+      contain: 'fill',
+      clamp: 'clamp',
+      clip: 'clip',
+      facearea: 'facearea',
+      fillMax: 'fillmax'
     },
-    {
-      fit: {
-        fill: 'scale',
-        inside: 'max',
-        outside: 'min',
-        cover: 'crop',
-        contain: 'fill'
-      }
+    format: {
+      gif: 'gif',
+      jpg: 'jpg',
+      json: 'json',
+      png: 'png',
+      avif: 'avif',
+      webp: 'webp',
+      auto: 'auto'
     }
-  );
+  }
+});
+
+interface GumletOptions {
+  baseURL?: string;
 }
+
+const providerSetup = defineProvider<GumletOptions>({
+  getImage: (src, { modifiers, baseURL = '/' }) => {
+    const operations = operationsGenerator(modifiers);
+    return {
+      url: joinURL(baseURL, src + (operations ? '?' + operations : ''))
+    };
+  }
+});
+
+export type GumletProviderOptions = Partial<ProviderOptionsOf<typeof providerSetup>>;
+
+export function gumletProvider(options: GumletProviderOptions = {}) {
+  return configureProvider(providerSetup, options, 'gumlet');
+}
+
+export default providerSetup;

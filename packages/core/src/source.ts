@@ -1,5 +1,17 @@
-import type { LocalPattern, RemotePattern, ResolvedImageConfig, SourceValidationResult } from './types';
-import { isDataSource, isLocalSource, isRemoteSource } from './utils';
+import type { LocalPattern, RemotePattern, ResolvedImageConfig, SourceValidationResult } from './types.js';
+import { isDataSource, isLocalSource, isRemoteSource } from './utils.js';
+
+export function normalizeImageSource(src: string, acceptsOpaqueSource = false): string {
+  if (!src || isDataSource(src) || isLocalSource(src) || isRemoteSource(src) || src.startsWith('//')) {
+    return src;
+  }
+
+  if (acceptsOpaqueSource || /^[a-z][a-z0-9+.-]*:/i.test(src)) {
+    return src;
+  }
+
+  return `/${src.replace(/^\/+/, '')}`;
+}
 
 export function resolveAlias(src: string, aliases: Record<string, string> = {}): string {
   for (const [alias, replacement] of Object.entries(aliases)) {

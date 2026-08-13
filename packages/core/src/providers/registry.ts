@@ -1,48 +1,48 @@
-import type { ImageProvider } from '../types';
-import { aliyunProvider } from './aliyun';
-import { awsAmplifyProvider } from './awsAmplify';
-import { bunnyProvider } from './bunny';
-import { builderioProvider } from './builderio';
-import { caisyProvider } from './caisy';
-import { cloudflareProvider } from './cloudflare';
-import { cloudflareImagesProvider } from './cloudflareimages';
-import { cloudimageProvider } from './cloudimage';
-import { cloudinaryProvider } from './cloudinary';
-import { contentfulProvider } from './contentful';
-import { directusProvider } from './directus';
-import { fastlyProvider } from './fastly';
-import { filerobotProvider } from './filerobot';
-import { flyimgProvider } from './flyimg';
-import { githubProvider } from './github';
-import { glideProvider } from './glide';
-import { gumletProvider } from './gumlet';
-import { hygraphProvider } from './hygraph';
-import { imageEngineProvider } from './imageengine';
-import { imagekitProvider } from './imagekit';
-import { imgixProvider } from './imgix';
-import { ipxProvider } from './ipx';
-import { ipxStaticProvider } from './ipxStatic';
-import { netlifyProvider } from './netlify';
-import { netlifyLargeMediaProvider } from './netlifyLargeMedia';
-import { netlifyImageCdnProvider } from './netlifyImageCdn';
-import { picsumProvider } from './picsum';
-import { preprProvider } from './prepr';
-import { noneProvider } from './none';
-import { prismicProvider } from './prismic';
-import { sanityProvider } from './sanity';
-import { shopifyProvider } from './shopify';
-import { storyblokProvider } from './storyblok';
-import { strapiProvider } from './strapi';
-import { strapi5Provider } from './strapi5';
-import { supabaseProvider } from './supabase';
-import { twicpicsProvider } from './twicpics';
-import { umbracoProvider } from './umbraco';
-import { unsplashProvider } from './unsplash';
-import { uploadcareProvider } from './uploadcare';
-import { vercelProvider } from './vercel';
-import { wagtailProvider } from './wagtail';
-import { weservProvider } from './weserv';
-import { sirvProvider } from './sirv';
+import type { ImageProviderDefinition } from '../types.js';
+import { aliyunProvider } from './aliyun.js';
+import { awsAmplifyProvider } from './awsAmplify.js';
+import { bunnyProvider } from './bunny.js';
+import { builderioProvider } from './builderio.js';
+import { caisyProvider } from './caisy.js';
+import { cloudflareProvider } from './cloudflare.js';
+import { cloudflareImagesProvider } from './cloudflareimages.js';
+import { cloudimageProvider } from './cloudimage.js';
+import { cloudinaryProvider } from './cloudinary.js';
+import { contentfulProvider } from './contentful.js';
+import { directusProvider } from './directus.js';
+import { fastlyProvider } from './fastly.js';
+import { filerobotProvider } from './filerobot.js';
+import { flyimgProvider } from './flyimg.js';
+import { githubProvider } from './github.js';
+import { glideProvider } from './glide.js';
+import { gumletProvider } from './gumlet.js';
+import { hygraphProvider } from './hygraph.js';
+import { imageEngineProvider } from './imageengine.js';
+import { imagekitProvider } from './imagekit.js';
+import { imgixProvider } from './imgix.js';
+import { ipxProvider } from './ipx.js';
+import { ipxStaticProvider } from './ipxStatic.js';
+import { netlifyProvider } from './netlify.js';
+import { netlifyLargeMediaProvider } from './netlifyLargeMedia.js';
+import { netlifyImageCdnProvider } from './netlifyImageCdn.js';
+import { picsumProvider } from './picsum.js';
+import { preprProvider } from './prepr.js';
+import { noneProvider } from './none.js';
+import { prismicProvider } from './prismic.js';
+import { sanityProvider } from './sanity.js';
+import { shopifyProvider } from './shopify.js';
+import { storyblokProvider } from './storyblok.js';
+import { strapiProvider } from './strapi.js';
+import { strapi5Provider } from './strapi5.js';
+import { supabaseProvider } from './supabase.js';
+import { twicpicsProvider } from './twicpics.js';
+import { umbracoProvider } from './umbraco.js';
+import { unsplashProvider } from './unsplash.js';
+import { uploadcareProvider } from './uploadcare.js';
+import { vercelProvider } from './vercel.js';
+import { wagtailProvider } from './wagtail.js';
+import { weservProvider } from './weserv.js';
+import { sirvProvider } from './sirv.js';
 
 export const BUILT_IN_PROVIDER_NAMES = [
   'aliyun',
@@ -93,7 +93,7 @@ export const BUILT_IN_PROVIDER_NAMES = [
 
 export type BuiltInProviderName = (typeof BUILT_IN_PROVIDER_NAMES)[number];
 
-export function createBuiltInProviders(): Record<BuiltInProviderName, ImageProvider> {
+export function createBuiltInProviders(): Record<BuiltInProviderName, ImageProviderDefinition> {
   return {
     aliyun: aliyunProvider(),
     awsAmplify: awsAmplifyProvider(),

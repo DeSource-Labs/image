@@ -1,34 +1,61 @@
-import type { ImageProvider, ImageProviderResult } from '../types';
-import { normalizeFormat } from '../utils';
-import { isTransformable, joinURLParts, providerBaseURL, sourcePath, sourceWithBase } from '../provider-utils';
-import type { GenericProviderOptions } from '../provider-utils';
+import { withBase, joinURL, parseURL } from 'ufo';
+import { configureProvider, defineProvider, type ProviderOptionsOf } from '../provider-utils.js';
 
-export type StoryblokProviderOptions = GenericProviderOptions;
+// https://www.storyblok.com/docs/image-service
+const storyblockCDN = 'https://a.storyblok.com';
 
-export function storyblokProvider(options: StoryblokProviderOptions = {}): ImageProvider<StoryblokProviderOptions> {
-  const defaults = { baseURL: options.baseURL ?? 'https://a.storyblok.com' };
-  return {
-    name: 'storyblok',
-    getImage(input, providerOptions = defaults): ImageProviderResult {
-      const width = input.width ?? '0';
-      const height = input.height ?? '0';
-      const filters = [
-        input.format ? `format(${normalizeFormat(input.format)})` : undefined,
-        input.quality ? `quality(${input.quality})` : undefined
-      ]
-        .filter(Boolean)
-        .join(':');
-      const optionsPath = joinURLParts(
-        input.modifiers?.fit ? `fit-${input.modifiers.fit}` : '',
-        width !== '0' || height !== '0' ? `${width}x${height}` : '',
-        input.modifiers?.smart ? 'smart' : '',
-        filters ? `filters:${filters}` : ''
-      );
-      const path = joinURLParts(sourcePath(input.src), optionsPath ? '/m/' : '', optionsPath);
-      return {
-        url: sourceWithBase(path, providerBaseURL(providerOptions, defaults)),
-        isOptimized: isTransformable(input)
-      };
-    }
+interface StoryblokOptions {
+  baseURL?: string;
+  modifiers?: {
+    smart?: boolean;
+    filters?: Record<string, string>;
   };
 }
+
+const providerSetup = defineProvider<StoryblokOptions>({
+  getImage: (src, { modifiers, baseURL = storyblockCDN }) => {
+    const { fit, smart, width = '0', height = '0', filters = {}, format, quality } = modifiers;
+
+    const isSVG = src.endsWith('.svg');
+    const doResize = !isSVG && (width !== '0' || height !== '0');
+
+    if (!isSVG) {
+      if (format) {
+        filters.format = format + '';
+      }
+
+      if (quality) {
+        filters.quality = quality + '';
+      }
+    }
+
+    const _filters = Object.entries(filters || {})
+      .map((e) => `${e[0]}(${e[1]})`)
+      .join(':');
+
+    const options = joinURL(
+      fit ? `fit-${fit}` : '',
+      doResize ? `${width}x${height}` : '',
+      smart ? 'smart' : '',
+      _filters ? 'filters:' + _filters : ''
+    );
+
+    const { pathname } = parseURL(src);
+
+    const modifier = options ? '/m/' : '';
+
+    const url = withBase(joinURL(pathname, modifier, options), baseURL);
+
+    return {
+      url
+    };
+  }
+});
+
+export type StoryblokProviderOptions = Partial<ProviderOptionsOf<typeof providerSetup>>;
+
+export function storyblokProvider(options: StoryblokProviderOptions = {}) {
+  return configureProvider(providerSetup, options, 'storyblok');
+}
+
+export default providerSetup;

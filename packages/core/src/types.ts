@@ -6,15 +6,25 @@ export type ImageFetchPriority = 'high' | 'low' | 'auto';
 export type ImagePlaceholder = boolean | string | number | readonly [number, number?, number?, number?];
 export type DensityInput = string | number | readonly number[];
 export type SizesInput = string | Record<string, string | number>;
-export type ModifierValue = string | number | boolean | null | undefined;
-export type ImageModifiers = Record<string, ModifierValue>;
+export type ModifierPrimitive = string | number | boolean | null | undefined;
+export type ModifierValue = ModifierPrimitive | readonly ModifierValue[] | { readonly [key: string]: ModifierValue };
+export interface ImageModifiers extends Record<string, ModifierValue> {
+  width?: number | string;
+  height?: number | string;
+  fit?: ImageFit;
+  format?: ImageFormat;
+  quality?: number | string;
+  background?: string;
+  position?: string;
+  blur?: number | string;
+}
 export type InvalidSourceStrategy = 'throw' | 'warn' | 'passthrough';
 export type ImagePreload = boolean | { fetchPriority?: ImageFetchPriority };
 export type OperationMapper<From, To> =
   Record<string | Extract<From, string | number>, To> | ((key?: From) => To | From | undefined);
 
 export type OperationGeneratorConfig<Key extends string, Value, FinalKey, FinalValue> = {
-  keyMap?: Partial<Record<Key, FinalKey>>;
+  keyMap?: Partial<Record<Key, FinalKey>> | ((key?: Key) => FinalKey | Key | undefined);
   valueMap?: Partial<
     Record<Key, Partial<Record<Extract<Value, string>, FinalValue>> | ((key: Value) => Value | FinalValue | undefined)>
   >;
@@ -52,15 +62,52 @@ export interface ImageProviderInput {
 
 export interface ImageProviderResult {
   url: string;
+  format?: string;
+  getMeta?: () => Promise<ImageInfo>;
   isOptimized?: boolean;
 }
 
+/**
+ * The original Desource provider contract. It remains supported so existing
+ * provider factories do not need to migrate atomically.
+ */
 export interface ImageProvider<TOptions = unknown> {
-  name: string;
+  name?: string;
   validateDomains?: boolean;
   supportsAlias?: boolean;
-  getImage(input: Readonly<ImageProviderInput>, options?: TOptions): ImageProviderResult;
+  acceptsOpaqueSource?: boolean;
+  defaults?: Partial<TOptions>;
+  getImage(
+    input: Readonly<ImageProviderInput>,
+    options?: TOptions,
+    context?: ImageProviderContext
+  ): ImageProviderResult;
 }
+
+export type ImageProviderRequestOptions<TOptions = Record<string, unknown>> = TOptions & {
+  modifiers: ImageModifiers;
+};
+
+/** Nuxt-style provider contract used by `defineProvider`. */
+export interface DefinedImageProvider<TOptions = Record<string, unknown>> {
+  name?: string;
+  validateDomains?: boolean;
+  supportsAlias?: boolean;
+  acceptsOpaqueSource?: boolean;
+  defaults?: Partial<TOptions>;
+  getImage(
+    source: string,
+    options: ImageProviderRequestOptions<TOptions>,
+    context: ImageProviderContext
+  ): ImageProviderResult;
+}
+
+export type ImageProviderDefinition<TOptions = unknown> = ImageProvider<TOptions> | DefinedImageProvider<TOptions>;
+
+export type ImageProviderSetup<TOptions = unknown> = () => ImageProviderDefinition<TOptions>;
+export type DefinedImageProviderSetup<TOptions = Record<string, unknown>> = () => DefinedImageProvider<TOptions>;
+export type ImageProviderRegistration<TOptions = unknown> =
+  ImageProviderDefinition<TOptions> | ImageProviderSetup<TOptions>;
 
 export interface ImagePreset {
   provider?: string;
@@ -85,6 +132,8 @@ export interface ImagePreset {
 
 export interface ImageConfig {
   provider?: string;
+  /** Base path used for local optimizer endpoints. */
+  baseURL?: string;
   quality?: number;
   format?: ImageFormat | readonly ImageFormat[];
   screens?: Record<string, number>;
@@ -95,7 +144,7 @@ export interface ImageConfig {
   presets?: Record<string, ImagePreset>;
   alias?: Record<string, string>;
   aliases?: Record<string, string>;
-  providers?: Record<string, ImageProvider>;
+  providers?: Record<string, ImageProviderRegistration>;
   providerOptions?: Record<string, unknown>;
   providerSizes?: readonly number[];
   onInvalidSource?: InvalidSourceStrategy;
@@ -107,6 +156,7 @@ export interface ResolvedImageConfig extends Required<
     'provider' | 'screens' | 'densities' | 'presets' | 'aliases' | 'providers' | 'providerOptions' | 'onInvalidSource'
   >
 > {
+  baseURL: string;
   quality?: number;
   format?: ImageFormat | readonly ImageFormat[];
   domains?: readonly string[];
@@ -219,6 +269,19 @@ export interface ImageContext {
   getImageAttrs(input: ImageInput): ImageAttrs;
   getPictureAttrs(input: ImageInput): PictureAttrs;
   getPreloadLink(input: ImageInput): ImagePreloadLink;
+  getMeta(input: ImageInput): Promise<ImageInfo>;
+}
+
+export interface ImageInfo {
+  width: number;
+  height: number;
+  ratio?: number;
+  placeholder?: string;
+}
+
+export interface ImageProviderContext {
+  options: ResolvedImageConfig;
+  $img: DesourceImage;
 }
 
 export interface ImageOptions {
@@ -241,6 +304,7 @@ export interface DesourceImage {
   options: ResolvedImageConfig;
   getImage(source: string, options?: ImageOptions): ImageProviderResult;
   getSizes(source: string, options?: ImageOptions): ImageSizes;
+  getMeta(source: string, options?: ImageOptions): Promise<ImageInfo>;
   getAttrs(input: ImageInput): ImageAttrs;
   getPicture(input: ImageInput): PictureAttrs;
   getPreloadLink(input: ImageInput): ImagePreloadLink;

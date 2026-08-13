@@ -1,21 +1,40 @@
-import type { ImageProvider, ImageProviderResult } from '../types';
-import { appendQuery } from '../utils';
-import { providerBaseURL, sourceWithBase } from '../provider-utils';
-import type { GenericProviderOptions } from '../provider-utils';
+import { encodeQueryItem, joinURL } from 'ufo';
+import { createOperationsGenerator } from '../utils.js';
+import { configureProvider, defineProvider, type ProviderOptionsOf } from '../provider-utils.js';
 
-export type GithubProviderOptions = GenericProviderOptions;
+const operationsGenerator = createOperationsGenerator({
+  joinWith: '&',
+  formatter: (key, value) => encodeQueryItem(key, value)
+});
 
-export function githubProvider(options: GithubProviderOptions = {}): ImageProvider<GithubProviderOptions> {
-  const defaults = { baseURL: options.baseURL ?? 'https://avatars.githubusercontent.com' };
-  return {
-    name: 'github',
-    getImage(input, providerOptions = defaults): ImageProviderResult {
-      const requested = Math.max(input.width ?? 0, input.height ?? 0);
-      const size = Math.min(Math.max(1, requested || 460), 460);
-      return {
-        url: appendQuery(sourceWithBase(input.src, providerBaseURL(providerOptions, defaults)), { v: 4, s: size }),
-        isOptimized: true
-      };
-    }
-  };
+interface GitHubOptions {
+  baseURL?: string;
 }
+
+const providerSetup = defineProvider<GitHubOptions>({
+  getImage: (src, { modifiers, baseURL = 'https://avatars.githubusercontent.com/' }) => {
+    let size = 460; // Default size
+    // Calculate size based on width/height
+    const requestedSize = Math.max(Number(modifiers?.height ?? 0), Number(modifiers?.width ?? 0));
+    if (requestedSize > 0) {
+      size = Math.min(Math.max(1, requestedSize), 460);
+    }
+
+    const operations = operationsGenerator({
+      v: 4,
+      s: size
+    });
+
+    return {
+      url: joinURL(baseURL, src + '?' + operations)
+    };
+  }
+});
+
+export type GithubProviderOptions = Partial<ProviderOptionsOf<typeof providerSetup>>;
+
+export function githubProvider(options: GithubProviderOptions = {}) {
+  return configureProvider(providerSetup, options, 'github');
+}
+
+export default providerSetup;

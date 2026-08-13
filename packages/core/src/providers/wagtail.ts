@@ -1,32 +1,44 @@
-import type { ImageProvider, ImageProviderResult } from '../types';
-import { joinURL, normalizeFormat } from '../utils';
-import { providerBaseURL, sourceWithBase } from '../provider-utils';
-import type { GenericProviderOptions } from '../provider-utils';
+import { withBase, joinURL } from 'ufo';
+import { configureProvider, defineProvider, type ProviderOptionsOf } from '../provider-utils.js';
 
-export type WagtailProviderOptions = GenericProviderOptions;
+// https://docs.wagtail.org/en/v4.2.1/topics/images.html
 
-export function wagtailProvider(options: WagtailProviderOptions = {}): ImageProvider<WagtailProviderOptions> {
-  const defaults = { baseURL: options.baseURL ?? '' };
-  return {
-    name: 'wagtail',
-    getImage(input, providerOptions = defaults): ImageProviderResult {
-      const width = input.width ?? 0;
-      const height = input.height ?? 0;
-      const format = normalizeFormat(input.format) ?? 'webp';
-      const quality = input.quality ?? 70;
-      const suffix = `|format-${format}|${format}quality-${quality}`;
-      const operation =
-        width && height
-          ? `fill-${width}x${height}-c0${suffix}`
-          : width
-            ? `width-${width}${suffix}`
-            : height
-              ? `height-${height}${suffix}`
-              : `original${suffix}`;
-      return {
-        url: sourceWithBase(joinURL(input.src, operation), providerBaseURL(providerOptions, defaults)),
-        isOptimized: true
-      };
-    }
+interface WagtailOptions {
+  baseURL: string;
+  modifiers?: {
+    focusZoom?: string;
+    quality?: string;
   };
 }
+
+const providerSetup = defineProvider<WagtailOptions>({
+  getImage: (src, { modifiers, baseURL }) => {
+    const { width = '0', height = '0', focusZoom = '0', format = 'webp', quality = '70' } = modifiers;
+
+    const doFill = width !== '0' && height !== '0';
+    const doWidth = width !== '0' && height === '0';
+    const doHeight = width === '0' && height !== '0';
+    const doOriginal = width === '0' && height === '0';
+
+    const formatting = `|format-${format}|${format}quality-${quality}`;
+    const options = joinURL(
+      doFill ? `fill-${width}x${height}-c${focusZoom}${formatting}` : '',
+      doWidth ? `width-${width}${formatting}` : '',
+      doHeight ? `height-${height}${formatting}` : '',
+      doOriginal ? `original${formatting}` : ''
+    );
+
+    const url = withBase(joinURL(src, options), baseURL);
+    return {
+      url
+    };
+  }
+});
+
+export type WagtailProviderOptions = Partial<ProviderOptionsOf<typeof providerSetup>>;
+
+export function wagtailProvider(options: WagtailProviderOptions = {}) {
+  return configureProvider(providerSetup, options, 'wagtail');
+}
+
+export default providerSetup;

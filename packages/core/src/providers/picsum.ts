@@ -1,33 +1,82 @@
-import type { ImageProvider, ImageProviderResult } from '../types';
-import { appendQuery, joinURL, stripLeadingSlash } from '../utils';
-import { mappedModifiers, providerBaseURL } from '../provider-utils';
-import type { GenericProviderOptions } from '../provider-utils';
+// https://picsum.photos/ - Lorem Picsum placeholder images
 
-export type PicsumProviderOptions = GenericProviderOptions;
+import { joinURL, withQuery } from 'ufo';
+import { configureProvider, defineProvider, type ProviderOptionsOf } from '../provider-utils.js';
 
-export function picsumProvider(options: PicsumProviderOptions = {}): ImageProvider<PicsumProviderOptions> {
-  const defaults = { baseURL: options.baseURL ?? 'https://picsum.photos' };
-  return {
-    name: 'picsum',
-    getImage(input, providerOptions = defaults): ImageProviderResult {
-      const parts: string[] = [];
-      const source = stripLeadingSlash(input.src);
-      if (source.startsWith('id/') || source.startsWith('seed/')) {
-        parts.push(source);
-      }
-      if (input.width) {
-        parts.push(String(input.width));
-      }
-      if (input.height) {
-        parts.push(String(input.height));
-      }
-      return {
-        url: appendQuery(
-          joinURL(providerBaseURL(providerOptions, defaults), parts.join('/')),
-          mappedModifiers(input, {}, {}, ['width', 'height', 'quality', 'format', 'fit', 'background'])
-        ),
-        isOptimized: true
-      };
-    }
-  };
+interface PicsumModifiers {
+  grayscale?: boolean;
+  blur?: number;
 }
+
+interface PicsumOptions {
+  baseURL?: string;
+  modifiers?: PicsumModifiers;
+}
+
+export const picsumCDN = 'https://picsum.photos/';
+
+const providerSetup = defineProvider<PicsumOptions>({
+  getImage: (src, { modifiers, baseURL = picsumCDN }) => {
+    const { width, height, grayscale, blur, ...otherModifiers } = modifiers || {};
+
+    // Build the path
+    // Picsum URL format: https://picsum.photos/[id/{id}/]{width}[/{height}]
+    // Examples:
+    //   - Random: https://picsum.photos/200/300
+    //   - Specific ID: https://picsum.photos/id/237/200/300
+    //   - Square: https://picsum.photos/200
+
+    const parts: string[] = [];
+
+    // If src is provided and not empty, it could be:
+    // - "id/237" for a specific image
+    // - "seed/picsum" for a seeded image
+    if (src && src !== '/') {
+      const [type, id] = (src.startsWith('/') ? src.slice(1) : src).split('/');
+      if (type && (type === 'id' || type === 'seed')) {
+        parts.push(`${type}/${id}`);
+      }
+    }
+
+    // Add dimensions - these come after the ID/seed path
+    if (width) {
+      parts.push(String(width));
+    }
+    if (height) {
+      parts.push(String(height));
+    }
+
+    // Build query parameters for modifiers
+    const query: Record<string, string | number> = {};
+
+    if (grayscale) {
+      query.grayscale = '';
+    }
+
+    if (blur !== undefined && blur > 0) {
+      // Picsum blur accepts values from 1-10
+      query.blur = Math.min(Math.max(Math.round(blur), 1), 10);
+    }
+
+    // Add any other custom modifiers (excluding standard ones that don't apply to picsum)
+    for (const [key, value] of Object.entries(otherModifiers)) {
+      if (value !== undefined && value !== null && !['fit', 'format', 'quality', 'background'].includes(key)) {
+        query[key] = value as string | number;
+      }
+    }
+
+    const url = joinURL(baseURL, ...parts);
+
+    return {
+      url: Object.keys(query).length > 0 ? withQuery(url, query) : url
+    };
+  }
+});
+
+export type PicsumProviderOptions = Partial<ProviderOptionsOf<typeof providerSetup>>;
+
+export function picsumProvider(options: PicsumProviderOptions = {}) {
+  return configureProvider(providerSetup, options, 'picsum');
+}
+
+export default providerSetup;

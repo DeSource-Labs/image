@@ -1,9 +1,13 @@
-import type { ImageFormat, ImageModifiers, ModifierValue, OperationGeneratorConfig } from './types';
+import type { ImageFormat, ImageModifiers, ModifierValue, OperationGeneratorConfig } from './types.js';
 
 export interface Mapper<Key, Value> {
   (key: Key): Value | Key;
   (): undefined;
 }
+
+export type InferModifiers<T extends (...args: never[]) => string> = T extends (modifiers: infer Modifiers) => string
+  ? Modifiers
+  : Record<string, unknown>;
 
 export function createMapper<Key extends string, Value>(
   map: Partial<Record<Key, Value>> & { missingValue?: Value }
@@ -13,11 +17,15 @@ export function createMapper<Key extends string, Value>(
 
 export function createOperationsGenerator<
   ModifierKey extends string,
-  InputValue extends string | boolean | number = string | boolean | number,
+  InputValue extends ModifierValue = string | boolean | number,
   FinalKey = ModifierKey,
   FinalValue = InputValue
 >(config: OperationGeneratorConfig<ModifierKey, InputValue, FinalKey, FinalValue> = {}) {
-  const keyMap = config.keyMap ? createMapper(config.keyMap) : undefined;
+  const keyMap = config.keyMap
+    ? typeof config.keyMap === 'function'
+      ? config.keyMap
+      : createMapper(config.keyMap)
+    : undefined;
   type ValueMapper =
     Mapper<Extract<InputValue, string>, FinalValue> | ((value: InputValue) => InputValue | FinalValue | undefined);
   const valueMap: Partial<Record<ModifierKey, ValueMapper>> = {};
@@ -34,7 +42,7 @@ export function createOperationsGenerator<
         : createMapper(mapper as Partial<Record<Extract<InputValue, string>, FinalValue>>);
   }
 
-  return (
+  const generate = (
     modifiers: Partial<Record<ModifierKey | Extract<FinalKey, string>, InputValue | FinalValue | undefined>>
   ): string => {
     const operations: Array<[FinalKey, FinalValue]> = [];
@@ -62,6 +70,8 @@ export function createOperationsGenerator<
 
     return new URLSearchParams(operations.map(([key, value]) => [String(key), String(value)])).toString();
   };
+
+  return generate as typeof generate & ((modifiers: ImageModifiers) => string);
 }
 
 export function toNumber(value: number | string | null | undefined): number | undefined {
@@ -160,6 +170,13 @@ export function isRemoteSource(src: string): boolean {
 
 export function isDataSource(src: string): boolean {
   return /^(data|blob):/i.test(src);
+}
+
+export function isDevelopment(): boolean {
+  const runtime = globalThis as typeof globalThis & {
+    process?: { env?: Record<string, string | undefined> };
+  };
+  return runtime.process?.env?.['NODE_ENV'] === 'development';
 }
 
 export function isLocalSource(src: string): boolean {

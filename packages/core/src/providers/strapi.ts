@@ -1,21 +1,36 @@
-import type { ImageProvider, ImageProviderResult } from '../types';
-import { stripLeadingSlash } from '../utils';
-import { providerBaseURL, sourceWithBase } from '../provider-utils';
-import type { GenericProviderOptions } from '../provider-utils';
+import { withBase, withoutLeadingSlash } from 'ufo';
+import { configureProvider, defineProvider, type ProviderOptionsOf } from '../provider-utils.js';
 
-export type StrapiProviderOptions = GenericProviderOptions;
+// https://strapi.io/documentation/developer-docs/latest/development/plugins/upload.html#upload
 
-export function strapiProvider(options: StrapiProviderOptions = {}): ImageProvider<StrapiProviderOptions> {
-  const defaults = { baseURL: options.baseURL ?? 'http://localhost:1337/uploads' };
-  return {
-    name: 'strapi',
-    validateDomains: true,
-    getImage(input, providerOptions = defaults): ImageProviderResult {
-      const breakpoint = input.modifiers?.breakpoint ? `${input.modifiers.breakpoint}_` : '';
-      return {
-        url: sourceWithBase(`${breakpoint}${stripLeadingSlash(input.src)}`, providerBaseURL(providerOptions, defaults)),
-        isOptimized: Boolean(breakpoint)
-      };
-    }
+interface StrapiOptions {
+  baseURL?: string;
+  modifiers?: {
+    breakpoint?: string;
   };
 }
+
+const providerSetup = defineProvider<StrapiOptions>({
+  validateDomains: true,
+  getImage: (src, { modifiers, baseURL = 'http://localhost:1337/uploads' }) => {
+    const breakpoint = modifiers?.breakpoint ?? '';
+
+    if (!breakpoint) {
+      return {
+        url: withBase(src, baseURL)
+      };
+    }
+
+    return {
+      url: withBase(`${breakpoint}_${withoutLeadingSlash(src)}`, baseURL)
+    };
+  }
+});
+
+export type StrapiProviderOptions = Partial<ProviderOptionsOf<typeof providerSetup>>;
+
+export function strapiProvider(options: StrapiProviderOptions = {}) {
+  return configureProvider(providerSetup, options, 'strapi');
+}
+
+export default providerSetup;

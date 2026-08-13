@@ -1,37 +1,70 @@
-import type { ImageProvider, ImageProviderResult } from '../types';
-import { appendQuery, stableModifiers } from '../utils';
-import { isTransformable, providerBaseURL, sourceWithBase } from '../provider-utils';
-import type { GenericProviderOptions } from '../provider-utils';
+import { joinURL, encodePath } from 'ufo';
+import { createOperationsGenerator } from '../utils.js';
+import { configureProvider, defineProvider, type ProviderOptionsOf } from '../provider-utils.js';
 
-export type AliyunProviderOptions = GenericProviderOptions;
-
-export function aliyunProvider(options: AliyunProviderOptions = {}): ImageProvider<AliyunProviderOptions> {
-  const defaults = { baseURL: options.baseURL ?? '/' };
-  return {
-    name: 'aliyun',
-    getImage(input, providerOptions = defaults): ImageProviderResult {
-      const operations: string[] = [];
-      if (input.width && input.height) {
-        operations.push(`resize,fw_${input.width},fh_${input.height}`);
-      } else if (input.width) {
-        operations.push(`resize,w_${input.width}`);
-      } else if (input.height) {
-        operations.push(`resize,h_${input.height}`);
-      }
-      if (input.quality) {
-        operations.push(`quality,Q_${input.quality}`);
-      }
-      for (const [key, value] of stableModifiers(input.modifiers)) {
-        if (!['width', 'height', 'quality', 'format'].includes(key)) {
-          operations.push(`${key},${value}`);
-        }
-      }
-      const baseURL = providerBaseURL(providerOptions, defaults);
-      const url = sourceWithBase(input.src, baseURL);
-      return {
-        url: operations.length ? appendQuery(url, { image_process: operations.join('/') }) : url,
-        isOptimized: isTransformable(input)
-      };
+const operationsGenerator = createOperationsGenerator({
+  joinWith: '/',
+  formatter: (key: string | number, value: string | number | ReturnType<typeof getResizeValue>) => {
+    if (typeof value === 'object') {
+      return `${key},${encodePath(
+        Object.entries(value)
+          .map(([k, v]) => `${k}_${v}`)
+          .join(',')
+      )}`;
     }
+    return encodePath(`${key},${value}`);
+  }
+});
+
+interface AliyunOptions {
+  baseURL?: string;
+  modifiers?: {
+    resize?: { w: number } | { h: number } | { fw: number; fh: number };
+    quality?: '';
   };
 }
+
+function getResizeValue(height?: number, width?: number) {
+  if (width && height) {
+    return { fw: width, fh: height };
+  } else if (width) {
+    return { w: width };
+  } else if (height) {
+    return { h: height };
+  }
+}
+
+const providerSetup = defineProvider<AliyunOptions>({
+  getImage: (src, { modifiers, baseURL }) => {
+    if (!baseURL) {
+      // also support runtime config
+      baseURL = '/';
+    }
+    const _modifiers = { ...modifiers };
+    const { resize, width, height, quality } = _modifiers;
+
+    const resizeValue = getResizeValue(Number(height) || undefined, Number(width) || undefined);
+    if (!resize && resizeValue) {
+      _modifiers.resize = resizeValue;
+    }
+    delete _modifiers.width;
+    delete _modifiers.height;
+
+    if (quality) {
+      _modifiers.quality = `Q_${quality}`;
+    }
+
+    const operations = operationsGenerator(_modifiers);
+    return {
+      url: joinURL(baseURL, src + (operations ? '?image_process=' + operations : ''))
+    };
+  }
+});
+
+export type AliyunProviderOptions = Partial<ProviderOptionsOf<typeof providerSetup>>;
+
+export function aliyunProvider(options: AliyunProviderOptions = {}) {
+  return configureProvider(providerSetup, options, 'aliyun');
+}
+
+export default providerSetup;

@@ -1,2 +1,2 @@
-export { netlifyProvider } from './default';
-export type { NetlifyProviderOptions } from './default';
+export { netlifyProvider } from './default.js';
+export type { NetlifyProviderOptions } from './default.js';

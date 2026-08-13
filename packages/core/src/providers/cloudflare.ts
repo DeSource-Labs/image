@@ -1,44 +1,64 @@
-import type { ImageProvider, ImageProviderResult } from '../types';
-import { encodeRemoteOrPath, normalizeFormat, stableModifiers } from '../utils';
-import { appendProviderModifiers, isTransformable } from '../provider-utils';
+import { encodeQueryItem, hasProtocol, joinURL } from 'ufo';
+import { createOperationsGenerator } from '../utils.js';
+import { configureProvider, defineProvider, type ProviderOptionsOf } from '../provider-utils.js';
 
-export interface CloudflareProviderOptions {
-  baseURL?: string;
-  path?: string;
-}
-
-export function cloudflareProvider(options: CloudflareProviderOptions = {}): ImageProvider<CloudflareProviderOptions> {
-  return {
-    name: 'cloudflare',
-    getImage(input, providerOptions = options): ImageProviderResult {
-      if (!isTransformable(input)) {
-        return { url: input.src, isOptimized: false };
-      }
-
-      const path = providerOptions.path ?? '/cdn-cgi/image';
-      const base = providerOptions.baseURL ? providerOptions.baseURL.replace(/\/+$/, '') : '';
-      const optionsSegment = stableModifiers(
-        appendProviderModifiers(
-          {
-            width: input.width,
-            height: input.height,
-            quality: input.quality,
-            format: normalizeFormat(input.format),
-            fit: input.modifiers?.fit,
-            gravity: input.modifiers?.position,
-            background: input.modifiers?.background
-          },
-          input.modifiers,
-          ['fit', 'position', 'background']
-        )
-      )
-        .map(([key, value]) => `${key}=${encodeURIComponent(String(value))}`)
-        .join(',');
-
-      return {
-        url: `${base}${path}/${optionsSegment}/${encodeRemoteOrPath(input.src)}`,
-        isOptimized: true
-      };
+const operationsGenerator = createOperationsGenerator({
+  keyMap: {
+    width: 'w',
+    height: 'h',
+    dpr: 'dpr',
+    fit: 'fit',
+    gravity: 'g',
+    quality: 'q',
+    format: 'f',
+    sharpen: 'sharpen'
+  },
+  valueMap: {
+    fit: {
+      cover: 'cover',
+      contain: 'contain',
+      fill: 'scale-down',
+      outside: 'crop',
+      inside: 'pad'
+    },
+    gravity: {
+      auto: 'auto',
+      side: 'side'
     }
-  };
+  },
+  joinWith: ',',
+  formatter: (key, value) => encodeQueryItem(key, value)
+});
+
+const defaultModifiers = {};
+
+interface CloudflareOptions {
+  baseURL?: string;
 }
+
+// https://developers.cloudflare.com/images/image-resizing/url-format/
+const providerSetup = defineProvider<CloudflareOptions>({
+  getImage: (src, { modifiers, baseURL = '/' }) => {
+    const mergeModifiers = { ...defaultModifiers, ...modifiers };
+    const operations = operationsGenerator(mergeModifiers as Parameters<typeof operationsGenerator>[0]);
+
+    // https://<ZONE>/cdn-cgi/image/<OPTIONS>/<SOURCE-IMAGE>
+    const url = operations
+      ? joinURL(baseURL, 'cdn-cgi/image', operations, src)
+      : hasProtocol(src)
+        ? src
+        : joinURL(baseURL, src);
+
+    return {
+      url
+    };
+  }
+});
+
+export type CloudflareProviderOptions = Partial<ProviderOptionsOf<typeof providerSetup>>;
+
+export function cloudflareProvider(options: CloudflareProviderOptions = {}) {
+  return configureProvider(providerSetup, options, 'cloudflare');
+}
+
+export default providerSetup;

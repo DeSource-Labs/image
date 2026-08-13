@@ -14,13 +14,23 @@ export type {
   ImageInput,
   ImageLoading,
   ImageModifiers,
+  ModifierPrimitive,
+  ModifierValue,
   ImagePlaceholder,
   ImagePreload,
   ImagePreloadLink,
   ImagePreset,
   ImageProvider,
+  DefinedImageProvider,
+  DefinedImageProviderSetup,
+  ImageProviderContext,
+  ImageProviderDefinition,
   ImageProviderInput,
+  ImageProviderRegistration,
+  ImageProviderRequestOptions,
   ImageProviderResult,
+  ImageProviderSetup,
+  ImageInfo,
   ImageOptions,
   InvalidSourceStrategy,
   LocalPattern,
@@ -33,7 +43,7 @@ export type {
   ImageSizes,
   SizesInput,
   SourceValidationResult
-} from './types';
+} from './types.js';
 
 export type {
   AwsAmplifyProviderOptions,
@@ -41,7 +51,7 @@ export type {
   NetlifyLargeMediaProviderOptions,
   NetlifyProviderOptions,
   VercelProviderOptions
-} from './providers/default';
+} from './providers/default.js';
 
 export {
   DEFAULT_PROVIDER_SIZES,
@@ -49,9 +59,9 @@ export {
   createImageContext,
   detectImageProvider,
   resolveImageConfig
-} from './config';
+} from './config.js';
 
-export { createImage } from './factory';
+export { createImage } from './factory.js';
 
 export {
   awsAmplifyProvider,
@@ -63,24 +73,75 @@ export {
   noneProvider,
   vercelProvider,
   createDefaultProviders
-} from './providers/default';
+} from './providers/default.js';
 
 export {
   generatePictureSources,
   generateSrcset,
   getImage,
   getImageAttrs,
+  getImageMeta,
   getImagePreloadLink,
+  getImageSizes,
   getPictureAttrs,
   resolvePreset
-} from './image';
+} from './image.js';
 
-export { generateDensities, generateSizes, parseDensities, parseSizes } from './sizes';
+export { generateDensities, generateSizes, parseDensities, parseSizes } from './sizes.js';
 
-export { resolveAlias, validateSource } from './source';
+export { normalizeImageSource, resolveAlias, validateSource } from './source.js';
 
-export { checkDensities, createMapper, createOperationsGenerator, parseSize } from './utils';
+export {
+  appendQuery,
+  checkDensities,
+  clampQuality,
+  createMapper,
+  createOperationsGenerator,
+  encodeRemoteOrPath,
+  isDataSource,
+  isDevelopment,
+  isLocalSource,
+  isRemoteSource,
+  joinURL,
+  mergeModifiers,
+  mimeForFormat,
+  normalizeFormat,
+  parseSize,
+  stableModifiers,
+  stripLeadingSlash,
+  toNumber,
+  uniqueSorted
+} from './utils.js';
 
-export { defineProvider } from './provider-utils';
+export {
+  appendProviderModifiers,
+  cleanColor,
+  configureProvider,
+  createMappedQueryProvider,
+  defaultFitValue,
+  defineProvider,
+  formatJpgValue,
+  isDefinedProvider,
+  isTransformable,
+  joinURLParts,
+  mappedModifiers,
+  mappedQueryURL,
+  pathOperations,
+  providerBaseURL,
+  resolveProviderRegistration,
+  sourcePath,
+  sourceWithBase,
+  withStandardParams
+} from './provider-utils.js';
+export type { GenericProviderOptions, ModifierKeyMap, ModifierValueMap, ProviderOptionsOf } from './provider-utils.js';
 
-export type { Mapper } from './utils';
+export {
+  isResolvedImageConfig,
+  mergeClassNames,
+  normalizeCrossorigin,
+  stripUndefined,
+  styleWithPlaceholder
+} from './kit.js';
+export type { ClassValue } from './kit.js';
+
+export type { InferModifiers, Mapper } from './utils.js';

@@ -1,43 +1,169 @@
-import type { ImageProvider, ImageProviderResult } from '../types';
-import { normalizeFormat, stableModifiers, stripLeadingSlash } from '../utils';
+import { joinURL, encodePath } from 'ufo';
+import { defu } from 'defu';
+import type { ImageModifiers } from '../types.js';
+import { createOperationsGenerator } from '../utils.js';
+import { configureProvider, defineProvider, type ProviderOptionsOf } from '../provider-utils.js';
 
-export interface CloudinaryProviderOptions {
-  cloudName?: string;
+export interface CloudinaryModifiers extends ImageModifiers {
+  format: string;
+  quality: string;
+  background: string;
+  rotate: 'auto_right' | 'auto_left' | 'ignore' | 'vflip' | 'hflip' | number;
+  roundCorner: string;
+  gravity: string;
+  effect: string;
+  color: string;
+  flags: string;
+  dpr: string;
+  opacity: number;
+  overlay: string;
+  underlay: string;
+  transformation: string;
+  zoom: number;
+  colorSpace: string;
+  customFunc: string;
+  density: number;
+  aspectRatio: string;
+  blur: number;
+}
+
+export interface CloudinaryOptions {
   baseURL?: string;
+  modifiers?: Partial<CloudinaryModifiers>;
+  [key: string]: unknown;
+}
+
+const convertHexToRgbFormat = (value: string) => (value.startsWith('#') ? value.replace('#', 'rgb_') : value);
+const removePathExtension = (value: string) => value.replace(/\.[^/.]+$/, '');
+
+const operationsGenerator = createOperationsGenerator({
+  keyMap: {
+    fit: 'c',
+    width: 'w',
+    height: 'h',
+    format: 'f',
+    quality: 'q',
+    background: 'b',
+    rotate: 'a',
+    roundCorner: 'r',
+    gravity: 'g',
+    effect: 'e',
+    color: 'co',
+    flags: 'fl',
+    dpr: 'dpr',
+    opacity: 'o',
+    overlay: 'l',
+    underlay: 'u',
+    transformation: 't',
+    zoom: 'z',
+    colorSpace: 'cs',
+    customFunc: 'fn',
+    density: 'dn',
+    aspectRatio: 'ar',
+    blur: 'e_blur'
+  },
+  valueMap: {
+    fit: {
+      fill: 'fill',
+      inside: 'pad',
+      outside: 'lpad',
+      cover: 'lfill',
+      contain: 'scale',
+      minCover: 'mfit',
+      minInside: 'mpad',
+      thumbnail: 'thumb',
+      cropping: 'crop',
+      coverLimit: 'limit'
+    },
+    format: {
+      jpeg: 'jpg'
+    },
+    background(value: string) {
+      return convertHexToRgbFormat(value);
+    },
+    color(value: string) {
+      return convertHexToRgbFormat(value);
+    },
+    gravity: {
+      auto: 'auto',
+      subject: 'auto:subject',
+      face: 'face',
+      sink: 'sink',
+      faceCenter: 'face:center',
+      multipleFaces: 'faces',
+      multipleFacesCenter: 'faces:center',
+      north: 'north',
+      northEast: 'north_east',
+      northWest: 'north_west',
+      west: 'west',
+      southWest: 'south_west',
+      south: 'south',
+      southEast: 'south_east',
+      east: 'east',
+      center: 'center'
+    }
+  },
+  joinWith: ',',
+  formatter: (key, value) => encodePath(key.includes('_') ? `${key}:${value}` : `${key}_${value}`)
+});
+
+const defaultModifiers = {
+  format: 'auto',
+  quality: 'auto'
+};
+
+const REMOTE_MAPPING_RE = /\/image\/upload\/(.*)$/;
+
+const providerSetup = defineProvider<CloudinaryOptions>({
+  getImage: (src, { modifiers, baseURL = '/' }) => {
+    const mergeModifiers = defu(modifiers, defaultModifiers);
+    const operations = operationsGenerator(mergeModifiers as Parameters<typeof operationsGenerator>[0]);
+
+    // Check if the src is a Cloudinary URL
+    const srcMapping = src.match(REMOTE_MAPPING_RE)?.[1];
+    if (srcMapping) {
+      baseURL = src.replace(srcMapping, '');
+      src = srcMapping;
+    }
+
+    const remoteFolderMapping = baseURL.match(REMOTE_MAPPING_RE);
+    // Handle delivery remote media file URLs
+    // see: https://cloudinary.com/documentation/fetch_remote_images
+    // Note: Non-remote images will pass into this function if the baseURL is not using a sub directory
+    if (remoteFolderMapping && remoteFolderMapping?.length >= 1) {
+      // need to do some weird logic to get the remote folder after image/upload after the operations and before the src
+      const remoteFolder = remoteFolderMapping[1]!;
+      const baseURLWithoutRemoteFolder = baseURL.replace(remoteFolder, '');
+
+      return {
+        url: joinURL(baseURLWithoutRemoteFolder, operations, remoteFolder, src)
+      };
+    } else if (/\/image\/fetch\/?/.test(baseURL)) {
+      // need to encode the src as a path in case it contains special characters
+      src = encodePath(src);
+    } else {
+      // If the src is not a remote media file then we need to remove the extension (if it exists)
+      src = removePathExtension(src);
+    }
+
+    return {
+      url: joinURL(baseURL, operations, src)
+    };
+  }
+});
+
+export interface CloudinaryProviderOptions extends Partial<ProviderOptionsOf<typeof providerSetup>> {
+  /** Convenience alias that expands to Cloudinary's standard delivery URL. */
+  cloudName?: string;
   deliveryType?: 'upload' | 'fetch';
 }
 
-export function cloudinaryProvider(options: CloudinaryProviderOptions = {}): ImageProvider<CloudinaryProviderOptions> {
-  return {
-    name: 'cloudinary',
-    getImage(input, providerOptions = options): ImageProviderResult {
-      const baseURL =
-        providerOptions.baseURL ??
-        (providerOptions.cloudName ? `https://res.cloudinary.com/${providerOptions.cloudName}` : '');
-      if (!baseURL) {
-        return { url: input.src, isOptimized: false };
-      }
-
-      const deliveryType = providerOptions.deliveryType ?? (input.src.startsWith('http') ? 'fetch' : 'upload');
-      const transforms = [
-        input.format ? `f_${normalizeFormat(input.format)}` : undefined,
-        input.quality ? `q_${input.quality}` : undefined,
-        input.width ? `w_${input.width}` : undefined,
-        input.height ? `h_${input.height}` : undefined,
-        input.modifiers?.fit ? `c_${input.modifiers.fit}` : undefined,
-        input.modifiers?.position ? `g_${input.modifiers.position}` : undefined,
-        input.modifiers?.background ? `b_${input.modifiers.background}` : undefined,
-        ...stableModifiers(input.modifiers)
-          .filter(([key]) => !['fit', 'position', 'background'].includes(key))
-          .map(([key, value]) => `${key}_${value}`)
-      ]
-        .filter(Boolean)
-        .join(',');
-      const source = deliveryType === 'fetch' ? encodeURIComponent(input.src) : stripLeadingSlash(input.src);
-      return {
-        url: `${baseURL.replace(/\/+$/, '')}/image/${deliveryType}/${transforms}/${source}`,
-        isOptimized: true
-      };
-    }
-  };
+export function cloudinaryProvider(options: CloudinaryProviderOptions = {}) {
+  const { cloudName, deliveryType = 'upload', ...defaults } = options;
+  if (cloudName && !defaults.baseURL) {
+    defaults.baseURL = `https://res.cloudinary.com/${cloudName}/image/${deliveryType}`;
+  }
+  return configureProvider(providerSetup, defaults, 'cloudinary');
 }
+
+export default providerSetup;

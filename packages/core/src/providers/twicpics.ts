@@ -1,43 +1,93 @@
-import type { ImageProvider, ImageProviderResult, ModifierValue } from '../types';
-import { stableModifiers } from '../utils';
-import { cleanColor, isTransformable, mappedModifiers, providerBaseURL, sourceWithBase } from '../provider-utils';
-import type { GenericProviderOptions } from '../provider-utils';
+import { encodeQueryItem, joinURL } from 'ufo';
+import { configureProvider, defineProvider, type ProviderOptionsOf } from '../provider-utils.js';
+import { createMapper, createOperationsGenerator } from '../utils.js';
+import type { InferModifiers } from '../utils.js';
 
-export type TwicpicsProviderOptions = GenericProviderOptions;
+const fits = createMapper({
+  fill: 'resize',
+  inside: 'contain',
+  outside: 'contain',
+  cover: 'cover',
+  contain: 'inside',
+  missingValue: 'cover'
+} as const);
 
-export function twicpicsProvider(options: TwicpicsProviderOptions = {}): ImageProvider<TwicpicsProviderOptions> {
-  const defaults = { baseURL: options.baseURL ?? '/' };
-  return {
-    name: 'twicpics',
-    getImage(input, providerOptions = defaults): ImageProviderResult {
-      const transforms: Record<string, ModifierValue> = mappedModifiers(
-        input,
-        {
-          format: 'output',
-          quality: 'quality',
-          background: 'background',
-          focus: 'focus',
-          zoom: 'zoom'
-        },
-        {
-          background: cleanColor
-        },
-        ['width', 'height', 'fit']
-      );
-      if (input.width || input.height) {
-        const fit = input.modifiers?.fit === 'outside' ? 'contain' : (input.modifiers?.fit ?? 'cover');
-        transforms[String(fit)] = `${input.width ?? '-'}x${input.height ?? '-'}`;
+const operationsGenerator = createOperationsGenerator({
+  keyMap: {
+    format: 'output',
+    quality: 'quality',
+    background: 'background',
+    focus: 'focus',
+    zoom: 'zoom'
+  },
+  valueMap: {
+    format(value: string) {
+      if (value === 'jpg') {
+        return 'jpeg';
       }
-      const operations = stableModifiers(transforms)
-        .map(([key, value]) => `${key}=${value}`)
-        .join('/');
-      return {
-        url: sourceWithBase(
-          input.src + (operations ? `?twic=v1/${operations}` : ''),
-          providerBaseURL(providerOptions, defaults)
-        ),
-        isOptimized: isTransformable(input)
-      };
+      return value;
+    },
+    background(value: string) {
+      if (value.startsWith('#')) {
+        return value.replace('#', '');
+      }
+      return value;
+    },
+    focus: {
+      auto: 'auto',
+      faces: 'faces',
+      north: '50px0p',
+      northEast: '100px0p',
+      northWest: '0px0p',
+      west: '0px50p',
+      southWest: '100px100p',
+      south: '50px100p',
+      southEast: '0px100p',
+      east: '100px50p',
+      center: '50px50p'
     }
-  };
+  },
+  joinWith: '/',
+  formatter: (key: 'output' | 'format' | 'fit' | 'quality' | 'background' | 'focus' | 'zoom', value) =>
+    encodeQueryItem(key, value)
+} as const);
+
+interface TwicpicsOptions {
+  baseURL?: string;
+  modifiers?: InferModifiers<typeof operationsGenerator> & {
+    fit?: 'fill' | 'inside' | 'outside' | 'cover' | 'contain';
+  } & Partial<Record<'resize' | 'fill' | 'contain' | 'inside' | 'outside' | 'cover' | 'missingValue', string>> &
+    Partial<Record<typeof fits extends (fit: string) => infer Fit ? NonNullable<Fit> : string, string>>;
 }
+
+const providerSetup = defineProvider<TwicpicsOptions>({
+  getImage: (src, { modifiers, baseURL = '/' }) => {
+    const { width, height, fit, ...providerModifiers } = modifiers;
+
+    let w = width;
+    let h = height;
+
+    if (width || height) {
+      if (fit && fit === 'outside') {
+        // fit = outside is equivalent to twicPics contain ( max( width, height ) x max( width, height ) )
+        w = Math.max(Number(width) || 0, Number(height) || 0);
+        h = Math.max(Number(width) || 0, Number(height) || 0);
+      }
+      providerModifiers[fits(fit as keyof typeof fits)] = `${w || '-'}x${h || '-'}`;
+    }
+
+    const operations = operationsGenerator(providerModifiers);
+
+    return {
+      url: joinURL(baseURL, src + (operations ? '?twic=v1/' + operations : ''))
+    };
+  }
+});
+
+export type TwicpicsProviderOptions = Partial<ProviderOptionsOf<typeof providerSetup>>;
+
+export function twicpicsProvider(options: TwicpicsProviderOptions = {}) {
+  return configureProvider(providerSetup, options, 'twicpics');
+}
+
+export default providerSetup;

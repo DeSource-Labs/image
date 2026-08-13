@@ -1,6 +1,6 @@
-import type { DensityInput, GeneratedDensity, GeneratedSizes, ParsedSizes, SizesInput } from './types';
-import { DEFAULT_PROVIDER_SIZES, DEFAULT_SCREENS } from './config';
-import { toNumber, uniqueSorted } from './utils';
+import type { DensityInput, GeneratedDensity, GeneratedSizes, ParsedSizes, SizesInput } from './types.js';
+import { DEFAULT_PROVIDER_SIZES, DEFAULT_SCREENS } from './config.js';
+import { toNumber, uniqueSorted } from './utils.js';
 
 export function parseDensities(input: DensityInput | undefined, fallback: readonly number[] = [1, 2]): number[] {
   if (Array.isArray(input)) {

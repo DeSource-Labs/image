@@ -21,12 +21,13 @@ export default defineConfig({
     lib: {
       entry: {
         index: resolve(srcDir, 'index.ts'),
+        kit: resolve(srcDir, 'kit.ts'),
         ...providerEntries
       },
       formats: ['es']
     },
     rollupOptions: {
-      external: ['std-env'],
+      external: (id) => !id.startsWith('.') && !id.startsWith('/') && !id.startsWith('\0'),
       output: {
         preserveModules: true,
         preserveModulesRoot: 'src',

@@ -1,29 +1,51 @@
-import type { ImageProvider, ImageProviderResult } from '../types';
-import { providerBaseURL, sourceWithBase } from '../provider-utils';
-import type { GenericProviderOptions } from '../provider-utils';
+import { withBase } from 'ufo';
+import { configureProvider, defineProvider, type ProviderOptionsOf } from '../provider-utils.js';
 
-export type Strapi5ProviderOptions = GenericProviderOptions;
-
-export function strapi5Provider(options: Strapi5ProviderOptions = {}): ImageProvider<Strapi5ProviderOptions> {
-  const defaults = { baseURL: options.baseURL ?? 'http://localhost:1337/uploads' };
-  return {
-    name: 'strapi5',
-    getImage(input, providerOptions = defaults): ImageProviderResult {
-      const formats = input.modifiers?.formats;
-      const breakpoint = input.modifiers?.breakpoint;
-      if (formats && breakpoint && typeof formats === 'object' && !Array.isArray(formats)) {
-        const entry = (formats as Record<string, { url?: string }>)[String(breakpoint)];
-        if (entry?.url) {
-          return {
-            url: sourceWithBase(entry.url.replace(/^\/uploads\//, ''), providerBaseURL(providerOptions, defaults)),
-            isOptimized: true
-          };
-        }
-      }
-      return {
-        url: sourceWithBase(input.src.replace(/^\/uploads\//, ''), providerBaseURL(providerOptions, defaults)),
-        isOptimized: Boolean(breakpoint)
-      };
-    }
+interface StrapiOptions {
+  baseURL?: string;
+  modifiers?: {
+    breakpoint?: string;
+    breakpoints?: string[];
+    formats?: Partial<Record<string, { url?: string }>>;
   };
 }
+
+const providerSetup = defineProvider<StrapiOptions>({
+  getImage: (src: string, { modifiers, baseURL = 'http://localhost:1337/uploads' }) => {
+    const breakpoint = modifiers?.breakpoint;
+    const breakpoints = modifiers?.breakpoints || ['large', 'medium', 'small', 'thumbnail'];
+    const formats = modifiers?.formats;
+    const path = src.replace(/^\/uploads\//, '');
+
+    if (!breakpoint || !formats) {
+      return {
+        url: withBase(path, baseURL)
+      };
+    }
+
+    const startIndex = breakpoints.indexOf(breakpoint);
+    for (const size of breakpoints.slice(startIndex)) {
+      const format = formats[size as (typeof breakpoints)[number]];
+
+      if (format?.url) {
+        const formatPath = format.url.replace(/^\/uploads\//, '');
+
+        return {
+          url: withBase(formatPath, baseURL)
+        };
+      }
+    }
+
+    return {
+      url: withBase(path, baseURL)
+    };
+  }
+});
+
+export type Strapi5ProviderOptions = Partial<ProviderOptionsOf<typeof providerSetup>>;
+
+export function strapi5Provider(options: Strapi5ProviderOptions = {}) {
+  return configureProvider(providerSetup, options, 'strapi5');
+}
+
+export default providerSetup;

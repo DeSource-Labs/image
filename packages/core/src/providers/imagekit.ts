@@ -1,41 +1,131 @@
-import type { ImageProvider, ImageProviderResult } from '../types';
-import { appendQuery, joinURL, normalizeFormat, stableModifiers } from '../utils';
+import { joinURL, withQuery, encodePath } from 'ufo';
+import { createOperationsGenerator } from '../utils.js';
+import { configureProvider, defineProvider, type ProviderOptionsOf } from '../provider-utils.js';
 
-export interface ImageKitProviderOptions {
-  endpoint?: string;
-  transformationPosition?: 'query' | 'path';
-}
-
-export function imagekitProvider(options: ImageKitProviderOptions = {}): ImageProvider<ImageKitProviderOptions> {
-  return {
-    name: 'imagekit',
-    getImage(input, providerOptions = options): ImageProviderResult {
-      const endpoint = providerOptions.endpoint ?? '';
-      const source = endpoint && !input.src.startsWith('http') ? joinURL(endpoint, input.src) : input.src;
-      const transformations = [
-        input.width ? `w-${input.width}` : undefined,
-        input.height ? `h-${input.height}` : undefined,
-        input.quality ? `q-${input.quality}` : undefined,
-        input.format ? `f-${normalizeFormat(input.format)}` : undefined,
-        input.modifiers?.fit ? `c-${input.modifiers.fit}` : undefined,
-        input.modifiers?.position ? `fo-${input.modifiers.position}` : undefined,
-        input.modifiers?.background ? `bg-${input.modifiers.background}` : undefined,
-        ...stableModifiers(input.modifiers)
-          .filter(([key]) => !['fit', 'position', 'background'].includes(key))
-          .map(([key, value]) => `${key}-${value}`)
-      ]
-        .filter(Boolean)
-        .join(',');
-
-      if (!transformations) {
-        return { url: source, isOptimized: false };
+const operationsGenerator = createOperationsGenerator({
+  keyMap: {
+    fit: 'c',
+    width: 'w',
+    height: 'h',
+    format: 'f',
+    quality: 'q',
+    bg: 'bg',
+    background: 'bg',
+    crop: 'c',
+    cropMode: 'cm',
+    aspectRatio: 'ar',
+    x: 'x',
+    y: 'y',
+    xc: 'xc',
+    yc: 'yc',
+    oix: 'oix',
+    oiy: 'oiy',
+    oixc: 'oixc',
+    oiyc: 'oiyc',
+    focus: 'fo',
+    radius: 'r',
+    border: 'b',
+    rotate: 'rt',
+    blur: 'bl',
+    named: 'n',
+    progressive: 'pr',
+    lossless: 'lo',
+    trim: 't',
+    metadata: 'md',
+    colorProfile: 'cp',
+    defaultImage: 'di',
+    dpr: 'dpr',
+    effectSharpen: 'e-sharpen',
+    effectUSM: 'e-usm',
+    effectContrast: 'e-contrast',
+    effectGray: 'e-grayscale',
+    original: 'orig'
+  },
+  valueMap: {
+    fit: {
+      cover: 'maintain_ratio',
+      contain: 'pad_resize',
+      fill: 'force',
+      inside: 'at_max',
+      outside: 'at_least',
+      extract: 'extract',
+      pad_extract: 'pad_extract'
+    },
+    background(value: string) {
+      if (value.startsWith('#')) {
+        return value.replace('#', '');
       }
-
-      if ((providerOptions.transformationPosition ?? 'query') === 'path') {
-        return { url: joinURL(source, `tr:${transformations}`), isOptimized: true };
-      }
-
-      return { url: appendQuery(source, { tr: transformations }), isOptimized: true };
+      return value;
+    },
+    crop: {
+      maintain_ratio: 'maintain_ratio',
+      force: 'force',
+      at_max: 'at_max',
+      at_least: 'at_least'
+    },
+    cropMode: {
+      pad_resize: 'pad_resize',
+      pad_extract: 'pad_extract',
+      extract: 'extract'
+    },
+    format: {
+      auto: 'auto',
+      jpg: 'jpg',
+      jpeg: 'jpeg',
+      webp: 'webp',
+      avif: 'avif',
+      png: 'png'
+    },
+    focus: {
+      left: 'left',
+      right: 'right',
+      top: 'top',
+      bottom: 'bottom',
+      custom: 'custom',
+      center: 'center',
+      top_left: 'top_left',
+      top_right: 'top_right',
+      bottom_left: 'bottom_left',
+      bottom_right: 'bottom_right',
+      auto: 'auto',
+      face: 'face'
+    },
+    rotate: {
+      auto: 'auto',
+      0: '0',
+      90: '90',
+      180: '180',
+      270: '270',
+      360: '360'
     }
-  };
+  },
+  joinWith: ',',
+  formatter: (key, value: string | number) => encodePath(`${key}-${value}`)
+});
+
+interface ImagekitOptions {
+  baseURL?: string;
 }
+
+const providerSetup = defineProvider<ImagekitOptions>({
+  getImage: (src, { modifiers, baseURL = '/' }) => {
+    let operations = operationsGenerator(modifiers);
+
+    operations = operations.replace('c-pad_resize', 'cm-pad_resize');
+    operations = operations.replace('c-pad_extract', 'cm-pad_extract');
+    operations = operations.replace('c-extract', 'cm-extract');
+    operations = operations.replace('raw-', '');
+
+    return {
+      url: joinURL(baseURL, operations ? withQuery(src, { tr: operations }) : src)
+    };
+  }
+});
+
+export type ImageKitProviderOptions = Partial<ProviderOptionsOf<typeof providerSetup>>;
+
+export function imagekitProvider(options: ImageKitProviderOptions = {}) {
+  return configureProvider(providerSetup, options, 'imagekit');
+}
+
+export default providerSetup;

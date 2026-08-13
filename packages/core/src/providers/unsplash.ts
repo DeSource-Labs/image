@@ -1,21 +1,29 @@
-import type { ImageProvider } from '../types';
-import { createMappedQueryProvider, formatJpgValue } from '../provider-utils';
-import type { GenericProviderOptions } from '../provider-utils';
+// https://unsplash.com/documentation#dynamically-resizable-images
 
-export type UnsplashProviderOptions = GenericProviderOptions;
+import { getQuery, withBase, withQuery } from 'ufo';
+import { operationsGenerator } from './imgix.js';
+import { configureProvider, defineProvider, type ProviderOptionsOf } from '../provider-utils.js';
 
-export function unsplashProvider(options: UnsplashProviderOptions = {}): ImageProvider<UnsplashProviderOptions> {
-  return createMappedQueryProvider(
-    'unsplash',
-    { baseURL: options.baseURL ?? 'https://images.unsplash.com' },
-    {
-      width: 'w',
-      height: 'h',
-      format: 'fm',
-      quality: 'q'
-    },
-    {
-      format: formatJpgValue
-    }
-  );
+export const unsplashCDN = 'https://images.unsplash.com/';
+
+interface UnsplashOptions {
+  baseURL?: string;
 }
+
+const providerSetup = defineProvider<UnsplashOptions>({
+  getImage: (src, { modifiers, baseURL = unsplashCDN }) => {
+    const operations = operationsGenerator(modifiers);
+    // withQuery requires query parameters as an object, so I parse the modifiers into an object with getQuery
+    return {
+      url: withQuery(withBase(src, baseURL), getQuery('?' + operations))
+    };
+  }
+});
+
+export type UnsplashProviderOptions = Partial<ProviderOptionsOf<typeof providerSetup>>;
+
+export function unsplashProvider(options: UnsplashProviderOptions = {}) {
+  return configureProvider(providerSetup, options, 'unsplash');
+}
+
+export default providerSetup;
