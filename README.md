@@ -270,9 +270,9 @@ import { imgixProvider } from '@desource/image/providers/imgix';
 
 Supported provider modules:
 
-`aliyun`, `awsAmplify`, `builderio`, `bunny`, `caisy`, `cloudflare`, `cloudflareimages`, `cloudimage`, `cloudinary`, `contentful`, `directus`, `fastly`, `filerobot`, `flyimg`, `github`, `glide`, `gumlet`, `hygraph`, `imageengine`, `imagekit`, `imgix`, `ipx`, `ipxStatic`, `netlify`, `netlifyImageCdn`, `netlifyLargeMedia`, `none`, `picsum`, `prepr`, `prismic`, `sanity`, `shopify`, `sirv`, `storyblok`, `strapi`, `strapi5`, `supabase`, `twicpics`, `umbraco`, `unsplash`, `uploadcare`, `vercel`, `wagtail`, and `weserv`.
+`aliyun`, `awsAmplify`, `builderio`, `bunny`, `caisy`, `cloudflare`, `cloudflareimages`, `cloudimage`, `cloudinary`, `contentful`, `directus`, `edgeonePages`, `fastly`, `filerobot`, `flyimg`, `github`, `glide`, `gumlet`, `hygraph`, `imageengine`, `imagekit`, `imgix`, `imgproxy`, `ipx`, `ipxStatic`, `netlify`, `netlifyImageCdn`, `netlifyLargeMedia`, `none`, `picsum`, `prepr`, `prismic`, `sanity`, `shopify`, `sirv`, `storyblok`, `strapi`, `strapi5`, `supabase`, `twicpics`, `umbraco`, `unsplash`, `uploadcare`, `vercel`, `wagtail`, and `weserv`.
 
-Provider behavior is tested against the bundled Nuxt Image provider source with standard, empty, and alternate modifier scenarios.
+Provider behavior is tested against the pinned Nuxt Image package with standard, empty, and alternate modifier scenarios.
 
 ## Custom providers
 
@@ -307,7 +307,7 @@ Register it normally:
 }
 ```
 
-The original object-input provider contract remains supported for backward compatibility. Public provider-authoring helpers include mapped query providers, modifier key/value maps, path operation generation, stable query helpers, color and format normalization, and setup configuration.
+Public provider-authoring helpers include mapped query providers, modifier key/value maps, path operation generation, stable query helpers, color and format normalization, and setup configuration.
 
 ## Local IPX endpoints
 
