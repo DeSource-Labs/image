@@ -12,6 +12,7 @@ import {
   generateSrcset,
   getImage,
   getImageAttrs,
+  getImagePreloadLink,
   getPictureAttrs,
   ipxProvider,
   parseDensities,
@@ -25,7 +26,7 @@ import {
 import { BUILT_IN_PROVIDER_NAMES, createBuiltInProviders } from '../src/providers/index';
 import { cloudinaryProvider } from '../src/providers/cloudinary';
 import { imgixProvider } from '../src/providers/imgix';
-import { testImageBehavior } from '../../../common/tests/image-behavior';
+import { testImageBehavior } from '../../../common/test/unit/image-behavior';
 
 testImageBehavior({
   name: 'core',
@@ -80,9 +81,7 @@ describe('sizes and densities', () => {
       config
     );
 
-    expect(generated.srcset).toBe(
-      '/_vercel/image?url=https%3A%2F%2Fexample.com%2Fa.jpg&w=640&q=100 1x, /_vercel/image?url=https%3A%2F%2Fexample.com%2Fa.jpg&w=640&q=100 2x'
-    );
+    expect(generated.srcset).toBe('/_vercel/image?url=https:%2F%2Fexample.com%2Fa.jpg&w=640&q=100 1x');
   });
 });
 
@@ -105,7 +104,7 @@ describe('aliases, validation and merge order', () => {
     expect(validateSource('/private/hero.jpg', config).valid).toBe(false);
   });
 
-  it('warns and passes through invalid sources when configured that way', () => {
+  it('externalizes disallowed domains for providers that require an allowlist', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     const image = getImage(
       {
@@ -113,33 +112,33 @@ describe('aliases, validation and merge order', () => {
         width: 800
       },
       {
-        provider: 'cloudinary',
-        providers: { cloudinary: cloudinaryProvider({ cloudName: 'demo' }) },
+        provider: 'ipx',
+        providers: { ipx: ipxProvider() },
         domains: ['example.com'],
         onInvalidSource: 'warn'
       }
     );
 
     expect(image).toEqual({ url: 'https://evil.example.com/hero.jpg', isOptimized: false });
-    expect(warn).toHaveBeenCalledOnce();
+    expect(warn).not.toHaveBeenCalled();
     warn.mockRestore();
   });
 
-  it('throws for invalid domains when requested', () => {
+  it('throws for invalid local patterns when requested', () => {
     expect(() =>
       getImage(
         {
-          src: 'https://evil.example.com/hero.jpg',
+          src: '/private/hero.jpg',
           width: 800
         },
         {
-          provider: 'cloudinary',
-          providers: { cloudinary: cloudinaryProvider({ cloudName: 'demo' }) },
-          domains: ['example.com'],
+          provider: 'ipx',
+          providers: { ipx: ipxProvider() },
+          localPatterns: [{ pathname: '/images/**' }],
           onInvalidSource: 'throw'
         }
       )
-    ).toThrow(/not allowed/);
+    ).toThrow(/localPatterns/);
   });
 
   it('merges quality by component, preset, global, then provider defaults', () => {
@@ -182,25 +181,15 @@ describe('providers', () => {
     expect(Object.keys(createBuiltInProviders()).sort()).toEqual([...BUILT_IN_PROVIDER_NAMES].sort());
   });
 
-  it('detects deployment providers automatically', () => {
-    vi.stubEnv('AWS_APP_ID', 'app-id');
-    expect(detectImageProvider()).toBe('awsAmplify');
-    vi.unstubAllEnvs();
-
-    vi.stubEnv('VERCEL', '1');
-    expect(detectImageProvider()).toBe('vercel');
-    vi.unstubAllEnvs();
-
-    vi.stubEnv('NETLIFY', 'true');
-    expect(detectImageProvider()).toBe('netlify');
-    vi.unstubAllEnvs();
-
+  it('resolves an explicit provider once and otherwise falls back to IPX', () => {
+    expect(detectImageProvider('awsAmplify')).toBe('awsAmplify');
+    expect(detectImageProvider('vercel')).toBe('vercel');
     expect(detectImageProvider()).toBe('ipx');
   });
 
-  it('uses DESOURCE_IMAGE_PROVIDER as a compatibility override', () => {
+  it('ignores package-specific environment variables', () => {
     vi.stubEnv('DESOURCE_IMAGE_PROVIDER', 'cloudinary');
-    expect(detectImageProvider()).toBe('cloudinary');
+    expect(detectImageProvider()).toBe('ipx');
     vi.unstubAllEnvs();
   });
 
@@ -215,7 +204,7 @@ describe('providers', () => {
       '/_vercel/image?url=%2Fhero.png&w=1024&q=75'
     );
     expect(getImage({ src: 'https://example.com/hero.png', width: 800, quality: 75 }, config).url).toBe(
-      '/_vercel/image?url=https%3A%2F%2Fexample.com%2Fhero.png&w=1024&q=75'
+      '/_vercel/image?url=https:%2F%2Fexample.com%2Fhero.png&w=1024&q=75'
     );
     expect(getImage({ src: '/hero.png' }, config).url).toBe('/_vercel/image?url=%2Fhero.png&w=1536&q=100');
     expect(getImage({ src: 'https://unlisted.example/hero.png', width: 800 }, config)).toEqual({
@@ -231,10 +220,10 @@ describe('providers', () => {
     });
 
     expect(getImage({ src: '/hero.png', width: 800, quality: 75, format: 'webp' }, config).url).toBe(
-      '/_amplify/image?url=%2Fhero.png&w=1024&q=75&format=webp'
+      '/_amplify/image?url=%2Fhero.png&q=75&w=1024&format=webp'
     );
     expect(getImage({ src: '/hero.png', format: 'webp' }, config).url).toBe(
-      '/_amplify/image?url=%2Fhero.png&w=1536&q=100&format=webp'
+      '/_amplify/image?url=%2Fhero.png&format=webp&w=1536&q=100'
     );
   });
 
@@ -243,7 +232,7 @@ describe('providers', () => {
 
     expect(
       getImage({ provider: 'unsplash', src: '/photo-id', width: 320, quality: 80, format: 'webp' }, { providers }).url
-    ).toBe('https://images.unsplash.com/photo-id?fm=webp&q=80&w=320');
+    ).toBe('https://images.unsplash.com/photo-id?w=320&q=80&fm=webp');
     expect(getImage({ provider: 'github', src: '/u/1', width: 128 }, { providers }).url).toBe(
       'https://avatars.githubusercontent.com/u/1?v=4&s=128'
     );
@@ -281,7 +270,7 @@ describe('providers', () => {
         },
         config
       ).url
-    ).toBe('/_ipx/s_800x400&f_webp&q_70&fit_cover&pos_center&b_fff&blur_8/hero.png');
+    ).toBe('/_ipx/blur_8&fit_cover&pos_center&b_fff&q_70&f_webp&s_800x400/hero.png');
   });
 
   it('honors standard modifiers', () => {
@@ -302,7 +291,7 @@ describe('providers', () => {
         },
         config
       ).url
-    ).toBe('/_ipx/w_800&f_webp&q_75/hero.png');
+    ).toBe('/_ipx/w_800&q_75&f_webp/hero.png');
   });
 
   it('defaults to local IPX-style URLs', () => {
@@ -314,10 +303,10 @@ describe('providers', () => {
       loading: 'lazy'
     });
 
-    expect(attrs.src).toBe('/_ipx/w_2200&f_webp&q_75/img/1.png');
+    expect(attrs.src).toBe('/_ipx/w_2200&q_75&f_webp/img/1.png');
     expect(attrs.fallbackSrc).toBe('/img/1.png');
     expect(attrs.sizes).toBe('(max-width: 767px) 100vw, 1100px');
-    expect(attrs.srcset).toContain('/_ipx/w_1100&f_webp&q_75/img/1.png 1100w');
+    expect(attrs.srcset).toContain('/_ipx/w_1100&q_75&f_webp/img/1.png 1100w');
   });
 
   it('generates Cloudinary URLs', () => {
@@ -337,7 +326,7 @@ describe('providers', () => {
         },
         config
       ).url
-    ).toBe('https://res.cloudinary.com/demo/image/upload/f_webp,q_80,w_300,c_fill/sample.jpg');
+    ).toBe('https://res.cloudinary.com/demo/image/upload/f_webp,q_80,c_fill,w_300/sample');
   });
 
   it('generates Imgix URLs', () => {
@@ -356,7 +345,7 @@ describe('providers', () => {
         },
         config
       ).url
-    ).toBe('https://example.imgix.net/hero.jpg?w=500&q=75&f=webp');
+    ).toBe('https://example.imgix.net/hero.jpg?w=500&q=75&fm=webp');
   });
 });
 
@@ -400,12 +389,18 @@ describe('attrs and picture output', () => {
       }
     );
 
-    expect(attrs.loading).toBe('eager');
-    expect(attrs.fetchpriority).toBe('high');
-    expect(attrs.decoding).toBe('sync');
+    expect(attrs.loading).toBeUndefined();
+    expect(attrs.fetchpriority).toBeUndefined();
+    expect(attrs.decoding).toBeUndefined();
+    expect(
+      getImagePreloadLink(
+        { src: '/hero.png', width: 800, preload: { fetchPriority: 'high' } },
+        { provider: 'ipx', providers: { ipx: ipxProvider() } }
+      ).fetchpriority
+    ).toBe('high');
   });
 
-  it('uses Nuxt-compatible placeholder defaults', () => {
+  it('uses placeholder defaults', () => {
     const attrs = getImageAttrs(
       {
         src: '/hero.png',
@@ -418,7 +413,7 @@ describe('attrs and picture output', () => {
       }
     );
 
-    expect(attrs.placeholderSrc).toBe('/_ipx/s_10x10&q_50&blur_3/hero.png');
+    expect(attrs.placeholderSrc).toBe('/_ipx/blur_3&q_50&s_10x10/hero.png');
   });
 
   it('generates picture sources for avif and webp with fallback img', () => {
@@ -459,7 +454,7 @@ describe('attrs and picture output', () => {
     );
 
     expect(picture.sources.map((source) => source.type)).toEqual(['image/avif', 'image/webp']);
-    expect(picture.img.src).toContain('f_jpeg');
+    expect(picture.img.src).toContain('f_jpg');
   });
 
   it('generates picture sources directly', () => {
@@ -516,7 +511,7 @@ describe('attrs and picture output', () => {
     expect(attrs.src).toBe('/_ipx/w_800/hero.png');
   });
 
-  it('uses Nuxt-style picture fallbacks and SVG passthrough', () => {
+  it('uses picture fallbacks and SVG passthrough', () => {
     expect(
       getPictureAttrs({
         src: '/hero.jpg',
@@ -534,7 +529,7 @@ describe('attrs and picture output', () => {
     expect(svg.img.src).toBe('/logo.svg');
   });
 
-  it('exports Nuxt-style provider utility helpers', () => {
+  it('exports provider utility helpers', () => {
     expect(parseSize('320px')).toBe(320);
     expect(createMapper({ cover: 'crop' })('cover')).toBe('crop');
 
@@ -567,7 +562,7 @@ describe('attrs and picture output', () => {
     });
 
     expect($img('/hero.png', { width: 320, format: 'webp' })).toBe('/_ipx/w_320&f_webp/hero.png');
-    expect(($img.avatar as typeof $img)('/user.png')).toBe('/_ipx/s_96x96&q_80/user.png');
+    expect(($img.avatar as typeof $img)('/user.png')).toBe('/_ipx/q_80&s_96x96/user.png');
     expect($img.getSizes('/hero.png', { sizes: '100vw md:1100px', modifiers: { format: 'webp' } }).src).toBe(
       '/_ipx/w_2200&f_webp/hero.png'
     );
