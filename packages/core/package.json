@@ -67,12 +67,13 @@
     "build:internal": "pnpm build:lib && pnpm build:types",
     "build:lib": "vite build",
     "build:types": "tsc -p tsconfig.build.json",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p test/tsconfig.json --noEmit",
     "test:unit": "vitest run",
     "test:unit:coverage": "vitest run --coverage.enabled --coverage.provider=v8 --coverage.reporter=lcov --coverage.reportsDirectory=coverage",
     "publish:check": "publint && attw --pack . --ignore-rules=cjs-resolves-to-esm"
   },
   "dependencies": {
+    "@noble/hashes": "^2.3.0",
     "defu": "^6.1.7",
     "std-env": "^4.1.0",
     "ufo": "^1.6.4"

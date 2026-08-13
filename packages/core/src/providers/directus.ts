@@ -1,13 +1,14 @@
 import { joinURL } from 'ufo';
 import { createOperationsGenerator } from '../utils.js';
 import { configureProvider, defineProvider, type ProviderOptionsOf } from '../provider-utils.js';
+import type { ModifierValue } from '../types.js';
 
 const operationsGenerator = createOperationsGenerator();
 
 interface DirectusOptions {
   baseURL: string;
   modifiers?: {
-    transforms?: string[];
+    transforms?: readonly ModifierValue[];
     withoutEnlargement?: boolean;
   };
 }

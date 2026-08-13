@@ -60,6 +60,10 @@ export interface ImageProviderInput {
   modifiers?: ImageModifiers;
 }
 
+export type ImageProviderRequestOptions<TOptions = Record<string, unknown>> = TOptions & {
+  modifiers: ImageModifiers;
+};
+
 export interface ImageProviderResult {
   url: string;
   format?: string;
@@ -67,46 +71,32 @@ export interface ImageProviderResult {
   isOptimized?: boolean;
 }
 
-/**
- * The original Desource provider contract. It remains supported so existing
- * provider factories do not need to migrate atomically.
- */
-export interface ImageProvider<TOptions = unknown> {
-  name?: string;
-  validateDomains?: boolean;
-  supportsAlias?: boolean;
-  acceptsOpaqueSource?: boolean;
-  defaults?: Partial<TOptions>;
-  getImage(
-    input: Readonly<ImageProviderInput>,
-    options?: TOptions,
-    context?: ImageProviderContext
-  ): ImageProviderResult;
-}
-
-export type ImageProviderRequestOptions<TOptions = Record<string, unknown>> = TOptions & {
-  modifiers: ImageModifiers;
-};
-
-/** Nuxt-style provider contract used by `defineProvider`. */
-export interface DefinedImageProvider<TOptions = Record<string, unknown>> {
-  name?: string;
-  validateDomains?: boolean;
-  supportsAlias?: boolean;
-  acceptsOpaqueSource?: boolean;
-  defaults?: Partial<TOptions>;
+export type ImageProviderGetImage<TOptions = Record<string, unknown>> = {
   getImage(
     source: string,
     options: ImageProviderRequestOptions<TOptions>,
     context: ImageProviderContext
   ): ImageProviderResult;
+}['getImage'];
+
+/** Nuxt-style provider contract used by `defineProvider` and direct provider registrations. */
+export interface ImageProvider<TOptions = Record<string, unknown>> {
+  name?: string;
+  validateDomains?: boolean;
+  supportsAlias?: boolean;
+  acceptsOpaqueSource?: boolean;
+  defaults?: Partial<TOptions>;
+  getImage: ImageProviderGetImage<TOptions>;
 }
 
-export type ImageProviderDefinition<TOptions = unknown> = ImageProvider<TOptions> | DefinedImageProvider<TOptions>;
-
-export type ImageProviderSetup<TOptions = unknown> = () => ImageProviderDefinition<TOptions>;
-export type DefinedImageProviderSetup<TOptions = Record<string, unknown>> = () => DefinedImageProvider<TOptions>;
-export type ImageProviderRegistration<TOptions = unknown> =
+export type AnyImageProvider = Omit<ImageProvider<never>, 'defaults'> & {
+  defaults?: Record<string, unknown>;
+};
+export type ImageProviderDefinition<TOptions = never> = [TOptions] extends [never]
+  ? AnyImageProvider
+  : ImageProvider<TOptions>;
+export type ImageProviderSetup<TOptions = never> = () => ImageProviderDefinition<TOptions>;
+export type ImageProviderRegistration<TOptions = never> =
   ImageProviderDefinition<TOptions> | ImageProviderSetup<TOptions>;
 
 export interface ImagePreset {

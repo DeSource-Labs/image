@@ -8,7 +8,7 @@ import { noneProvider } from './none.js';
 import { vercelProvider } from './vercel.js';
 import type { NetlifyImageCdnProviderOptions } from './netlifyImageCdn.js';
 
-/** Backwards-compatible alias for Netlify Image CDN. */
+/** Alias for Netlify Image CDN */
 export function netlifyProvider(options: NetlifyImageCdnProviderOptions = {}): ImageProviderDefinition {
   return netlifyImageCdnProvider(options);
 }

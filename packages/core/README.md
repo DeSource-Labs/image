@@ -192,7 +192,7 @@ const config = {
 };
 ```
 
-All provider files use stable ESM subpaths under `@desource/image/providers/*`. The catalog and default/alternate modifier behavior are parity-tested against the bundled Nuxt Image sources.
+All provider files use stable ESM subpaths under `@desource/image/providers/*`. The catalog and default/alternate modifier behavior are parity-tested against the pinned Nuxt Image package.
 
 ## Custom providers
 
@@ -235,8 +235,6 @@ export const acmeProvider = configureProvider(
 Provider setup is memoized. Per-config `providerOptions[name]` are merged over configured defaults, and standard width/height/quality/format modifiers are merged last. The context exposes resolved options and a memoized `$img` helper.
 
 Set `acceptsOpaqueSource: true` only for providers whose source is an asset ID rather than a path or URL. Set `validateDomains: true` when remote inputs must match the configured `domains` or `remotePatterns`.
-
-The original object-input `ImageProvider` contract remains supported.
 
 ### Provider-authoring utilities
 

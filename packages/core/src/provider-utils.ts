@@ -1,12 +1,12 @@
 import type {
-  DefinedImageProvider,
-  DefinedImageProviderSetup,
   ImageModifiers,
   ImageProvider,
   ImageProviderDefinition,
   ImageProviderInput,
   ImageProviderRegistration,
+  ImageProviderRequestOptions,
   ImageProviderResult,
+  ImageProviderSetup,
   ModifierValue
 } from './types.js';
 import { appendQuery, joinURL, normalizeFormat, stableModifiers } from './utils.js';
@@ -95,9 +95,9 @@ export function sourcePath(src: string): string {
 function standardModifierObject(input: ImageProviderInput): Record<string, ModifierValue> {
   return {
     ...input.modifiers,
-    width: input.width,
-    height: input.height,
-    quality: input.quality,
+    width: input.width ?? input.modifiers?.width,
+    height: input.height ?? input.modifiers?.height,
+    quality: input.quality ?? input.modifiers?.quality,
     format: normalizeFormat(input.format) ?? input.modifiers?.format ?? input.modifiers?.f
   };
 }
@@ -152,8 +152,13 @@ export function createMappedQueryProvider(
 ): ImageProvider<GenericProviderOptions> {
   return {
     name,
-    getImage(input, providerOptions = defaults): ImageProviderResult {
+    defaults,
+    getImage(
+      src,
+      providerOptions: ImageProviderRequestOptions<GenericProviderOptions> = { modifiers: {} }
+    ): ImageProviderResult {
       const options = { ...defaults, ...providerOptions };
+      const input = inputFromModifiers(src, providerOptions.modifiers);
       return {
         url: mappedQueryURL(input, options, keyMap, valueMap),
         isOptimized: isTransformable(input)
@@ -191,52 +196,51 @@ export const defaultFitValue = {
   outside: 'max'
 };
 
-const definedProviders = new WeakSet<object>();
-
-/**
- * Defines a Nuxt-style provider and memoizes factory setup. Existing providers
- * using the object-input contract can be registered directly without this
- * helper.
- */
+/** Defines a Nuxt-style provider and memoizes factory setup. */
 export function defineProvider<TOptions = Record<string, unknown>>(
-  setup: DefinedImageProvider<TOptions> | (() => DefinedImageProvider<TOptions>)
-): DefinedImageProviderSetup<TOptions> {
-  let provider: DefinedImageProvider<TOptions> | undefined;
+  setup: ImageProvider<TOptions> | (() => ImageProvider<TOptions>)
+): ImageProviderSetup<TOptions> {
+  let provider: ImageProvider<TOptions> | undefined;
 
   return () => {
     provider ??= typeof setup === 'function' ? setup() : setup;
-    definedProviders.add(provider);
     return provider;
   };
 }
 
 export type ProviderOptionsOf<TSetup> =
-  TSetup extends DefinedImageProviderSetup<infer TOptions> ? TOptions : Record<string, unknown>;
+  TSetup extends ImageProviderSetup<infer TOptions> ? TOptions : Record<string, unknown>;
 
 /** Creates an isolated configured provider from a memoized provider setup. */
 export function configureProvider<TOptions>(
-  setup: DefinedImageProviderSetup<TOptions>,
+  setup: ImageProviderSetup<TOptions>,
   defaults: Partial<TOptions> = {},
   name?: string,
-  capabilities: Pick<DefinedImageProvider<TOptions>, 'acceptsOpaqueSource'> = {}
-): DefinedImageProvider<TOptions> {
+  capabilities: Pick<ImageProvider<TOptions>, 'acceptsOpaqueSource'> = {}
+): ImageProvider<TOptions> {
   const provider = setup();
   const configured = {
     ...provider,
     ...capabilities,
     name: name ?? provider.name,
     defaults: { ...provider.defaults, ...defaults }
-  } as DefinedImageProvider<TOptions>;
-  definedProviders.add(configured);
+  } as ImageProvider<TOptions>;
   return configured;
-}
-
-export function isDefinedProvider(provider: ImageProviderDefinition): provider is DefinedImageProvider {
-  return definedProviders.has(provider);
 }
 
 export function resolveProviderRegistration<TOptions>(
   registration: ImageProviderRegistration<TOptions>
 ): ImageProviderDefinition<TOptions> {
   return typeof registration === 'function' ? registration() : registration;
+}
+
+function inputFromModifiers(src: string, modifiers: ImageModifiers): ImageProviderInput {
+  return {
+    src,
+    width: typeof modifiers.width === 'number' ? modifiers.width : undefined,
+    height: typeof modifiers.height === 'number' ? modifiers.height : undefined,
+    quality: typeof modifiers.quality === 'number' ? modifiers.quality : undefined,
+    format: typeof modifiers.format === 'string' ? modifiers.format : undefined,
+    modifiers
+  };
 }

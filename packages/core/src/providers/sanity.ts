@@ -1,4 +1,4 @@
-import { joinURL, encodePath } from 'ufo';
+import { encodePath, hasProtocol, joinURL, parseQuery, withQuery } from 'ufo';
 import { createOperationsGenerator } from '../utils.js';
 import { isDevelopment } from '../utils.js';
 import { configureProvider, defineProvider, type ProviderOptionsOf } from '../provider-utils.js';
@@ -66,6 +66,7 @@ const getMetadata = (id: string) => {
 interface SanityOptions {
   projectId: string;
   dataset?: string;
+  baseURL?: string;
   modifiers?: {
     crop?: string | { left: number; top: number; right: number; bottom: number };
     rect?: `${number},${number},${number},${number}`;
@@ -78,8 +79,11 @@ interface SanityOptions {
 }
 
 const providerSetup = defineProvider<SanityOptions>({
-  getImage: (src, { modifiers, projectId, dataset = 'production' }) => {
-    const { height: sourceHeight, width: sourceWidth } = getMetadata(src);
+  getImage: (src, { modifiers, projectId, dataset, baseURL = sanityCDN }) => {
+    const isAbsolute = hasProtocol(src);
+    const [_projectId, _dataset, segment] = isAbsolute ? src.split('/').slice(-3) : [projectId, dataset, src];
+    const id = (isAbsolute ? segment?.split('?')[0] : src) ?? '';
+    const { height: sourceHeight, width: sourceWidth } = getMetadata(id);
     if (modifiers.crop && typeof modifiers.crop !== 'string' && sourceWidth && sourceHeight) {
       const left = modifiers.crop.left * sourceWidth;
       const top = modifiers.crop.top * sourceHeight;
@@ -109,10 +113,10 @@ const providerSetup = defineProvider<SanityOptions>({
     const parts = src.split('-').slice(1);
     const format = parts.pop();
 
-    const filenameAndQueries = parts.join('-') + '.' + format + (operations ? '?' + operations : '');
+    const filenameAndQueries = withQuery(isAbsolute ? segment : `${parts.join('-')}.${format}`, parseQuery(operations));
 
     return {
-      url: joinURL(sanityCDN, projectId, dataset, filenameAndQueries)
+      url: joinURL(baseURL, projectId || _projectId, dataset || _dataset || 'production', filenameAndQueries)
     };
   }
 });

@@ -1,5 +1,4 @@
 import type {
-  DefinedImageProvider,
   DesourceImage,
   GeneratedSrcset,
   ImageAttrs,
@@ -25,7 +24,6 @@ import type {
 } from './types.js';
 import { resolveImageConfig } from './config.js';
 import { isResolvedImageConfig, stripUndefined } from './kit.js';
-import { isDefinedProvider } from './provider-utils.js';
 import { generateDensities, generateSizes, parseDensities } from './sizes.js';
 import { normalizeImageSource, resolveAlias, validateSource } from './source.js';
 import { checkDensities, clampQuality, isDataSource, isRemoteSource, mimeForFormat, toNumber } from './utils.js';
@@ -414,37 +412,26 @@ function invokeProvider(input: ResolvedInput, config: ResolvedImageConfig): Imag
   const configured = asOptions(config.providerOptions[name]);
   const defaults = asOptions(provider.defaults);
   const context = createProviderContext(config);
-
-  if (isDefinedProvider(provider)) {
-    const defaultModifiers = asOptions(defaults.modifiers) as ImageModifiers;
-    const configuredModifiers = asOptions(configured.modifiers) as ImageModifiers;
-    const standardModifiers = stripUndefined({
-      width: providerInput.width,
-      height: providerInput.height,
-      quality: providerInput.quality,
-      format: providerInput.format
-    });
-    const options = {
-      ...defaults,
-      ...configured,
-      modifiers: stripUndefined({
-        ...defaultModifiers,
-        ...configuredModifiers,
-        ...providerInput.modifiers,
-        ...standardModifiers
-      })
-    };
-    return normalizeProviderResult(
-      (provider as DefinedImageProvider<Record<string, unknown>>).getImage(src, options, context),
-      src,
-      providerInput.format
-    );
-  }
-
-  const hasOptions = Object.keys(defaults).length > 0 || Object.keys(configured).length > 0;
-  const options = hasOptions ? { ...defaults, ...configured } : undefined;
+  const defaultModifiers = asOptions(defaults.modifiers) as ImageModifiers;
+  const configuredModifiers = asOptions(configured.modifiers) as ImageModifiers;
+  const standardModifiers = stripUndefined({
+    width: providerInput.width,
+    height: providerInput.height,
+    quality: providerInput.quality,
+    format: providerInput.format
+  });
+  const options = {
+    ...defaults,
+    ...configured,
+    modifiers: stripUndefined({
+      ...defaultModifiers,
+      ...configuredModifiers,
+      ...providerInput.modifiers,
+      ...standardModifiers
+    })
+  };
   return normalizeProviderResult(
-    (provider as ImageProvider<Record<string, unknown>>).getImage(providerInput, options, context),
+    (provider as ImageProvider<Record<string, unknown>>).getImage(src, options, context),
     src,
     providerInput.format
   );

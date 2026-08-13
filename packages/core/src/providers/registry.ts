@@ -10,6 +10,7 @@ import { cloudimageProvider } from './cloudimage.js';
 import { cloudinaryProvider } from './cloudinary.js';
 import { contentfulProvider } from './contentful.js';
 import { directusProvider } from './directus.js';
+import { edgeonePagesProvider } from './edgeonePages.js';
 import { fastlyProvider } from './fastly.js';
 import { filerobotProvider } from './filerobot.js';
 import { flyimgProvider } from './flyimg.js';
@@ -20,6 +21,7 @@ import { hygraphProvider } from './hygraph.js';
 import { imageEngineProvider } from './imageengine.js';
 import { imagekitProvider } from './imagekit.js';
 import { imgixProvider } from './imgix.js';
+import { imgproxyProvider } from './imgproxy.js';
 import { ipxProvider } from './ipx.js';
 import { ipxStaticProvider } from './ipxStatic.js';
 import { netlifyProvider } from './netlify.js';
@@ -56,6 +58,7 @@ export const BUILT_IN_PROVIDER_NAMES = [
   'cloudinary',
   'contentful',
   'directus',
+  'edgeonePages',
   'fastly',
   'filerobot',
   'flyimg',
@@ -66,6 +69,7 @@ export const BUILT_IN_PROVIDER_NAMES = [
   'imageengine',
   'imagekit',
   'imgix',
+  'imgproxy',
   'ipx',
   'ipxStatic',
   'netlify',
@@ -106,6 +110,7 @@ export function createBuiltInProviders(): Record<BuiltInProviderName, ImageProvi
     cloudinary: cloudinaryProvider(),
     contentful: contentfulProvider(),
     directus: directusProvider(),
+    edgeonePages: edgeonePagesProvider(),
     fastly: fastlyProvider(),
     filerobot: filerobotProvider(),
     flyimg: flyimgProvider(),
@@ -116,6 +121,7 @@ export function createBuiltInProviders(): Record<BuiltInProviderName, ImageProvi
     imageengine: imageEngineProvider(),
     imagekit: imagekitProvider(),
     imgix: imgixProvider(),
+    imgproxy: imgproxyProvider(),
     ipx: ipxProvider(),
     ipxStatic: ipxStaticProvider(),
     netlify: netlifyProvider(),
