@@ -1,18 +1,21 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createImage, resolveImageConfig, type ImageProviderContext } from '@desource/image';
-import cloudimageSetup from '../src/providers/cloudimage';
-import cloudinarySetup from '../src/providers/cloudinary';
-import directusSetup from '../src/providers/directus';
-import filerobotSetup from '../src/providers/filerobot';
-import flyimgSetup from '../src/providers/flyimg';
-import hygraphSetup from '../src/providers/hygraph';
-import netlifyLargeMediaSetup from '../src/providers/netlifyLargeMedia';
-import sanitySetup from '../src/providers/sanity';
-import strapi5Setup from '../src/providers/strapi5';
-import weservSetup from '../src/providers/weserv';
+import cloudimageSetup from '../../src/providers/cloudimage';
+import cloudinarySetup from '../../src/providers/cloudinary';
+import directusSetup from '../../src/providers/directus';
+import edgeonePagesSetup, { edgeonePagesProvider } from '../../src/providers/edgeonePages';
+import filerobotSetup from '../../src/providers/filerobot';
+import flyimgSetup from '../../src/providers/flyimg';
+import hygraphSetup from '../../src/providers/hygraph';
+import imgproxySetup, { imgproxyProvider } from '../../src/providers/imgproxy';
+import netlifyLargeMediaSetup from '../../src/providers/netlifyLargeMedia';
+import sanitySetup from '../../src/providers/sanity';
+import strapi5Setup from '../../src/providers/strapi5';
+import weservSetup from '../../src/providers/weserv';
 
 const resolved = resolveImageConfig({ baseURL: '/site' });
 const context: ImageProviderContext = { options: resolved, $img: createImage(resolved) };
+type ImgproxyGetImageOptions = Parameters<ReturnType<typeof imgproxySetup>['getImage']>[1];
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -82,6 +85,64 @@ describe('provider edge cases', () => {
     expect(decodeURIComponent(result.url)).toContain('transforms=[{"resize":{"width":320}}]');
   });
 
+  it('requires EdgeOne Pages base URL and serializes its imageMogr2 operations', () => {
+    expect(() => edgeonePagesSetup().getImage('/photo.jpg', { modifiers: {}, baseURL: '' }, context)).toThrow(
+      /requires baseURL/
+    );
+    expect(
+      edgeonePagesProvider().getImage('/photo.jpg', { modifiers: {}, baseURL: 'https://edge.example' }, context)
+    ).toEqual({
+      url: 'https://edge.example/photo.jpg'
+    });
+    expect(
+      edgeonePagesSetup().getImage(
+        '/nested/photo.jpg',
+        {
+          baseURL: 'https://edge.example/images',
+          modifiers: {
+            width: 320,
+            height: 180,
+            fit: 'cover',
+            pad: true,
+            background: '#00ffcc',
+            crop: '10x20a30a40',
+            gravity: 'center',
+            dx: -4,
+            dy: 8,
+            iradius: 12,
+            scrop: '100x100',
+            rotate: 90,
+            autoOrient: true,
+            quality: 72,
+            format: 'jpeg',
+            blur: 3,
+            sharpen: 50,
+            strip: true,
+            interlace: true
+          }
+        },
+        context
+      ).url
+    ).toBe(
+      'https://edge.example/images/nested/photo.jpg?imageMogr2/thumbnail/!320x180r/pad/1/color/MDBmZmNj/crop/10x20a30a40/gravity/center/dx/-4/dy/8/iradius/12/scrop/100x100/rotate/90/auto-orient/quality/72/format/jpg/blur/3x3/sharpen/50/strip/interlace/1'
+    );
+    expect(
+      edgeonePagesSetup().getImage(
+        '/photo.jpg',
+        {
+          baseURL: 'https://edge.example',
+          modifiers: {
+            width: 640,
+            height: 360,
+            fit: 'fill',
+            interlace: 2
+          }
+        },
+        context
+      ).url
+    ).toBe('https://edge.example/photo.jpg?imageMogr2/thumbnail/640x360!/interlace/2');
+  });
+
   it('handles Filerobot remote URLs and warns about a missing base URL in development', () => {
     vi.stubEnv('NODE_ENV', 'development');
     const warning = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
@@ -149,6 +210,157 @@ describe('provider edge cases', () => {
     expect(() => provider.getImage('/image-id', { modifiers: {}, baseURL: '' }, context)).toThrow(
       /No Hygraph image base URL/
     );
+  });
+
+  it('generates unsafe or signed Imgproxy URLs and validates signing inputs', () => {
+    expect(
+      imgproxyProvider().getImage(
+        '/photo.jpg',
+        {
+          baseURL: 'https://imgproxy.example',
+          modifiers: {}
+        },
+        context
+      ).url
+    ).toBe('https://imgproxy.example/unsafe/L3Bob3RvLmpwZw');
+
+    expect(
+      imgproxySetup().getImage(
+        'https://origin.example/a photo.jpg',
+        {
+          baseURL: 'https://imgproxy.example',
+          key: '00112233445566778899aabbccddeeff',
+          salt: '0102030405060708',
+          modifiers: {
+            width: 320,
+            height: 180,
+            fit: 'cover'
+          }
+        },
+        context
+      ).url
+    ).toMatch(
+      /^https:\/\/imgproxy\.example\/(?!unsafe\/)[A-Za-z0-9_-]+\/w:320\/h:180\/rt:fill\/aHR0cHM6Ly9vcmlnaW4uZXhhbXBsZS9hIHBob3RvLmpwZw$/
+    );
+
+    expect(() =>
+      imgproxySetup().getImage(
+        '/photo.jpg',
+        {
+          baseURL: 'https://imgproxy.example',
+          key: 'abc',
+          salt: '00',
+          modifiers: {}
+        },
+        context
+      )
+    ).toThrow(/Invalid hex string for signing key/);
+    expect(() =>
+      imgproxySetup().getImage(
+        '/photo.jpg',
+        {
+          baseURL: 'https://imgproxy.example',
+          key: '00',
+          salt: 'xyz',
+          modifiers: {}
+        },
+        context
+      )
+    ).toThrow(/Invalid hex string for signing salt/);
+  });
+
+  it('normalizes Imgproxy fit modes into resizing types', () => {
+    const provider = imgproxySetup();
+    const cases = [
+      { fit: 'contain', expected: ['/w:320/h:180/rt:fit/', '/ex:1/'] },
+      { fit: 'fill', expected: ['/w:320/h:180/rt:force/'] },
+      { fit: 'inside', expected: ['/w:320/h:180/rt:fit/'] },
+      { fit: 'outside', expected: ['/w:320/h:180/rt:fill/'] },
+      { fit: 'cover', width: 320, expected: ['/w:320/rt:fit/'] }
+    ] satisfies Array<{
+      fit: 'contain' | 'fill' | 'inside' | 'outside' | 'cover';
+      width?: number;
+      expected: string[];
+    }>;
+
+    for (const { fit, width = 320, expected } of cases) {
+      const result = provider.getImage(
+        '/photo.jpg',
+        {
+          baseURL: 'https://imgproxy.example',
+          modifiers: {
+            width,
+            height: fit === 'cover' ? undefined : 180,
+            fit
+          }
+        },
+        context
+      );
+
+      for (const fragment of expected) {
+        expect(result.url).toContain(fragment);
+      }
+    }
+  });
+
+  it('serializes Imgproxy mapped modifiers, booleans, crop values, and rotation', () => {
+    expect(
+      imgproxySetup().getImage(
+        '/photo.jpg',
+        {
+          baseURL: 'https://imgproxy.example',
+          modifiers: {
+            resize: 'fit:320:180',
+            size: '320:180',
+            minWidth: 160,
+            minHeight: 90,
+            zoom: 1.5,
+            dpr: 2,
+            enlarge: true,
+            extend: 'false',
+            extendAspectRatio: '1:1',
+            gravity: 'ce',
+            crop: { width: 120, height: 80, gravity: 'so' },
+            autoRotate: 't',
+            rotate: -91,
+            background: 'ffffff',
+            blur: 4,
+            sharpen: 2,
+            pixelate: 8,
+            stripMetadata: 1,
+            keepCopyright: false,
+            stripColorProfile: 'true',
+            enforceThumbnail: 'no',
+            quality: 75,
+            format: 'webp',
+            raw: true,
+            cachebuster: 'v1',
+            expires: 123,
+            filename: 'photo.webp',
+            returnAttachment: 'true',
+            preset: 'sharp',
+            maxSrcResolution: 10,
+            maxSrcFileSize: 20,
+            maxAnimationFrames: 30,
+            maxAnimationFrameResolution: '40:50',
+            maxResultDimension: '60:70'
+          }
+        },
+        context
+      ).url
+    ).toContain('/rs:fit:320:180/');
+
+    const options = {
+      baseURL: 'https://imgproxy.example',
+      modifiers: {
+        crop: '120:80:ce',
+        rotate: Number.NaN
+      }
+    } as unknown as ImgproxyGetImageOptions;
+    const unsafeResult = imgproxySetup().getImage('/photo.jpg', options, context);
+
+    expect(unsafeResult.url).toContain('/c:120:80:ce/');
+    expect(unsafeResult.url).toContain('/rot:NaN/');
   });
 
   it('enforces Netlify Large Media resize constraints', () => {

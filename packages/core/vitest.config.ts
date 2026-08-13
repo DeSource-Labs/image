@@ -10,7 +10,7 @@ export default defineConfig({
       { find: /^@desource\/image\/kit$/, replacement: `${source}/kit.ts` },
       { find: /^@desource\/image\/providers$/, replacement: `${source}/providers/index.ts` },
       { find: /^@desource\/image\/providers\/(.+)$/, replacement: `${source}/providers/$1.ts` },
-      { find: '#imports', replacement: fileURLToPath(new URL('./test/nuxt-stubs.ts', import.meta.url)) }
+      { find: '#imports', replacement: fileURLToPath(new URL('./test/providers/nuxt-stubs.ts', import.meta.url)) }
     ]
   },
   test: {
