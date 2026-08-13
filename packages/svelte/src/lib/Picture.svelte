@@ -1,12 +1,13 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { getPictureAttrs, type ImageInput } from '@desource/image';
+  import { getImagePreloadLink, getPictureAttrs } from '@desource/image';
+  import { normalizeCrossorigin } from '@desource/image/kit';
+  import { getPictureProps, preloadImage, splitPictureAttributes, toImageInput } from './bindings.js';
   import { getImageConfig } from './context.js';
-  import type { PictureComponentProps } from './types.js';
+  import type { PictureBindingOptions, PictureComponentProps } from './types.js';
 
   let {
     src,
-    alt = '',
+    alt,
     width,
     height,
     sizes,
@@ -29,8 +30,6 @@
     preload,
     placeholder,
     placeholderClass,
-    custom: _custom,
-    children: _children,
     imgAttrs,
     class: className,
     style,
@@ -43,10 +42,8 @@
 
   const config = getImageConfig();
   let loaded = $state(false);
-  let fallbackActive = $state(false);
-  let imageElement: HTMLImageElement | undefined = $state();
-
-  const imageInput = $derived<ImageInput>({
+  const distributed = $derived(splitPictureAttributes(rest));
+  const bindingOptions = $derived<PictureBindingOptions>({
     src,
     alt,
     width,
@@ -70,100 +67,74 @@
     priority,
     preload,
     placeholder,
-    placeholderClass
+    placeholderClass,
+    crossorigin,
+    nonce,
+    config,
+    pictureAttrs: distributed.pictureAttrs,
+    attrs: distributed.imgAttrs,
+    imgAttrs,
+    class: className,
+    style,
+    onload,
+    onerror
   });
-
+  const imageInput = $derived(toImageInput(bindingOptions));
   const picture = $derived(getPictureAttrs(imageInput, config));
-  const renderedSrc = $derived(fallbackActive && picture.img.fallbackSrc ? picture.img.fallbackSrc : picture.img.src);
-  const renderedSrcset = $derived(fallbackActive ? undefined : picture.img.srcset);
-  const renderedSizes = $derived(fallbackActive ? undefined : picture.img.sizes);
-  const imageClass = $derived(
-    [className, picture.img.placeholderSrc && !loaded ? picture.img.placeholderClass : undefined]
-      .filter(Boolean)
-      .join(' ') || undefined
-  );
-  const imageStyle = $derived(styleWithPlaceholder(style, picture.img.placeholderSrc, loaded));
-  const normalizedCrossorigin = $derived(normalizeCrossorigin(crossorigin));
+  const elementProps = $derived(getPictureProps(bindingOptions, loaded));
+  const basePreload = $derived(preload ? getImagePreloadLink(imageInput, config) : undefined);
+  const preloadSource = $derived(picture.sources[0]);
   const nonceAttrs = $derived(nonce ? { nonce } : {});
 
+  $effect(() => {
+    const attrs = picture.img;
+    const key = `${attrs.src}\n${attrs.srcset ?? ''}\n${attrs.sizes ?? ''}\n${attrs.placeholderSrc ?? ''}`;
+    if (!key) return;
+    loaded = false;
+    if (!attrs.placeholderSrc) return;
+    return preloadImage(
+      attrs,
+      {
+        ready() {
+          loaded = true;
+        },
+        error(event) {
+          onerror?.(event);
+        }
+      },
+      normalizeCrossorigin(crossorigin)
+    );
+  });
+
   function handleLoad(event: Event) {
+    if (picture.img.placeholderSrc && !loaded) return;
     loaded = true;
-    (onload as ((event: Event) => void) | undefined)?.(event);
+    onload?.(event);
   }
 
   function handleError(event: Event) {
-    applyFallback();
-
-    (onerror as ((event: Event) => void) | undefined)?.(event);
-  }
-
-  function applyFallback() {
-    if (picture.img.fallbackSrc && !fallbackActive) {
-      fallbackActive = true;
-    }
-  }
-
-  onMount(() => {
-    const check = () => {
-      if (imageElement?.complete && imageElement.naturalWidth === 0) {
-        applyFallback();
-      }
-    };
-    const immediate = globalThis.setTimeout(check, 0);
-    const delayed = globalThis.setTimeout(check, 300);
-
-    return () => {
-      globalThis.clearTimeout(immediate);
-      globalThis.clearTimeout(delayed);
-    };
-  });
-
-  function styleWithPlaceholder(
-    base: string | null | undefined,
-    placeholderSrc: string | undefined,
-    isLoaded: boolean
-  ): string | undefined {
-    if (!placeholderSrc || isLoaded) {
-      return base ?? undefined;
-    }
-
-    const escaped = placeholderSrc.replace(/"/g, '%22');
-    return [base, `background-image:url("${escaped}")`, 'background-size:cover', 'background-position:center']
-      .filter(Boolean)
-      .join(';');
-  }
-
-  function normalizeCrossorigin(value: unknown): 'anonymous' | 'use-credentials' | undefined {
-    if (value === true || value === '' || value === 'true') {
-      return 'anonymous';
-    }
-
-    return value === 'anonymous' || value === 'use-credentials' ? value : undefined;
+    onerror?.(event);
   }
 </script>
 
-<picture>
-  {#each picture.sources as source (source.type)}
-    <source type={source.type} srcset={source.srcset} sizes={source.sizes} />
+<svelte:head>
+  {#if basePreload}
+    <link
+      rel="preload"
+      as="image"
+      href={basePreload.href}
+      imagesrcset={preloadSource?.srcset ?? basePreload.imagesrcset}
+      imagesizes={preloadSource?.sizes ?? basePreload.imagesizes}
+      fetchpriority={basePreload.fetchpriority}
+      crossorigin={normalizeCrossorigin(crossorigin)}
+      {...nonceAttrs}
+    />
+  {/if}
+</svelte:head>
+
+<picture {...elementProps.pictureAttrs} data-ds-picture="">
+  {#each elementProps.sources as source (`${source.type}:${source.srcset}`)}
+    <source type={source.type} srcset={source.srcset} sizes={source.sizes} data-ds-image-source="" />
   {/each}
-  <img
-    bind:this={imageElement}
-    {...imgAttrs}
-    {...rest}
-    src={renderedSrc}
-    srcset={renderedSrcset}
-    sizes={renderedSizes}
-    width={picture.img.width}
-    height={picture.img.height}
-    alt={picture.img.alt ?? ''}
-    loading={picture.img.loading}
-    decoding={picture.img.decoding}
-    fetchpriority={picture.img.fetchpriority}
-    crossorigin={normalizedCrossorigin}
-    {...nonceAttrs}
-    class={imageClass}
-    style={imageStyle}
-    onload={handleLoad}
-    onerror={handleError}
-  />
+  <img {...elementProps.imgAttrs} data-ds-picture-img="" onload={handleLoad} onerror={handleError} />
 </picture>

@@ -1,12 +1,13 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { getImageAttrs, type ImageInput } from '@desource/image';
+  import { getImageAttrs, getImagePreloadLink } from '@desource/image';
+  import { normalizeCrossorigin } from '@desource/image/kit';
+  import { getImageProps, imageAction, preloadImage, toImageInput } from './bindings.js';
   import { getImageConfig } from './context.js';
-  import type { ImageComponentProps, ImageSlotProps } from './types.js';
+  import type { ImageBindingOptions, ImageComponentProps, ImageSlotProps } from './types.js';
 
   let {
     src,
-    alt = '',
+    alt,
     width,
     height,
     sizes,
@@ -39,10 +40,8 @@
 
   const config = getImageConfig();
   let loaded = $state(false);
-  let fallbackActive = $state(false);
-  let imageElement: HTMLImageElement | undefined = $state();
 
-  const imageInput = $derived<ImageInput>({
+  const bindingOptions = $derived<ImageBindingOptions>({
     src,
     alt,
     width,
@@ -63,121 +62,68 @@
     priority,
     preload,
     placeholder,
-    placeholderClass
+    placeholderClass,
+    crossorigin,
+    nonce,
+    config,
+    attrs: rest,
+    class: className,
+    style,
+    onload,
+    onerror,
+    onStateChange(value) {
+      loaded = value;
+    }
   });
-
+  const imageInput = $derived(toImageInput(bindingOptions));
   const attrs = $derived(getImageAttrs(imageInput, config));
-  const renderedSrc = $derived(fallbackActive && attrs.fallbackSrc ? attrs.fallbackSrc : attrs.src);
-  const renderedSrcset = $derived(fallbackActive ? undefined : attrs.srcset);
-  const renderedSizes = $derived(fallbackActive ? undefined : attrs.sizes);
-  const imageClass = $derived(
-    [className, attrs.placeholderSrc && !loaded ? attrs.placeholderClass : undefined].filter(Boolean).join(' ') ||
-      undefined
-  );
-  const imageStyle = $derived(styleWithPlaceholder(style, attrs.placeholderSrc, loaded));
-  const normalizedCrossorigin = $derived(normalizeCrossorigin(crossorigin));
+  const elementProps = $derived(getImageProps(bindingOptions, loaded));
+  const preloadLink = $derived(preload ? getImagePreloadLink(imageInput, config) : undefined);
   const nonceAttrs = $derived(nonce ? { nonce } : {});
   const slotProps = $derived<ImageSlotProps>({
-    imgAttrs: stripUndefined({
-      ...rest,
-      src: renderedSrc,
-      srcset: renderedSrcset,
-      sizes: renderedSizes,
-      width: attrs.width,
-      height: attrs.height,
-      alt: attrs.alt ?? '',
-      loading: attrs.loading,
-      decoding: attrs.decoding,
-      fetchpriority: attrs.fetchpriority,
-      crossorigin: normalizedCrossorigin,
-      nonce,
-      class: imageClass,
-      style: imageStyle
-    }),
+    imgAttrs: elementProps,
     isLoaded: loaded,
-    src: renderedSrc
+    src: elementProps.src ?? undefined
   });
 
-  function handleLoad(event: Event) {
-    loaded = true;
-    (onload as ((event: Event) => void) | undefined)?.(event);
-  }
-
-  function handleError(event: Event) {
-    applyFallback();
-
-    (onerror as ((event: Event) => void) | undefined)?.(event);
-  }
-
-  function applyFallback() {
-    if (attrs.fallbackSrc && !fallbackActive) {
-      fallbackActive = true;
-    }
-  }
-
-  onMount(() => {
-    const check = () => {
-      if (imageElement?.complete && imageElement.naturalWidth === 0) {
-        applyFallback();
-      }
-    };
-    const immediate = globalThis.setTimeout(check, 0);
-    const delayed = globalThis.setTimeout(check, 300);
-
-    return () => {
-      globalThis.clearTimeout(immediate);
-      globalThis.clearTimeout(delayed);
-    };
+  $effect(() => {
+    if (!custom) return;
+    const key = `${attrs.src}\n${attrs.srcset ?? ''}\n${attrs.sizes ?? ''}`;
+    if (!key) return;
+    loaded = false;
+    return preloadImage(
+      attrs,
+      {
+        ready() {
+          loaded = true;
+          onload?.(new Event('load'));
+        },
+        error(event) {
+          onerror?.(event);
+        }
+      },
+      normalizeCrossorigin(crossorigin)
+    );
   });
-
-  function styleWithPlaceholder(
-    base: string | null | undefined,
-    placeholderSrc: string | undefined,
-    isLoaded: boolean
-  ): string | undefined {
-    if (!placeholderSrc || isLoaded) {
-      return base ?? undefined;
-    }
-
-    const escaped = placeholderSrc.replace(/"/g, '%22');
-    return [base, `background-image:url("${escaped}")`, 'background-size:cover', 'background-position:center']
-      .filter(Boolean)
-      .join(';');
-  }
-
-  function normalizeCrossorigin(value: unknown): 'anonymous' | 'use-credentials' | undefined {
-    if (value === true || value === '' || value === 'true') {
-      return 'anonymous';
-    }
-
-    return value === 'anonymous' || value === 'use-credentials' ? value : undefined;
-  }
-
-  function stripUndefined<T extends Record<string, unknown>>(value: T): T {
-    return Object.fromEntries(Object.entries(value).filter(([, entry]) => entry !== undefined)) as T;
-  }
 </script>
+
+<svelte:head>
+  {#if preloadLink}
+    <link
+      rel="preload"
+      as="image"
+      href={preloadLink.href}
+      imagesrcset={preloadLink.imagesrcset}
+      imagesizes={preloadLink.imagesizes}
+      fetchpriority={preloadLink.fetchpriority}
+      crossorigin={normalizeCrossorigin(crossorigin)}
+      {...nonceAttrs}
+    />
+  {/if}
+</svelte:head>
 
 {#if custom && children}
   {@render children(slotProps)}
 {:else}
-  <img
-    bind:this={imageElement}
-    {...rest}
-    src={renderedSrc}
-    srcset={renderedSrcset}
-    sizes={renderedSizes}
-    width={attrs.width}
-    height={attrs.height}
-    alt={attrs.alt ?? ''}
-    loading={attrs.loading}
-    decoding={attrs.decoding}
-    fetchpriority={attrs.fetchpriority}
-    crossorigin={normalizedCrossorigin}
-    {...nonceAttrs}
-    class={imageClass}
-    style={imageStyle}
-    onload={handleLoad}
-    onerror={handleError}
-  />
+  <img {...elementProps} use:imageAction={bindingOptions} data-ds-image="" />
 {/if}
