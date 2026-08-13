@@ -5,11 +5,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/desource-labs/image.git",
+    "url": "git+https://github.com/DeSource-Labs/image.git",
     "directory": "packages/core"
   },
-  "homepage": "https://github.com/desource-labs/image#readme",
-  "bugs": "https://github.com/desource-labs/image/issues",
+  "homepage": "https://github.com/DeSource-Labs/image#readme",
+  "bugs": "https://github.com/DeSource-Labs/image/issues",
   "type": "module",
   "sideEffects": false,
   "publishConfig": {
