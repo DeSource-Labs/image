@@ -68,7 +68,7 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "clean": "rimraf dist coverage test-results demo/dist",
+    "clean": "rimraf dist coverage test-results demo/dist .svelte-kit",
     "clean:modules": "rimraf node_modules",
     "build": "pnpm clean && pnpm build:internal",
     "build:internal": "svelte-package --tsconfig ./tsconfig.build.json",

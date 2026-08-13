@@ -3,8 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "clean": "rimraf .svelte-kit build .vercel test-results",
+    "clean:modules": "rimraf node_modules",
     "prepare": "svelte-kit sync",
-    "predev": "pnpm --workspace-root build",
     "dev": "vite dev",
     "build": "vite build",
     "preview": "vite preview",

@@ -24,7 +24,7 @@
     "directory": "dist"
   },
   "scripts": {
-    "clean": "rimraf dist test-results coverage",
+    "clean": "rimraf dist test-results coverage .angular demo/dist",
     "clean:modules": "rimraf node_modules",
     "build": "pnpm clean && pnpm build:internal",
     "build:internal": "ng-packagr -p ng-package.json && node ../../scripts/prepare-angular-package.mts",
