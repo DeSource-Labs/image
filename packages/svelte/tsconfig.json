@@ -1,11 +1,31 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "rootDir": "src",
+    "baseUrl": ".",
+    "rootDir": "../..",
     "outDir": "dist",
     "tsBuildInfoFile": "dist/.tsbuildinfo",
-    "types": ["svelte", "node"]
+    "ignoreDeprecations": "6.0",
+    "types": ["svelte", "node"],
+    "paths": {
+      "@desource/image": ["../core/src/index.ts"],
+      "@desource/image/kit": ["../core/src/kit.ts"],
+      "@desource/image/providers": ["../core/src/providers/index.ts"],
+      "@desource/image/providers/*": ["../core/src/providers/*.ts"],
+      "@desource/image-svelte": ["src/lib/index.ts"],
+      "@desource/image-svelte/*": ["src/lib/*"]
+    }
   },
-  "include": ["src/**/*.ts", "src/**/*.svelte", "svelte.config.js"],
-  "exclude": ["dist"]
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.svelte",
+    "../../common/test/unit/**/*.ts",
+    "test/**/*.ts",
+    "test/**/*.svelte",
+    "demo/src/**/*.ts",
+    "demo/src/**/*.svelte",
+    "demo/vite.config.ts",
+    "svelte.config.js"
+  ],
+  "exclude": ["dist", "coverage", "test-results", "demo/dist"]
 }

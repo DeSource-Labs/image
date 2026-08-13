@@ -71,7 +71,7 @@
     "clean": "rimraf dist coverage test-results demo/dist",
     "clean:modules": "rimraf node_modules",
     "build": "pnpm clean && pnpm build:internal",
-    "build:internal": "svelte-package",
+    "build:internal": "svelte-package --tsconfig ./tsconfig.build.json",
     "dev": "vite --config demo/vite.config.ts --port 5175",
     "build:demo": "vite build --config demo/vite.config.ts",
     "typecheck": "svelte-check --tsconfig ./tsconfig.json",

@@ -4,6 +4,7 @@
     "baseUrl": ".",
     "rootDir": "../../..",
     "outDir": "../test-results/tsc",
+    "ignoreDeprecations": "6.0",
     "types": ["vitest/globals", "node", "vite/client"],
     "paths": {
       "@desource/image": ["../src/index.ts"],

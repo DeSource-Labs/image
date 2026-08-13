@@ -79,19 +79,19 @@ export function testImageBehavior(adapter: ImageBehaviorAdapter): void {
       expect($img('/unsplash/photo-id', { width: 640 })).toBe('/_ipx/w_640/unsplash/photo-id');
     });
 
-    it('uses legacy and Nuxt-style custom providers without framework glue', () => {
-      const legacyProvider = {
-        getImage(input: { src: string; width?: number }) {
-          return { url: `/legacy?src=${encodeURIComponent(input.src)}&w=${input.width ?? ''}` };
+    it('uses direct Nuxt-style custom providers without framework glue', () => {
+      const customProvider = {
+        getImage(src: string, { modifiers }: { modifiers: { width?: number | string } }) {
+          return { url: `/custom?src=${encodeURIComponent(src)}&w=${modifiers.width ?? ''}` };
         }
       };
 
       expect(
         adapter.getImageAttrs(
-          { provider: 'legacy', src: '/asset.png', width: 500 },
-          { providers: { legacy: legacyProvider } }
+          { provider: 'custom', src: '/asset.png', width: 500 },
+          { providers: { custom: customProvider } }
         ).src
-      ).toBe('/legacy?src=%2Fasset.png&w=500');
+      ).toBe('/custom?src=%2Fasset.png&w=500');
     });
   });
 }

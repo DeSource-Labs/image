@@ -2,8 +2,8 @@
 
 import { mount, tick, unmount } from 'svelte';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import Image from '../../src/lib/Image.svelte';
-import Picture from '../../src/lib/Picture.svelte';
+import ImageComponent from '../../src/lib/Image.svelte';
+import PictureComponent from '../../src/lib/Picture.svelte';
 import CustomImageFixture from '../fixtures/CustomImageFixture.svelte';
 
 afterEach(() => {
@@ -27,11 +27,11 @@ describe('Svelte component client lifecycle', () => {
         preloaders.push(this);
       }
     }
-    globalThis.Image = MockImage as unknown as typeof Image;
+    globalThis.Image = MockImage as unknown as typeof globalThis.Image;
 
     try {
       const onload = vi.fn();
-      const component = mount(Image, {
+      const component = mount(ImageComponent, {
         target: document.body,
         props: {
           src: '/photo.jpg',
@@ -75,12 +75,12 @@ describe('Svelte component client lifecycle', () => {
         preloaders.push(this);
       }
     }
-    globalThis.Image = MockImage as unknown as typeof Image;
+    globalThis.Image = MockImage as unknown as typeof globalThis.Image;
 
     try {
       const onload = vi.fn();
       const onerror = vi.fn();
-      const component = mount(Picture, {
+      const component = mount(PictureComponent, {
         target: document.body,
         props: {
           src: '/photo.jpg',
@@ -130,7 +130,7 @@ describe('Svelte component client lifecycle', () => {
         preloaders.push(this);
       }
     }
-    globalThis.Image = MockImage as unknown as typeof Image;
+    globalThis.Image = MockImage as unknown as typeof globalThis.Image;
 
     try {
       const component = mount(CustomImageFixture, { target: document.body });

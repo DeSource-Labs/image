@@ -69,8 +69,13 @@ export interface ImageComponentProps extends BaseImageProps, NativeImageAttrs {
   children?: Snippet<[ImageSlotProps]>;
 }
 
+type PictureForwardedImageAttrs = Pick<NativeImageAttrs, 'referrerpolicy' | 'usemap' | 'ismap'>;
+
 export interface PictureComponentProps
-  extends BaseImageProps, Omit<HTMLAttributes<HTMLPictureElement>, 'children' | 'onload' | 'onerror' | 'placeholder'> {
+  extends
+    BaseImageProps,
+    PictureForwardedImageAttrs,
+    Omit<HTMLAttributes<HTMLPictureElement>, 'children' | 'onload' | 'onerror' | 'placeholder'> {
   formats?: readonly ImageFormat[];
   fallbackFormat?: ImageFormat;
   legacyFormat?: ImageFormat;

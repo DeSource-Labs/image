@@ -3,7 +3,7 @@ import { By } from '@angular/platform-browser';
 import { Component, PLATFORM_ID, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { defineProvider, type ImageProviderDefinition } from '@desource/image';
+import { defineProvider } from '@desource/image';
 import {
   DS_IMAGE_CONFIG,
   DsImageComponent,
@@ -19,7 +19,7 @@ import {
 } from '../../src/public-api.js';
 import { DsImageHeadService } from '../../src/lib/ds-image-head.service.js';
 
-const testProvider: ImageProviderDefinition = defineProvider({
+const testProvider = defineProvider({
   getImage(src, { modifiers }) {
     const query = new URLSearchParams();
     for (const [key, value] of Object.entries(modifiers)) {
@@ -354,7 +354,7 @@ describe('Angular configuration and services', () => {
   });
 
   it('resolves provider setup once per injector and shares it with the service and native loader', () => {
-    const setup = vi.fn(testProvider as () => ImageProviderDefinition);
+    const setup = vi.fn(testProvider);
     TestBed.configureTestingModule({
       providers: [provideDsImage({ provider: 'setup', providers: { setup } })]
     });

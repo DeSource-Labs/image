@@ -30,7 +30,7 @@
     "build:internal": "ng-packagr -p ng-package.json && node ../../scripts/prepare-angular-package.mts",
     "dev": "ng serve demo --port 5174",
     "build:demo": "ng build demo",
-    "typecheck": "ngc -p tsconfig.lib.json --noEmit",
+    "typecheck": "ngc -p tsconfig.lib.json --noEmit && ngc -p tsconfig.spec.json --noEmit && ngc -p demo/tsconfig.app.json --noEmit",
     "test:unit": "vitest run --config vitest.config.ts",
     "test:unit:coverage": "vitest run --config vitest.config.ts --coverage.enabled --coverage.provider=v8 --coverage.reporter=lcov --coverage.reportsDirectory=coverage",
     "test:e2e": "playwright test --config playwright.config.ts",

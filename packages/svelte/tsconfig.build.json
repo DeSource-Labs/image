@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "src/lib",
+    "paths": {
+      "@desource/image": ["../core/dist/index.d.ts"],
+      "@desource/image/kit": ["../core/dist/kit.d.ts"],
+      "@desource/image/providers": ["../core/dist/providers/index.d.ts"],
+      "@desource/image/providers/*": ["../core/dist/providers/*.d.ts"],
+      "@desource/image-svelte": ["src/lib/index.ts"],
+      "@desource/image-svelte/*": ["src/lib/*"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.svelte", "svelte.config.js"],
+  "exclude": ["dist", "coverage", "test-results", "demo/dist", "test", "demo"]
+}
