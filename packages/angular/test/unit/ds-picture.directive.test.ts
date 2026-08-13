@@ -133,9 +133,16 @@ describe('DsPictureDirective', () => {
   });
 
   it('fails fast when a picture directive has no fallback img', async () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
     TestBed.configureTestingModule({ imports: [MissingPictureImageHost], providers: providers() });
     const fixture = TestBed.createComponent(MissingPictureImageHost);
-    await expect(fixture.whenStable()).rejects.toThrow(/requires a child <img>/);
+
+    try {
+      await expect(fixture.whenStable()).rejects.toThrow(/requires a child <img>/);
+      expect(consoleError).toHaveBeenCalled();
+    } finally {
+      consoleError.mockRestore();
+    }
   });
 });
 
