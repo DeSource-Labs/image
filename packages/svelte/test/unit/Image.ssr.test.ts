@@ -1,7 +1,7 @@
 import { render } from 'svelte/server';
 import { describe, expect, it } from 'vitest';
-import CustomImageFixture from '../fixtures/CustomImageFixture.svelte';
-import ImageFixture from '../fixtures/ImageFixture.svelte';
+import CustomImageFixture from './setup/CustomImageFixture.svelte';
+import ImageFixture from './setup/ImageFixture.svelte';
 
 describe('Svelte Image SSR behavior', () => {
   it('renders Image server output with generated attrs and normalized crossorigin', () => {

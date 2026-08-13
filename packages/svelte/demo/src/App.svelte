@@ -7,7 +7,7 @@
     providers: { ipx: ipxProvider() },
     screens: { sm: 640, md: 768, lg: 1024 }
   });
-  const { imageAction, imageAttachment, pictureAction } = createImageBindings(config);
+  const { imageAction, imageAttachment, pictureAction, pictureAttachment } = createImageBindings(config);
   let width = $state(720);
   let componentLoaded = $state(false);
 
@@ -38,7 +38,7 @@
     <article>
       <span>Image component</span>
       <Image
-        data-testid="component"
+        data-testid="image-component"
         src="/hero.jpg"
         alt="Aurora above a mountain lake"
         {width}
@@ -55,13 +55,13 @@
 
     <article>
       <span>Image action</span>
-      <img data-testid="action" class="media" alt="Aurora reflected in a lake" use:imageAction={actionOptions} />
+      <img data-testid="image-action" class="media" alt="Aurora reflected in a lake" use:imageAction={actionOptions} />
     </article>
 
     <article>
       <span>Image attachment (Svelte 5.29+)</span>
       <img
-        data-testid="attachment"
+        data-testid="image-attachment"
         class="media"
         alt="Mountain lake rendered by an attachment"
         {@attach imageAttachment({
@@ -104,6 +104,24 @@
         }}
       >
         <img class="media" alt="Mountain landscape at dusk" />
+      </picture>
+    </article>
+
+    <article>
+      <span>Picture attachment (Svelte 5.29+)</span>
+      <picture
+        data-testid="picture-attachment"
+        class="media-frame"
+        {@attach pictureAttachment({
+          src: '/hero.jpg',
+          alt: 'Mountain landscape rendered by an attachment',
+          width,
+          height: 540,
+          formats: ['avif'],
+          fallbackFormat: 'jpg'
+        })}
+      >
+        <img class="media" alt="Mountain landscape rendered by an attachment" />
       </picture>
     </article>
   </section>

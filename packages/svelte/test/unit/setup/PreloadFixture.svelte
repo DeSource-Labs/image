@@ -1,6 +1,6 @@
 <script lang="ts">
   import { ipxProvider } from '@desource/image';
-  import { Image, Picture, setImageConfig } from '../../src/lib/index.js';
+  import { Image, Picture, setImageConfig } from '../../../src/lib/index.js';
 
   setImageConfig({
     provider: 'ipx',

@@ -4,7 +4,7 @@ import { mount, tick, unmount } from 'svelte';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { testImageComponent, type ImageComponentSetupOptions } from '../../../../common/test/unit/Image';
 import type { ImageComponentProps } from '../../src/lib/index.js';
-import CustomImageFixture from '../fixtures/CustomImageFixture.svelte';
+import CustomImageFixture from './setup/CustomImageFixture.svelte';
 import ImageHarness from './setup/ImageHarness.svelte';
 
 type ImageHarnessExports = {

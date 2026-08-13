@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { render } from 'svelte/server';
-import ContextFixture from '../fixtures/ContextFixture.svelte';
+import ContextFixture from './setup/ContextFixture.svelte';
 import { createImageConfig, imageForConfig, resolveCachedConfig } from '../../src/lib/context.js';
 
 describe('Svelte image context', () => {

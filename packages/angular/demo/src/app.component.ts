@@ -31,7 +31,7 @@ import { DsImageComponent, DsImageDirective, DsPictureComponent, DsPictureDirect
         <article>
           <span>Component</span>
           <ds-image
-            data-testid="component"
+            data-testid="image-component"
             src="/hero.jpg"
             alt="Aurora over a mountain lake"
             [width]="width()"
@@ -46,7 +46,7 @@ import { DsImageComponent, DsImageDirective, DsPictureComponent, DsPictureDirect
         <article>
           <span>Directive</span>
           <img
-            data-testid="directive"
+            data-testid="image-directive"
             dsImage="/hero.jpg"
             alt="Aurora reflected in water"
             [width]="width()"
@@ -65,7 +65,7 @@ import { DsImageComponent, DsImageDirective, DsPictureComponent, DsPictureDirect
             [width]="width()"
             [height]="540"
             [formats]="['avif', 'webp']"
-            fallbackFormat="png"
+            fallbackFormat="jpg"
             class="media"
           />
         </article>

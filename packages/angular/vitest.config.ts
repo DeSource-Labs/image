@@ -21,7 +21,7 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: ['./test/setup.ts'],
-    include: ['./test/angular.test.ts', './test/unit/**/*.test.ts'],
+    include: ['./test/unit/**/*.test.ts', './test/server/**/*.test.ts'],
     restoreMocks: true,
     coverage: {
       provider: 'v8',

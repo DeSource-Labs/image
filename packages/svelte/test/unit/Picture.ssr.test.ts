@@ -1,7 +1,7 @@
 import { render } from 'svelte/server';
 import { describe, expect, it } from 'vitest';
-import PictureFixture from '../fixtures/PictureFixture.svelte';
-import PreloadFixture from '../fixtures/PreloadFixture.svelte';
+import PictureFixture from './setup/PictureFixture.svelte';
+import PreloadFixture from './setup/PreloadFixture.svelte';
 
 describe('Svelte Picture SSR behavior', () => {
   it('renders Picture server output with imgAttrs on the fallback image', () => {

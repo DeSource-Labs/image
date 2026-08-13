@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
   coerceBoolean,
   coerceCrossorigin,
@@ -7,11 +7,10 @@ import {
   coercePreload,
   mergeClassNames,
   styleWithPlaceholder
-} from '../src/lib/coercion';
-import { createDsImageMiddleware } from '../server/src/public-api';
+} from '../../src/lib/coercion';
 
-describe('angular helpers', () => {
-  it('coerces Angular template inputs to Nuxt-compatible values', () => {
+describe('coercion', () => {
+  it('coerces Angular template inputs to image-compatible values', () => {
     expect(coerceNumber('320')).toBe(320);
     expect(coerceNumber('bad')).toBeUndefined();
     expect(coerceBoolean('true')).toBe(true);
@@ -33,12 +32,5 @@ describe('angular helpers', () => {
       'object-fit:cover;background-image:url("/_ipx/w_10/hero.png");background-size:cover;background-position:center'
     );
     expect(styleWithPlaceholder('object-fit:cover', '/_ipx/w_10/hero.png', true)).toBe('object-fit:cover');
-  });
-
-  it('passes through non-image middleware requests', () => {
-    const middleware = createDsImageMiddleware();
-    const next = vi.fn();
-    middleware({ url: '/app.js' } as never, {} as never, next);
-    expect(next).toHaveBeenCalledOnce();
   });
 });
