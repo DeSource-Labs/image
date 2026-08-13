@@ -2,21 +2,44 @@
   "private": true,
   "type": "module",
   "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=22.18.0"
+  },
   "scripts": {
     "build": "pnpm -w -r --filter \"./packages/**\" --stream run build",
+    "build:demo": "pnpm --filter @desource/image-demo build",
+    "build:fixtures": "pnpm --filter '@desource/image-*' --filter '!@desource/image-demo' --parallel run build:demo",
+    "dev:demo": "pnpm --filter @desource/image-demo dev",
+    "dev:angular": "pnpm --filter @desource/image-angular dev",
+    "dev:svelte": "pnpm --filter @desource/image-svelte dev",
+    "vercel-build": "pnpm build && pnpm build:demo",
     "clean": "pnpm -w -r --filter \"./packages/**\" --stream run clean",
     "clean:modules": "pnpm -w -r --filter \"*\" --stream run clean:modules && rimraf node_modules",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "format": "prettier --write \"**/*.{svelte,vue,js,jsx,cjs,mjs,ts,tsx,cts,mts,json,md}\"",
-    "format:check": "prettier --check \"**/*.{svelte,vue,js,jsx,cjs,mjs,ts,tsx,cts,mts,json,md}\"",
+    "format": "prettier --write \"**/*.{svelte,vue,html,css,scss,js,jsx,cjs,mjs,ts,tsx,cts,mts,json,jsonc,yml,yaml,md}\"",
+    "format:check": "prettier --check \"**/*.{svelte,vue,html,css,scss,js,jsx,cjs,mjs,ts,tsx,cts,mts,json,jsonc,yml,yaml,md}\"",
     "lint:staged": "lint-staged",
-    "test:e2e": "pnpm -w -r --filter \"./packages/**\" --stream --workspace-concurrency=1 run test:e2e",
+    "typecheck": "pnpm typecheck:scripts && pnpm -w -r --filter \"./packages/**\" --filter @desource/image-demo --if-present --stream run typecheck",
+    "typecheck:scripts": "tsc -p scripts/tsconfig.json",
+    "test:e2e": "pnpm -w -r --filter \"./packages/**\" --filter @desource/image-demo --stream --workspace-concurrency=1 run test:e2e",
     "test:unit": "pnpm -w -r --filter \"./packages/**\" --stream run test:unit",
     "test:unit:coverage": "pnpm -w -r --filter \"./packages/**\" --stream run test:unit:coverage",
+    "publish:check": "pnpm -w -r --filter \"./packages/**\" --stream run publish:check",
+    "verify": "pnpm format:check && pnpm lint && pnpm build && pnpm typecheck && pnpm test:unit && pnpm build:fixtures && pnpm build:demo && pnpm publish:check",
+    "verify:all": "pnpm verify && pnpm test:e2e",
+    "verify:release": "pnpm verify",
+    "changeset": "changeset",
+    "changeset:format-changelogs": "node scripts/format-changelog-dependencies.mts",
+    "changeset:sync-changelogs": "node scripts/sync-changelogs.mts",
+    "changeset:version": "changeset version && pnpm changeset:format-changelogs && pnpm changeset:sync-changelogs",
+    "changeset:publish": "pnpm build && changeset publish --no-git-tag",
     "prepare": "husky"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.5",
+    "@changesets/changelog-github": "^1.0.0",
+    "@changesets/cli": "^3.0.0",
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.62.0",
     "@types/node": "^26.2.0",
@@ -33,6 +56,7 @@
     "lint-staged": "^17.2.0",
     "prettier": "^3.9.6",
     "prettier-plugin-svelte": "^4.1.1",
+    "publint": "^0.3.23",
     "rimraf": "^6.1.3",
     "svelte-eslint-parser": "^1.8.0",
     "typescript": "~5.9.3",
@@ -44,7 +68,7 @@
       "eslint --fix",
       "prettier --write"
     ],
-    "*.{json,md}": [
+    "*.{html,css,scss,json,jsonc,yml,yaml,md}": [
       "prettier --write"
     ]
   }
