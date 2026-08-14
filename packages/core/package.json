@@ -75,7 +75,7 @@
   "dependencies": {
     "@noble/hashes": "^2.3.0",
     "defu": "^6.1.7",
-    "std-env": "^4.1.0",
+    "std-env": "^4.2.0",
     "ufo": "^1.6.4"
   },
   "devDependencies": {
