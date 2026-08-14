@@ -1,6 +1,5 @@
 import { joinURL, encodePath } from 'ufo';
-import { operationsGenerator } from './ipx.js';
-import type { IPXOptions, IpxProviderOptions } from './ipx.js';
+import { operationsGenerator, type IPXOptions, type IpxProviderOptions } from './ipx.js';
 import { configureProvider, defineProvider } from '../provider-utils.js';
 
 const providerSetup = defineProvider<Partial<IPXOptions>>({
