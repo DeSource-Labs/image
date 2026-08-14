@@ -185,8 +185,7 @@ export class DsImageDirective {
       for (const [name, value] of Object.entries(this.nativeAttrs())) {
         if (generatedAttrs.has(name.toLowerCase())) continue;
         next.add(name);
-        if (value === false || value === null || value === undefined) this.renderer.removeAttribute(this.element, name);
-        else this.renderer.setAttribute(this.element, name, value === true ? '' : String(value));
+        this.setNativeAttribute(name, value);
       }
       for (const name of this.appliedNativeAttrs) {
         if (!next.has(name)) this.renderer.removeAttribute(this.element, name);
@@ -216,6 +215,15 @@ export class DsImageDirective {
         })
       );
     });
+  }
+
+  private setNativeAttribute(name: string, value: DsNativeImageAttrs[string]): void {
+    if (value === false || value === null || value === undefined) {
+      this.renderer.removeAttribute(this.element, name);
+      return;
+    }
+
+    this.renderer.setAttribute(this.element, name, value === true ? '' : value.toString());
   }
 
   handleLoad(event: Event): void {

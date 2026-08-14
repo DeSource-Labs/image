@@ -99,7 +99,7 @@ export function testImageComponent(setup: ImageComponentSetup): void {
 
       try {
         const image = rendered.image();
-        expect(image.getAttribute('data-ds-image')).toBe('');
+        expect(image.dataset['dsImage']).toBe('');
         expect(pathname(image.getAttribute('src'))).toBe('/hero.jpg');
         expect(searchParam(image.getAttribute('src'), 'format')).toBe('webp');
         expect(searchParam(image.getAttribute('src'), 'quality')).toBe('72');
@@ -121,8 +121,8 @@ export function testImageComponent(setup: ImageComponentSetup): void {
         expect(image.getAttribute('aria-describedby')).toBe('hero-copy');
         expect(image.getAttribute('referrerpolicy')).toBe('no-referrer');
         expect(image.getAttribute('usemap')).toBe('#hero-map');
-        expect(image.getAttribute('data-testid')).toBe('hero');
-        expect(image.getAttribute('data-state')).toBe('ready');
+        expect(image.dataset['testid']).toBe('hero');
+        expect(image.dataset['state']).toBe('ready');
         expect(image.getAttribute('title')).toBe('Hero title');
       } finally {
         await rendered.unmount();
@@ -160,7 +160,7 @@ export function testImageComponent(setup: ImageComponentSetup): void {
         expect(image.getAttribute('alt')).toBe('Updated image');
         expect(image.getAttribute('class')).toContain('updated-image');
         expect(image.getAttribute('class')).not.toContain('initial-image');
-        expect(image.getAttribute('data-state')).toBe('updated');
+        expect(image.dataset['state']).toBe('updated');
       } finally {
         await rendered.unmount();
       }

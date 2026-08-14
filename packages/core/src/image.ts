@@ -1,13 +1,18 @@
 import type {
+  DensityInput,
   DesourceImage,
   GeneratedSrcset,
   ImageAttrs,
   ImageConfig,
+  ImageDecoding,
+  ImageFetchPriority,
   ImageFormat,
   ImageInfo,
   ImageInput,
+  ImageLoading,
   ImageModifiers,
   ImageOptions,
+  ImagePlaceholder,
   ImagePreload,
   ImagePreloadLink,
   ImageProvider,
@@ -40,13 +45,13 @@ interface ResolvedInput {
   formats?: readonly ImageFormat[];
   provider: string;
   modifiers: ImageModifiers;
-  densities?: ImageInput['densities'];
-  loading?: ImageInput['loading'];
-  decoding?: ImageInput['decoding'];
-  fetchpriority?: ImageInput['fetchpriority'];
+  densities?: DensityInput;
+  loading?: ImageLoading;
+  decoding?: ImageDecoding;
+  fetchpriority?: ImageFetchPriority;
   priority?: boolean;
   preload?: ImagePreload;
-  placeholder?: ImageInput['placeholder'];
+  placeholder?: ImagePlaceholder;
   placeholderClass?: string;
 }
 
@@ -516,11 +521,7 @@ function resolvePlaceholder(input: ResolvedInput, config: ResolvedImageConfig): 
     return placeholder;
   }
 
-  const [width = 10, height = width, quality = 50, blur = 3] = Array.isArray(placeholder)
-    ? placeholder
-    : typeof placeholder === 'number'
-      ? [placeholder]
-      : [10, 10, 50, 3];
+  const [width = 10, height = width, quality = 50, blur = 3] = placeholderDimensions(placeholder);
   return invokeProvider(
     {
       ...input,
@@ -602,7 +603,7 @@ function modifierNumber(modifiers: ImageModifiers | undefined, ...keys: string[]
 function modifierString(modifiers: ImageModifiers | undefined, ...keys: string[]): string | undefined {
   for (const key of keys) {
     const value = modifiers?.[key];
-    if (typeof value === 'string' || typeof value === 'number') return String(value);
+    if (typeof value === 'string' || typeof value === 'number') return value.toString();
   }
   return undefined;
 }
@@ -626,7 +627,21 @@ function defaultLegacyFormat(src: string): ImageFormat {
 }
 
 function originalFormat(src: string): string | undefined {
-  return src.match(/^[^?#]+\.([a-z0-9]+)(?:$|[?#])/i)?.[1]?.toLowerCase();
+  return /^[^?#]+\.([a-z0-9]+)(?:$|[?#])/i.exec(src)?.[1]?.toLowerCase();
+}
+
+function placeholderDimensions(
+  placeholder: Exclude<ImagePlaceholder, false | string | undefined>
+): readonly [number, number?, number?, number?] {
+  if (Array.isArray(placeholder)) {
+    return placeholder as readonly [number, number?, number?, number?];
+  }
+
+  if (typeof placeholder === 'number') {
+    return [placeholder];
+  }
+
+  return [10, 10, 50, 3];
 }
 
 function normalizeLegacyFormat(format: ImageFormat | undefined): string | undefined {

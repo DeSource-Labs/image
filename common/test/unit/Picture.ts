@@ -104,13 +104,13 @@ export function testPictureComponent(setup: PictureComponentSetup): void {
         const image = rendered.image();
         const sources = rendered.sources();
 
-        expect(picture.getAttribute('data-ds-picture')).toBe('');
+        expect(picture.dataset['dsPicture']).toBe('');
         expect(picture.getAttribute('class')).toContain('picture-shell');
         expect(picture.getAttribute('style')).toContain('display');
         expect(picture.getAttribute('id')).toBe('picture-shell');
         expect(picture.getAttribute('role')).toBe('group');
         expect(picture.getAttribute('aria-label')).toBe('Picture');
-        expect(picture.getAttribute('data-testid')).toBe('picture');
+        expect(picture.dataset['testid']).toBe('picture');
 
         expect(sources).toHaveLength(2);
         expect(sources.map((source) => source.getAttribute('type'))).toEqual(['image/avif', 'image/webp']);
@@ -118,7 +118,7 @@ export function testPictureComponent(setup: PictureComponentSetup): void {
         expect(sources[1]!.getAttribute('srcset')).toContain('format=webp');
         expect(sources[0]!.getAttribute('sizes')).toBe('100vw');
 
-        expect(image.getAttribute('data-ds-picture-img')).toBe('');
+        expect(image.dataset['dsPictureImg']).toBe('');
         expect(pathname(image.getAttribute('src'))).toBe('/picture.jpg');
         expect(searchParam(image.getAttribute('src'), 'format')).toBe('jpg');
         expect(image.getAttribute('width')).toBe('640');
@@ -132,7 +132,7 @@ export function testPictureComponent(setup: PictureComponentSetup): void {
         expect(image.getAttribute('style')).toContain('object-fit');
         expect(image.getAttribute('referrerpolicy')).toBe('no-referrer');
         expect(image.getAttribute('usemap')).toBe('#picture-map');
-        expect(image.getAttribute('data-kind')).toBe('fallback');
+        expect(image.dataset['kind']).toBe('fallback');
         expect(image.getAttribute('title')).toBe('Fallback title');
       } finally {
         await rendered.unmount();

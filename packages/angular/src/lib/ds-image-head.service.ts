@@ -63,5 +63,5 @@ function setAttribute(element: HTMLElement, name: string, value: string | undefi
 }
 
 function escapeSelector(value: string): string {
-  return value.replace(/["\\]/g, '\\$&');
+  return value.replace(/["\\]/g, String.raw`\$&`);
 }

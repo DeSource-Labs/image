@@ -108,7 +108,7 @@ function findExistingPreload(attrs: ImagePreloadLink): HTMLLinkElement | undefin
 }
 
 function escapeSelector(value: string): string {
-  return value.replace(/["\\]/g, '\\$&');
+  return value.replace(/["\\]/g, String.raw`\$&`);
 }
 
 function stripUndefined<T extends Record<string, unknown>>(value: T): T {

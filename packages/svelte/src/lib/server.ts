@@ -112,7 +112,13 @@ async function createIpx(options: DsImageServerOptions) {
 
 function normalizeBasePath(path: string): string {
   const normalized = path.startsWith('/') ? path : `/${path}`;
-  return normalized.replace(/\/+$/, '') || '/_ipx';
+  return stripTrailingSlashes(normalized) || '/_ipx';
+}
+
+function stripTrailingSlashes(value: string): string {
+  let end = value.length;
+  while (end > 0 && value[end - 1] === '/') end -= 1;
+  return value.slice(0, end);
 }
 
 function isImageRequest(pathname: string, basePath: string): boolean {

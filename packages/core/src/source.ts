@@ -10,19 +10,19 @@ export function normalizeImageSource(src: string, acceptsOpaqueSource = false): 
     return src;
   }
 
-  return `/${src.replace(/^\/+/, '')}`;
+  return `/${stripLeadingSlashes(src)}`;
 }
 
 export function resolveAlias(src: string, aliases: Record<string, string> = {}): string {
   for (const [alias, replacement] of Object.entries(aliases)) {
-    const cleanAlias = alias.replace(/^\/+|\/+$/g, '');
+    const cleanAlias = trimSlashes(alias);
     if (src === `/${cleanAlias}`) {
       return replacement;
     }
 
     if (src.startsWith(`/${cleanAlias}/`)) {
       const suffix = src.slice(cleanAlias.length + 2);
-      return `${replacement.replace(/\/+$/, '')}/${suffix}`;
+      return `${stripTrailingSlashes(replacement)}/${suffix}`;
     }
   }
 
@@ -39,36 +39,11 @@ export function validateSource(src: string, config: ResolvedImageConfig): Source
   }
 
   if (isLocalSource(src)) {
-    if (!config.localPatterns || config.localPatterns.length === 0) {
-      return { valid: true };
-    }
-
-    return config.localPatterns.some((pattern) => matchLocalPattern(src, pattern))
-      ? { valid: true }
-      : { valid: false, reason: `Local image source "${src}" does not match configured localPatterns.` };
+    return validateLocalSource(src, config);
   }
 
   if (isRemoteSource(src)) {
-    let url: URL;
-    try {
-      url = new URL(src);
-    } catch {
-      return { valid: false, reason: `Remote image source "${src}" is not a valid URL.` };
-    }
-
-    if (config.domains?.includes(url.hostname)) {
-      return { valid: true };
-    }
-
-    if (config.remotePatterns?.some((pattern) => matchRemotePattern(url, pattern))) {
-      return { valid: true };
-    }
-
-    if (!config.domains?.length && !config.remotePatterns?.length) {
-      return { valid: true };
-    }
-
-    return { valid: false, reason: `Remote image host "${url.hostname}" is not allowed by domains or remotePatterns.` };
+    return validateRemoteSource(src, config);
   }
 
   return {
@@ -77,12 +52,45 @@ export function validateSource(src: string, config: ResolvedImageConfig): Source
   };
 }
 
+function validateLocalSource(src: string, config: ResolvedImageConfig): SourceValidationResult {
+  if (!config.localPatterns?.length) {
+    return { valid: true };
+  }
+
+  return config.localPatterns.some((pattern) => matchLocalPattern(src, pattern))
+    ? { valid: true }
+    : { valid: false, reason: `Local image source "${src}" does not match configured localPatterns.` };
+}
+
+function validateRemoteSource(src: string, config: ResolvedImageConfig): SourceValidationResult {
+  let url: URL;
+  try {
+    url = new URL(src);
+  } catch {
+    return { valid: false, reason: `Remote image source "${src}" is not a valid URL.` };
+  }
+
+  if (config.domains?.includes(url.hostname)) {
+    return { valid: true };
+  }
+
+  if (config.remotePatterns?.some((pattern) => matchRemotePattern(url, pattern))) {
+    return { valid: true };
+  }
+
+  if (!config.domains?.length && !config.remotePatterns?.length) {
+    return { valid: true };
+  }
+
+  return { valid: false, reason: `Remote image host "${url.hostname}" is not allowed by domains or remotePatterns.` };
+}
+
 function matchLocalPattern(src: string, pattern: LocalPattern): boolean {
   return globToRegExp(pattern.pathname).test(src);
 }
 
 function matchRemotePattern(url: URL, pattern: RemotePattern): boolean {
-  if (pattern.protocol && pattern.protocol.replace(/:$/, '') !== url.protocol.replace(/:$/, '')) {
+  if (pattern.protocol && stripTrailingColon(pattern.protocol) !== stripTrailingColon(url.protocol)) {
     return false;
   }
 
@@ -106,10 +114,44 @@ function matchRemotePattern(url: URL, pattern: RemotePattern): boolean {
 }
 
 function globToRegExp(glob: string): RegExp {
-  const escaped = glob
-    .replace(/[.+^${}()|[\]\\]/g, '\\$&')
-    .replace(/\*\*/g, '___DOUBLE_STAR___')
-    .replace(/\*/g, '[^/]*')
-    .replace(/___DOUBLE_STAR___/g, '.*');
-  return new RegExp(`^${escaped}$`);
+  let pattern = '';
+  for (let index = 0; index < glob.length; index += 1) {
+    const char = glob[index]!;
+    if (char === '*') {
+      if (glob[index + 1] === '*') {
+        pattern += '.*';
+        index += 1;
+      } else {
+        pattern += '[^/]*';
+      }
+      continue;
+    }
+
+    pattern += escapeRegExpChar(char);
+  }
+  return new RegExp(`^${pattern}$`);
+}
+
+function escapeRegExpChar(char: string): string {
+  return '.+^${}()|[]\\'.includes(char) ? `\\${char}` : char;
+}
+
+function trimSlashes(value: string): string {
+  return stripTrailingSlashes(stripLeadingSlashes(value));
+}
+
+function stripLeadingSlashes(value: string): string {
+  let start = 0;
+  while (start < value.length && value[start] === '/') start += 1;
+  return value.slice(start);
+}
+
+function stripTrailingSlashes(value: string): string {
+  let end = value.length;
+  while (end > 0 && value[end - 1] === '/') end -= 1;
+  return value.slice(0, end);
+}
+
+function stripTrailingColon(value: string): string {
+  return value.endsWith(':') ? value.slice(0, -1) : value;
 }

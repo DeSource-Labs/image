@@ -207,26 +207,42 @@ export class DsPictureDirective implements AfterContentInit {
 
     const picture = this.picture();
     const placeholder = this.showingPlaceholder();
-    const sources = placeholder ? [] : picture.sources;
+    this.applySources(image, placeholder ? [] : picture.sources);
+    this.applyImageAttrs(image, picture.img, placeholder);
+    this.applyNativeAttrs(image);
+    this.applyPlaceholderClass(image, placeholder ? picture.img.placeholderClass : undefined);
+  }
 
+  private applySources(image: HTMLImageElement, sources: ReturnType<typeof getPictureAttrs>['sources']): void {
     for (let index = 0; index < sources.length; index += 1) {
-      let sourceElement = this.sourceElements[index];
-      if (!sourceElement) {
-        sourceElement = this.renderer.createElement('source') as HTMLSourceElement;
-        this.sourceElements[index] = sourceElement;
-        this.renderer.insertBefore(this.element, sourceElement, image);
-      }
+      const sourceElement = this.sourceElementAt(index, image);
       const source = sources[index]!;
       this.setAttribute(sourceElement, 'type', source.type);
       this.setAttribute(sourceElement, 'srcset', source.srcset);
       this.setAttribute(sourceElement, 'sizes', source.sizes);
     }
+
     while (this.sourceElements.length > sources.length) {
       const source = this.sourceElements.pop();
       if (source) this.renderer.removeChild(this.element, source);
     }
+  }
 
-    const attrs = picture.img;
+  private sourceElementAt(index: number, image: HTMLImageElement): HTMLSourceElement {
+    let sourceElement = this.sourceElements[index];
+    if (sourceElement) return sourceElement;
+
+    sourceElement = this.renderer.createElement('source') as HTMLSourceElement;
+    this.sourceElements[index] = sourceElement;
+    this.renderer.insertBefore(this.element, sourceElement, image);
+    return sourceElement;
+  }
+
+  private applyImageAttrs(
+    image: HTMLImageElement,
+    attrs: ReturnType<typeof getPictureAttrs>['img'],
+    placeholder: boolean
+  ): void {
     this.setAttribute(image, 'src', placeholder ? attrs.placeholderSrc : attrs.src);
     this.setAttribute(image, 'srcset', placeholder ? undefined : attrs.srcset);
     this.setAttribute(image, 'sizes', placeholder ? undefined : attrs.sizes);
@@ -239,29 +255,34 @@ export class DsPictureDirective implements AfterContentInit {
     this.setAttribute(image, 'crossorigin', this.crossorigin());
     this.setAttribute(image, 'nonce', this.nonce());
     this.renderer.setAttribute(image, 'data-ds-picture-img', '');
+  }
 
+  private applyNativeAttrs(image: HTMLImageElement): void {
     const nextNativeAttrs = new Set<string>();
     for (const [name, value] of Object.entries(this.imgAttrs())) {
       if (generatedImageAttrs.has(name.toLowerCase())) continue;
       nextNativeAttrs.add(name);
       this.setAttribute(image, name, value);
     }
+
     for (const name of this.appliedNativeAttrs) {
       if (!nextNativeAttrs.has(name)) this.renderer.removeAttribute(image, name);
     }
+
     this.appliedNativeAttrs.clear();
     for (const name of nextNativeAttrs) this.appliedNativeAttrs.add(name);
+  }
 
-    if (this.appliedPlaceholderClass && this.appliedPlaceholderClass !== attrs.placeholderClass) {
+  private applyPlaceholderClass(image: HTMLImageElement, nextClass: string | undefined): void {
+    if (this.appliedPlaceholderClass && this.appliedPlaceholderClass !== nextClass) {
       this.renderer.removeClass(image, this.appliedPlaceholderClass);
     }
-    if (placeholder && attrs.placeholderClass) {
-      this.renderer.addClass(image, attrs.placeholderClass);
-      this.appliedPlaceholderClass = attrs.placeholderClass;
-    } else if (this.appliedPlaceholderClass) {
-      this.renderer.removeClass(image, this.appliedPlaceholderClass);
-      this.appliedPlaceholderClass = undefined;
+
+    if (nextClass) {
+      this.renderer.addClass(image, nextClass);
     }
+
+    this.appliedPlaceholderClass = nextClass;
   }
 
   private handleLoad(event: Event): void {
@@ -280,6 +301,6 @@ export class DsPictureDirective implements AfterContentInit {
 
   private setAttribute(element: HTMLElement, name: string, value: string | number | boolean | null | undefined): void {
     if (value === false || value === null || value === undefined) this.renderer.removeAttribute(element, name);
-    else this.renderer.setAttribute(element, name, value === true ? '' : String(value));
+    else this.renderer.setAttribute(element, name, value === true ? '' : value.toString());
   }
 }

@@ -80,7 +80,7 @@ function normalizeStdEnvProvider(value: string | undefined): string | undefined 
 
 function compiledProvider(): string | undefined {
   try {
-    return typeof __DESOURCE_IMAGE_PROVIDER__ === 'undefined' ? undefined : __DESOURCE_IMAGE_PROVIDER__;
+    return typeof __DESOURCE_IMAGE_PROVIDER__ === 'string' ? __DESOURCE_IMAGE_PROVIDER__ : undefined;
   } catch {
     return undefined;
   }

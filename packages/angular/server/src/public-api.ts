@@ -17,7 +17,7 @@ export interface DsImageMiddlewareOptions {
 }
 
 type Next = (error?: unknown) => void;
-type NodeImageHandler = (request: IncomingMessage, response: ServerResponse) => unknown | Promise<unknown>;
+type NodeImageHandler = (request: IncomingMessage, response: ServerResponse) => void | Promise<void>;
 export type DsImageMiddleware = (request: IncomingMessage, response: ServerResponse, next: Next) => Promise<void>;
 
 export function createDsImageMiddleware(options: DsImageMiddlewareOptions = {}): DsImageMiddleware {
@@ -74,7 +74,13 @@ async function createIpxHandler(options: DsImageMiddlewareOptions): Promise<Node
 
 function normalizeBasePath(path: string): string {
   const normalized = path.startsWith('/') ? path : `/${path}`;
-  return normalized.replace(/\/+$/, '') || '/_ipx';
+  return stripTrailingSlashes(normalized) || '/_ipx';
+}
+
+function stripTrailingSlashes(value: string): string {
+  let end = value.length;
+  while (end > 0 && value[end - 1] === '/') end -= 1;
+  return value.slice(0, end);
 }
 
 function isIpxRequest(pathname: string, basePath: string): boolean {

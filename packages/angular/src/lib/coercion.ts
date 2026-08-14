@@ -28,7 +28,11 @@ export function coercePlaceholder(value: unknown): ImagePlaceholder | undefined 
     return value as unknown as ImagePlaceholder;
   }
 
-  return String(value);
+  if (typeof value === 'number' || typeof value === 'string') {
+    return value;
+  }
+
+  return undefined;
 }
 
 export function coercePreload(value: unknown): ImagePreload | undefined {

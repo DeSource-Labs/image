@@ -139,17 +139,30 @@ export function joinURL(base: string, path: string): string {
 
 export function appendQuery(url: string, params: Record<string, ModifierValue>): string {
   const entries = Object.entries(params).filter(
-    ([, value]) => value !== undefined && value !== null && value !== false && value !== ''
+    (entry): entry is [string, Exclude<ModifierValue, undefined | null>] =>
+      entry[1] !== undefined && entry[1] !== null && entry[1] !== false && entry[1] !== ''
   );
   if (entries.length === 0) {
     return url;
   }
 
   const query = entries
-    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`)
+    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(stringifyModifierValue(value))}`)
     .join('&');
   const separator = url.includes('?') ? '&' : '?';
   return `${url}${separator}${query}`;
+}
+
+export function stringifyModifierValue(value: Exclude<ModifierValue, undefined | null>): string {
+  if (Array.isArray(value)) {
+    return value.map((entry) => (entry === undefined || entry === null ? '' : stringifyModifierValue(entry))).join(',');
+  }
+
+  if (typeof value === 'object') {
+    return JSON.stringify(value);
+  }
+
+  return value.toString();
 }
 
 export function stableModifiers(

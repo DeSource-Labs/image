@@ -1,17 +1,26 @@
-import { defineProvider, type ImageConfig } from '@desource/image';
+import { defineProvider, type ImageConfig, type ModifierValue } from '@desource/image';
 
 export const imageComponentTestProvider = defineProvider({
   getImage(src, { modifiers }) {
     const query = new URLSearchParams();
     for (const [key, value] of Object.entries(modifiers)) {
       if (value !== undefined && value !== false) {
-        query.set(key, String(value));
+        query.set(key, stringifyModifierValue(value));
       }
     }
 
     return { url: query.size ? `${src}?${query}` : src };
   }
 });
+
+function stringifyModifierValue(value: Exclude<ModifierValue, undefined>): string {
+  if (value === null) return 'null';
+  if (Array.isArray(value)) {
+    return value.map((entry) => (entry === undefined || entry === null ? '' : stringifyModifierValue(entry))).join(',');
+  }
+  if (typeof value === 'object') return JSON.stringify(value);
+  return value.toString();
+}
 
 export const imageComponentTestConfig = {
   provider: 'test',

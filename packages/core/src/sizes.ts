@@ -171,7 +171,7 @@ function getCandidateWidths(
 
   return variants.flatMap((variant, index) => {
     const next = variants[index + 1];
-    const viewportWidth = next ? next.screenMaxWidth - 1 : variant.screen ? variant.screenMaxWidth : maxScreen;
+    const viewportWidth = candidateViewportWidth(variant, next, maxScreen);
     const baseWidth = variant.fluid ? (widthFromSize(variant.size, viewportWidth) ?? variant.width) : variant.width;
     const densityWidths = densities.map((density) => Math.round(baseWidth * density));
     const maxDensityWidth = maxFinite(densityWidths) ?? baseWidth;
@@ -179,6 +179,14 @@ function getCandidateWidths(
 
     return [...providerWidths, ...densityWidths];
   });
+}
+
+function candidateViewportWidth(variant: SizeVariant, next: SizeVariant | undefined, maxScreen: number): number {
+  if (next) {
+    return next.screenMaxWidth - 1;
+  }
+
+  return variant.screen ? variant.screenMaxWidth : maxScreen;
 }
 
 function toResponsiveSizesAttribute(variants: SizeVariant[]): string {

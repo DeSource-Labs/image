@@ -42,7 +42,7 @@ export function mergeClassNames(...values: ClassValue[]): string | undefined {
   const visit = (value: ClassValue): void => {
     if (!value) return;
     if (typeof value === 'string' || typeof value === 'number' || typeof value === 'bigint') {
-      classes.push(String(value));
+      classes.push(value.toString());
       return;
     }
     if (typeof value === 'boolean') return;
@@ -66,7 +66,7 @@ export function styleWithPlaceholder(
 ): string | undefined {
   if (!placeholderSrc || loaded) return style ?? undefined;
 
-  const escaped = placeholderSrc.replace(/"/g, '%22');
+  const escaped = placeholderSrc.replaceAll('"', '%22');
   return [style, `background-image:url("${escaped}")`, 'background-size:cover', 'background-position:center']
     .filter(Boolean)
     .join(';');
