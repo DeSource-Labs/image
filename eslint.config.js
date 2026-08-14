@@ -1,17 +1,20 @@
 import js from '@eslint/js';
 import typescript from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
-import svelte from 'eslint-plugin-svelte';
-import svelteParser from 'svelte-eslint-parser';
 import angular from 'angular-eslint';
 import prettier from 'eslint-config-prettier';
+import reactHooks from 'eslint-plugin-react-hooks';
+import svelte from 'eslint-plugin-svelte';
 import globals from 'globals';
+import svelteParser from 'svelte-eslint-parser';
 
 const TS_FILES = ['**/*.ts', '**/*.tsx', '**/*.mts', '**/*.cts'];
 const JS_FILES = ['**/*.js', '**/*.mjs', '**/*.cjs', '**/*.jsx'];
 
 const ANGULAR_TS_FILES = ['packages/angular/**/*.ts'];
 const ANGULAR_TEMPLATE_FILES = ['packages/angular/**/*.html'];
+
+const REACT_FILES = ['packages/react/**/*.{ts,tsx,js,jsx}', 'demo/**/*.{ts,tsx,js,jsx}'];
 
 const SVELTE_FILES = [
   'packages/svelte/**/*.svelte',
@@ -27,6 +30,7 @@ const BROWSER_FILES = [
   'packages/core/src/**/*.{ts,mts,cts}',
   'packages/svelte/**/*.{ts,js,mts,cts,svelte}',
   'packages/angular/**/*.{ts,js,mts,cts}',
+  'packages/react/**/*.{ts,js,mts,cts,tsx,jsx}',
   'demo/**/*.{ts,js,mts,cts,svelte}'
 ];
 
@@ -40,6 +44,8 @@ const NODE_FILES = [
   '**/playwright.config.{js,mjs,cjs,ts,mts,cts}',
   'packages/svelte/src/lib/server.ts',
   'packages/svelte/src/lib/vite.ts',
+  'packages/react/src/lib/server.ts',
+  'packages/react/src/lib/vite.ts',
   'packages/angular/server/**/*.ts'
 ];
 
@@ -115,6 +121,29 @@ export default [
         ...globals.es2021
       }
     }
+  },
+
+  {
+    files: REACT_FILES,
+    languageOptions: {
+      parser: tsParser,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+        ecmaFeatures: {
+          jsx: true
+        }
+      },
+      globals: {
+        ...globals.browser,
+        ...globals.es2021
+      }
+    },
+    plugins: { 'react-hooks': reactHooks },
+    settings: {
+      react: { version: 'detect' }
+    },
+    rules: { ...reactHooks.configs.recommended.rules }
   },
 
   ...angular.configs.tsRecommended.map((config) => ({

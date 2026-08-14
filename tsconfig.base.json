@@ -18,6 +18,7 @@
   "references": [
     { "path": "./packages/core/tsconfig.json" },
     { "path": "./packages/angular/tsconfig.lib.json" },
+    { "path": "./packages/react/tsconfig.json" },
     { "path": "./packages/svelte/tsconfig.json" }
   ],
   "include": [],

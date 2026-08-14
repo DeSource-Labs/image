@@ -1,7 +1,15 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "types": ["vitest/globals", "node"]
+    "rootDir": "../..",
+    "types": ["vitest/globals", "node"],
+    "paths": {
+      "@desource/image": ["../core/src/index.ts"],
+      "@common/*": ["../../common/*"],
+      "@lib": ["./src/public-api.ts"],
+      "@server": ["./server/src/public-api.ts"],
+      "@src/*": ["./src/lib/*"]
+    }
   },
   "angularCompilerOptions": {
     "strictTemplates": true

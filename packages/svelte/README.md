@@ -1,19 +1,46 @@
-# @desource/image-svelte
+<div align="center">
+  <h1>@desource/image-svelte</h1>
+  <p><strong>Svelte 5 image components, actions, attachments, SSR prop helpers, Vite middleware, and SvelteKit server handlers.</strong></p>
 
-Production-ready Svelte 5 components, actions, attachments, SSR helpers, and SvelteKit image optimization.
+  <p>
+    <a href="https://www.npmjs.com/package/@desource/image-svelte"><img src="https://img.shields.io/npm/v/@desource/image-svelte?logo=svelte" alt="npm version"></a>
+    <a href="https://github.com/DeSource-Labs/image/actions/workflows/ci.yml"><img src="https://github.com/DeSource-Labs/image/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+    <a href="https://codecov.io/gh/DeSource-Labs/image"><img src="https://codecov.io/gh/DeSource-Labs/image/branch/main/graph/badge.svg" alt="Coverage"></a>
+    <a href="https://github.com/DeSource-Labs/image/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license"></a>
+  </p>
+</div>
 
-The package requires Svelte 5.29 or newer. Its components render native image markup without wrapper elements, while every rendering surface shares the same provider engine from [`@desource/image`](../core).
+`@desource/image-svelte` brings the Desource Image provider engine to Svelte 5 and SvelteKit. It renders native image markup without wrapper elements and offers every Svelte surface you are likely to need: components, actions, Svelte 5.29+ attachments, SSR prop helpers, Vite dev/preview middleware, and production server handlers.
+
+The package requires Svelte 5.29 or newer when using attachments. Components and actions require Svelte 5.
+
+## Why use it?
+
+SvelteKit's `@sveltejs/enhanced-img` is a good fit for static local assets processed at build time. It can generate modern formats, dimensions, and responsive sources for images that live in the project.
+
+Use Desource Image when your image layer is runtime-driven:
+
+- Images come from a CMS, database, object storage, backend, or external media service.
+- You need Cloudinary, Imgix, Sanity, ImageKit, Vercel, Netlify, IPX, or a custom provider from the same config model.
+- You want components for common cases and actions/attachments for existing native `<img>` / `<picture>` markup.
+- You need presets, aliases, remote source validation, placeholders, and preload links outside a build-time asset pipeline.
+- You deploy the same design system across Svelte, React, and Angular.
+- You want local IPX URLs in Vite dev/preview and a matching SvelteKit production handler.
+
+If all images are static files imported from the repo and build-time optimization is enough, `@sveltejs/enhanced-img` may be the simpler choice. Desource Image is for dynamic and provider-backed image systems.
+
+Reference: [SvelteKit image docs](https://svelte.dev/docs/kit/images).
 
 ## Install
 
 ```sh
-pnpm add @desource/image-svelte
+npm install @desource/image-svelte
 ```
 
 Install `ipx` when the application serves local `/_ipx` transformations in development, preview, or production:
 
 ```sh
-pnpm add -D ipx
+npm install ipx
 ```
 
 Keep `ipx` in production dependencies when using the production server adapter. It is optional when every image uses a hosted provider. Add `@desource/image` as a direct dependency only when the application imports provider factories or utilities from it.
@@ -33,7 +60,7 @@ export default defineConfig({
 });
 ```
 
-The plugin serves `/_ipx` in Vite development and preview. It also bakes the provider detected by `std-env` into client and server bundles so hydration uses the same provider. Detection selects AWS Amplify, Netlify, or Vercel when the build environment identifies one of those platforms, and IPX otherwise. There are no Desource-specific environment variables or host/DOM heuristics.
+The plugin serves `/_ipx` in Vite development and preview. It also bakes the detected provider into client and server bundles so hydration uses the same provider.
 
 Set shared configuration once in a root layout when defaults, presets, aliases, or validation rules are needed:
 
@@ -41,11 +68,19 @@ Set shared configuration once in a root layout when defaults, presets, aliases, 
 <!-- src/routes/+layout.svelte -->
 <script lang="ts">
   import { setImageConfig } from '@desource/image-svelte';
+  import { cloudinaryProvider } from '@desource/image/providers/cloudinary';
 
   setImageConfig({
+    provider: 'cloudinary',
     quality: 80,
     screens: { sm: 640, md: 768, lg: 1024 },
-    domains: ['images.example.com']
+    domains: ['images.example.com'],
+    providers: {
+      cloudinary: cloudinaryProvider({ cloudName: 'demo' })
+    },
+    presets: {
+      avatar: { width: 96, height: 96, fit: 'cover', format: 'webp' }
+    }
   });
 
   let { children } = $props();
@@ -54,7 +89,7 @@ Set shared configuration once in a root layout when defaults, presets, aliases, 
 {@render children()}
 ```
 
-Configuration is inherited through Svelte context and resolved once per config object.
+Configuration is inherited through Svelte context and resolved once per config object. With no explicit provider, the shared runtime detects Vercel, Netlify, or AWS Amplify from the build environment and falls back to IPX.
 
 ## Image component
 
@@ -102,7 +137,7 @@ Configuration is inherited through Svelte context and resolved once per config o
 />
 ```
 
-This renders native `<picture>`, `<source>`, and `<img>` elements. Comma-separated `format="avif,webp"`, array `format`, and the Nuxt-compatible `legacyFormat` alias are supported.
+This renders native `<picture>`, `<source>`, and `<img>` elements. Comma-separated `format="avif,webp"`, array `format`, and the `legacyFormat` alias are supported.
 
 ## Custom rendering snippet
 
@@ -113,6 +148,7 @@ Use `custom` with the `children` snippet when the image needs custom surrounding
   {#snippet children({ imgAttrs, src, isLoaded })}
     <figure data-src={src} data-loaded={isLoaded}>
       <img {...imgAttrs} />
+      <figcaption>Mountain lake</figcaption>
     </figure>
   {/snippet}
 </Image>
@@ -185,7 +221,7 @@ Attachments expose the same engine with Svelte's newer element lifecycle API:
 </picture>
 ```
 
-Actions and attachments support updates, load/error callbacks, placeholder decoding, class cleanup, and `onStateChange` without fallback timers.
+Actions and attachments support updates, load/error callbacks, placeholder decoding, class cleanup, and `onStateChange`.
 
 ## Bind one configuration once
 
@@ -204,7 +240,7 @@ The returned functions no longer need a `config` field in every options object.
 
 ## SSR prop helpers
 
-`getImageProps()` and `getPictureProps()` generate typed native properties without mounting a component. They are useful in snippets, server rendering, and integrations:
+`getImageProps()` and `getPictureProps()` generate typed native properties without mounting a component. They are useful in snippets, SSR output, and integrations:
 
 ```ts
 import { getImageProps, getPictureProps } from '@desource/image-svelte';
@@ -236,13 +272,14 @@ Pass `true` as the second argument when the full image has already loaded and a 
 <Image src="/img/hero.jpg" alt="Hero" width={1200} placeholder="data:image/png;base64,..." />
 ```
 
-- A boolean placeholder generates a small transformed image; a tuple controls width, height, quality, and blur.
+- A boolean placeholder generates a small transformed image.
+- A tuple controls width, height, quality, and blur.
 - The full image replaces the placeholder only after decode succeeds.
 - `placeholderClass` is present only while the placeholder is visible.
 - `preload` inserts a responsive `<link rel="preload" as="image">` into the head and reference-counts duplicate links.
 - `priority` sets eager loading and high fetch priority. Use `preload` when a head link is also required.
 
-The SSR and initial hydration output are deterministic.
+SSR and initial hydration output are deterministic.
 
 ## Callable image helper
 
@@ -282,11 +319,11 @@ Register built-in or custom providers in the shared configuration:
 <Image preset="avatar" src="/users/ada.jpg" alt="Ada" />
 ```
 
-The complete provider list and Nuxt-compatible custom-provider contract are documented in [`@desource/image`](../core).
+Provider modules and custom-provider utilities are documented in [`@desource/image`](https://github.com/DeSource-Labs/image/tree/main/packages/core).
 
 ## Production deployment
 
-The Vite plugin only supplies the optimizer middleware to Vite development and preview servers. Production must use a native platform image endpoint or install the IPX server adapter.
+The Vite plugin only supplies optimizer middleware to Vite development and preview servers. Production must use a platform image endpoint or install the IPX server adapter.
 
 ### Vercel native images
 
@@ -330,7 +367,7 @@ export const handle = createDsImageHandle({
 
 `createDsImageWebHandler()` is available for other Fetch API servers, and `createDsImageNodeMiddleware()` is available for Connect/Express-style Node servers.
 
-All IPX adapters load the optimizer lazily and only under the configured path. Remote optimization is denied by default. Add trusted `domains`, or set `allowAllDomains: true` only when intentionally operating an open proxy.
+All IPX adapters load the optimizer lazily and only handle requests under the configured path. Remote optimization is denied by default. Add trusted `domains`, or set `allowAllDomains: true` only for an intentionally public optimizer.
 
 ## Package checks
 
@@ -342,6 +379,15 @@ pnpm --filter @desource/image-svelte test:e2e
 pnpm --filter @desource/image-svelte publish:check
 ```
 
+## Links
+
+- [Repository](https://github.com/DeSource-Labs/image)
+- [Core package](https://github.com/DeSource-Labs/image/tree/main/packages/core)
+- [Angular package](https://github.com/DeSource-Labs/image/tree/main/packages/angular)
+- [React package](https://github.com/DeSource-Labs/image/tree/main/packages/react)
+- [SvelteKit image docs](https://svelte.dev/docs/kit/images)
+- [Security policy](https://github.com/DeSource-Labs/image/blob/main/SECURITY.md)
+
 ## License
 
-MIT
+MIT © 2026 DeSource Labs

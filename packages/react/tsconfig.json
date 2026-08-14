@@ -1,0 +1,30 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "../..",
+    "outDir": "dist",
+    "tsBuildInfoFile": "dist/.tsbuildinfo",
+    "jsx": "react-jsx",
+    "types": ["vitest/globals", "node"],
+    "paths": {
+      "@common/*": ["../../common/*"],
+      "@desource/image": ["../core/src/index.ts"],
+      "@lib": ["./src/index.ts"],
+      "@server": ["./src/server.ts"],
+      "@src/*": ["./src/lib/*"]
+    }
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "test/**/*.ts",
+    "test/**/*.tsx",
+    "demo/src/**/*.ts",
+    "demo/src/**/*.tsx",
+    "demo/vite.config.ts",
+    "playwright.config.ts",
+    "vite.config.ts",
+    "vitest.config.ts"
+  ],
+  "exclude": ["dist", "coverage", "test-results", "demo/dist"]
+}

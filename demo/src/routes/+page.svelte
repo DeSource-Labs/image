@@ -5,7 +5,7 @@
 
   let { data }: { data: PageData } = $props();
 
-  let framework = $state<'angular' | 'svelte'>('svelte');
+  let framework = $state<'angular' | 'react' | 'svelte'>('svelte');
   let installLabel = $state('Copy');
 
   const providers = [
@@ -63,26 +63,53 @@
       '  format="avif,webp"',
       '  quality="76"',
       '/>'
+    ].join('\n'),
+    react: [
+      "import { Picture, useImageProps } from '@desource/image-react';",
+      '',
+      'export function Hero() {',
+      '  const img = useImageProps({',
+      '    src: "/hero.jpg",',
+      '    alt: "Desert landscape",',
+      '    width: 1600,',
+      '    height: 1000,',
+      '    sizes: "100vw md:760px",',
+      '    format: "webp",',
+      '    quality: 76',
+      '  });',
+      '',
+      '  return (',
+      '    <>',
+      '      <img {...img} />',
+      '      <Picture',
+      '        src="/hero.jpg"',
+      '        alt="Desert landscape"',
+      '        width={1600}',
+      '        height={1000}',
+      '        formats={["avif", "webp"]}',
+      '        fallbackFormat="jpg"',
+      '      />',
+      '    </>',
+      '  );',
+      '}'
     ].join('\n')
   };
 
   async function copyInstall() {
-    await navigator.clipboard.writeText(
-      framework === 'svelte' ? 'pnpm add @desource/image-svelte' : 'pnpm add @desource/image-angular'
-    );
+    await navigator.clipboard.writeText(`pnpm add @desource/image-${framework}`);
     installLabel = 'Copied';
     globalThis.setTimeout(() => (installLabel = 'Copy'), 1400);
   }
 </script>
 
 <svelte:head>
-  <title>Desource Image — Image optimization for Angular and Svelte</title>
+  <title>Desource Image — Image optimization for Angular, React, and Svelte</title>
   <meta
     name="description"
-    content="A provider-powered, responsive image toolkit with native Angular and Svelte APIs, deterministic SSR, and Nuxt Image-inspired ergonomics."
+    content="A provider-powered, responsive image toolkit with native Angular, React, and Svelte APIs, deterministic SSR, and Nuxt Image-inspired ergonomics."
   />
   <meta property="og:title" content="Desource Image" />
-  <meta property="og:description" content="One image API for Angular and Svelte." />
+  <meta property="og:description" content="One image API for Angular, React, and Svelte." />
   <meta property="og:type" content="website" />
   <meta property="og:image" content={`${data.origin}/og.png`} />
   <meta property="og:image:width" content="1200" />
@@ -109,7 +136,7 @@
       <p class="eyebrow">The missing image layer</p>
       <h1>Ship the right image. <em>Every time.</em></h1>
       <p class="hero-lede">
-        Nuxt Image’s beloved developer experience, rebuilt as a framework-native toolkit for Angular and Svelte.
+        Nuxt Image’s beloved developer experience, rebuilt as a framework-native toolkit for Angular, React, and Svelte.
         Responsive sources, provider URLs, placeholders, and SSR—without the glue code.
       </p>
       <div class="hero-actions">
@@ -124,7 +151,7 @@
           <dd>image providers</dd>
         </div>
         <div>
-          <dt>3</dt>
+          <dt>4</dt>
           <dd>tree-shakable packages</dd>
         </div>
         <div>
@@ -156,8 +183,8 @@
 
   <section class="trust-strip" aria-label="Core capabilities">
     <div class="shell">
-      <span>Angular 19—21</span><i></i><span>Svelte 5</span><i></i><span>SvelteKit SSR</span><i></i><span
-        >TypeScript-first</span
+      <span>Angular 19—22</span><i></i><span>React 18/19</span><i></i><span>Svelte 5</span><i></i><span
+        >Next.js helpers</span
       ><i></i><span>Custom providers</span>
     </div>
   </section>
@@ -193,7 +220,7 @@
     <article>
       <span>04</span>
       <h3>Server rendering intact</h3>
-      <p>Pure URL generation keeps Angular SSR and SvelteKit output deterministic through hydration.</p>
+      <p>Pure URL generation keeps Angular SSR, React SSR, Next.js, and SvelteKit output deterministic.</p>
     </article>
   </section>
 
@@ -216,11 +243,12 @@
       <p class="eyebrow">Native where it matters</p>
       <h2>Learn one mental model. Keep your framework’s strengths.</h2>
       <p class="section-copy">
-        Signal inputs and standalone directives in Angular. Snippets, actions, and Svelte 5 attachments in Svelte.
-        Rendering stays native while provider and responsive logic stays shared.
+        Signal inputs and standalone directives in Angular. Components and hooks in React. Snippets, actions, and Svelte
+        5 attachments in Svelte. Rendering stays native while provider and responsive logic stays shared.
       </p>
       <ul>
         <li><span>✓</span> No wrapper element in Svelte output</li>
+        <li><span>✓</span> React hooks for native image and picture markup</li>
         <li><span>✓</span> Standalone, OnPush Angular APIs</li>
         <li><span>✓</span> Native attributes and events forwarded</li>
       </ul>
@@ -228,6 +256,7 @@
     <div class="code-card">
       <div class="code-tabs" role="tablist" aria-label="Framework example">
         <button class:active={framework === 'svelte'} onclick={() => (framework = 'svelte')} role="tab">Svelte</button>
+        <button class:active={framework === 'react'} onclick={() => (framework = 'react')} role="tab">React</button>
         <button class:active={framework === 'angular'} onclick={() => (framework = 'angular')} role="tab"
           >Angular</button
         >
@@ -249,9 +278,9 @@
       <div class="install-card">
         <div class="package-switch">
           <button class:active={framework === 'svelte'} onclick={() => (framework = 'svelte')}>Svelte</button><button
-            class:active={framework === 'angular'}
-            onclick={() => (framework = 'angular')}>Angular</button
-          >
+            class:active={framework === 'react'}
+            onclick={() => (framework = 'react')}>React</button
+          ><button class:active={framework === 'angular'} onclick={() => (framework = 'angular')}>Angular</button>
         </div>
         <div class="install-command">
           <code>pnpm add @desource/image-{framework}</code><button onclick={copyInstall}>{installLabel}</button>
@@ -305,7 +334,7 @@
         <p>Use optimized images in CSS, canvas, metadata, headless UI, or custom rendering.</p>
       </article>
       <article>
-        <code>action / attachment / directive</code>
+        <code>hook / action / attachment / directive</code>
         <h3>Enhance native markup</h3>
         <p>Keep regular image and picture elements while applying the same behavior.</p>
       </article>
@@ -325,7 +354,7 @@
   <section class="cta shell">
     <p class="eyebrow">Your images can be simpler</p>
     <h2>Spend less time translating CDN URLs.</h2>
-    <p>Give every Angular and Svelte screen one reliable image language.</p>
+    <p>Give every Angular, React, and Svelte screen one reliable image language.</p>
     <div>
       <a class="primary-action" href="#quickstart">Get started <span>→</span></a><a
         class="secondary-action"
@@ -338,7 +367,7 @@
 <footer>
   <div class="shell">
     <a class="brand" href="#top"><span>DS</span> image</a>
-    <p>Image optimization for Angular and Svelte. MIT licensed.</p>
+    <p>Image optimization for Angular, React, and Svelte. MIT licensed.</p>
     <div>
       <a href="https://github.com/DeSource-Labs/image">GitHub</a><a href="#api">Documentation</a><a
         href="mailto:hello@desource-labs.org">Contact</a

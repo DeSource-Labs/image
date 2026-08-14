@@ -1,26 +1,56 @@
-# @desource/image-angular
+<div align="center">
+  <h1>@desource/image-angular</h1>
+  <p><strong>Angular image components, directives, provider configuration, Angular IMAGE_LOADER integration, and SSR middleware.</strong></p>
 
-Production-ready Angular components, directives, provider integration, and SSR middleware for responsive image optimization.
+  <p>
+    <a href="https://www.npmjs.com/package/@desource/image-angular"><img src="https://img.shields.io/npm/v/@desource/image-angular?logo=angular&logoColor=white" alt="npm version"></a>
+    <a href="https://github.com/DeSource-Labs/image/actions/workflows/ci.yml"><img src="https://github.com/DeSource-Labs/image/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+    <a href="https://codecov.io/gh/DeSource-Labs/image"><img src="https://codecov.io/gh/DeSource-Labs/image/branch/main/graph/badge.svg" alt="Coverage"></a>
+    <a href="https://github.com/DeSource-Labs/image/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license"></a>
+  </p>
+</div>
 
-The package uses standalone components, signal inputs, `OnPush` change detection, and pure URL generation from [`@desource/image`](../core). It supports Angular 19, 20, and 21.
+`@desource/image-angular` brings the shared Desource Image engine to Angular through standalone components, native-element directives, a callable service, `IMAGE_LOADER` integration, head preloads, placeholder lifecycle, and lazy IPX middleware for SSR.
+
+The package supports Angular 19, 20, 21, and 22.
+
+## Why use it?
+
+Angular's `NgOptimizedImage` is a strong built-in directive for enforcing image best practices. It can prioritize LCP images, generate `srcset`, work with Angular image loaders, and warn about common layout problems.
+
+Use Desource Image when your image layer needs more than a single `<img>` directive:
+
+- You want Angular components and native-element directives from the same package.
+- You need first-class `<picture>` output with AVIF/WebP sources and fallback control.
+- You want the same provider, preset, alias, and validation model used by React and Svelte packages.
+- You need a larger provider catalog, typed custom providers, or provider behavior inspired by `@nuxt/image`.
+- You want local IPX middleware for Angular SSR instead of writing the optimizer route yourself.
+- You want generated placeholders, preload links, and provider URLs from one config object.
+- You still want to use `NgOptimizedImage`, but with Desource registered as Angular's `IMAGE_LOADER`.
+
+If `NgOptimizedImage` plus one Angular loader already covers your app, keep it. Desource Image is for teams that need Angular-native rendering plus a portable provider model.
+
+Reference: [Angular NgOptimizedImage guide](https://angular.dev/guide/image-optimization).
 
 ## Install
 
 ```sh
-pnpm add @desource/image-angular
+npm install @desource/image-angular
 ```
 
-Install `ipx` when the application serves local `/_ipx` transformations itself:
+Install `ipx` only when the app serves local `/_ipx` transformations itself:
 
 ```sh
-pnpm add ipx
+npm install ipx
 ```
 
-`ipx` is optional when every image uses a hosted provider such as Vercel, Netlify, Cloudinary, or Imgix. Add `@desource/image` as a direct dependency only when the application imports its provider factories or utilities directly.
+Hosted providers such as Vercel, Netlify, Cloudinary, Imgix, Sanity, or ImageKit do not need the local optimizer. Add `@desource/image` as a direct dependency only when the application imports core helpers or provider factories directly.
 
 ## Configure Angular
 
-Register the image configuration in `app.config.ts`:
+Configuration is optional. With no explicit provider, the shared engine detects Vercel, Netlify, or AWS Amplify from the build environment and falls back to IPX.
+
+Register defaults in `app.config.ts`:
 
 ```ts
 import { ApplicationConfig } from '@angular/core';
@@ -37,12 +67,11 @@ export const appConfig: ApplicationConfig = {
 };
 ```
 
-Configuration is optional. With no explicit provider, the shared runtime uses `std-env` to select AWS Amplify, Netlify, or Vercel when the build environment identifies one of those platforms, and falls back to IPX everywhere else. There are no Desource-specific environment variables or host/DOM heuristics.
-
-`provideDsImage()` also registers Angular's `IMAGE_LOADER`, so the same provider can power `NgOptimizedImage`:
+`provideDsImage()` also registers Angular's `IMAGE_LOADER`, so the same configuration can power `NgOptimizedImage`:
 
 ```ts
 import { NgOptimizedImage } from '@angular/common';
+import { Component } from '@angular/core';
 
 @Component({
   standalone: true,
@@ -76,36 +105,49 @@ import { DsImageComponent } from '@desource/image-angular';
       [preload]="{ fetchPriority: 'high' }"
       class="hero"
       (load)="onHeroLoad()"
+      (error)="onHeroError()"
     />
   `
 })
 export class HeroComponent {
   onHeroLoad(): void {}
+  onHeroError(): void {}
 }
 ```
 
-The custom-element host uses `display: contents`; the visible element is the generated native `<img>`. `alt` is required. Numeric and boolean template attributes are coerced, and source changes recompute the output reactively.
+The host component uses `display: contents`; the visible node is the generated native `<img>`. `alt` is required. Numeric and boolean template attributes are coerced. Signal inputs recompute output when source, modifiers, config, or native attributes change.
 
 ## Picture component
 
-```html
-<ds-picture
-  src="/img/hero.jpg"
-  alt="Responsive mountain landscape"
-  width="1600"
-  height="900"
-  sizes="100vw md:50vw lg:800px"
-  [formats]="['avif', 'webp']"
-  fallbackFormat="jpg"
-  imgClass="hero"
-/>
+```ts
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { DsPictureComponent } from '@desource/image-angular';
+
+@Component({
+  standalone: true,
+  imports: [DsPictureComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <ds-picture
+      src="/img/hero.jpg"
+      alt="Responsive mountain landscape"
+      width="1600"
+      height="900"
+      sizes="100vw md:50vw lg:800px"
+      [formats]="['avif', 'webp']"
+      fallbackFormat="jpg"
+      imgClass="hero"
+    />
+  `
+})
+export class HeroPictureComponent {}
 ```
 
-This renders a native `<picture>` with an ordered `<source>` for every format and a fallback `<img>`. `format="avif,webp"`, `[format]="['avif', 'webp']"`, and the Nuxt-compatible `legacyFormat` alias are also supported.
+The component renders a native `<picture>` with ordered `<source>` elements and a fallback `<img>`. `format="avif,webp"`, `[format]="['avif', 'webp']"`, and the `legacyFormat` alias are supported.
 
-## Directives for native elements
+## Directives for native markup
 
-Use the standalone directives when application markup should remain a regular `<img>` or `<picture>`:
+Use directives when the template should remain a regular `<img>` or `<picture>`:
 
 ```ts
 import { Component } from '@angular/core';
@@ -132,6 +174,7 @@ import { DsImageDirective, DsPictureDirective } from '@desource/image-angular';
       width="720"
       height="480"
       [formats]="['avif', 'webp']"
+      fallbackFormat="jpg"
       (dsLoad)="onImageLoad()"
     >
       <img alt="A coastal village at sunset" />
@@ -144,11 +187,13 @@ export class CardComponent {
 }
 ```
 
-Directive outputs intentionally use `(dsLoad)` and `(dsError)` so they do not recursively collide with native DOM events. Component outputs use `(load)` and `(error)`. A `dsPicture` element must contain one fallback `<img>`; generated `<source>` elements are managed around it.
+Directive outputs use `(dsLoad)` and `(dsError)` so they do not collide with native DOM events. Component outputs use `(load)` and `(error)`.
+
+A `dsPicture` element must contain one fallback `<img>`. The directive manages generated `<source>` elements around that fallback.
 
 ## Responsive images
 
-`sizes` accepts either breakpoint string syntax or a record:
+`sizes` accepts a regular browser string, a breakpoint shorthand string, or an object:
 
 ```html
 <ds-image src="/img/gallery.jpg" alt="Gallery" width="1200" sizes="100vw sm:50vw lg:600px" densities="1x 2x" />
@@ -158,7 +203,7 @@ Directive outputs intentionally use `(dsLoad)` and `(dsError)` so they do not re
 sizes = { sm: '100vw', md: '50vw', lg: 600 };
 ```
 
-The core engine deduplicates candidate widths, clamps them to provider-supported sizes where required, and generates deterministic `srcset` and `sizes` values for SSR and browser rendering.
+The core engine deduplicates candidate widths, clamps them to provider-supported sizes where required, and generates deterministic `srcset` and `sizes` attributes.
 
 ## Placeholders and preloads
 
@@ -168,18 +213,20 @@ The core engine deduplicates candidate widths, clamps them to provider-supported
 <ds-image src="/img/hero.jpg" alt="Hero" width="1200" placeholder="data:image/png;base64,..." />
 ```
 
-- `placeholder` generates a small transformed image; a tuple controls width, height, quality, and blur.
+- `placeholder` generates a small transformed image.
+- A tuple controls width, height, quality, and blur.
 - A string can be a custom URL or data URL.
 - The full image is preloaded off-screen and replaces the placeholder only after decode succeeds.
 - `placeholderClass` is present only while the placeholder is visible.
-- `preload` inserts a responsive `<link rel="preload" as="image">` into the document head. Identical links are reference-counted and removed during teardown.
+- `preload` inserts a responsive `<link rel="preload" as="image">` into the document head.
+- Identical preload links are reference-counted and removed during teardown.
 - `priority` sets eager loading and high fetch priority. Use `preload` when a head link is also required.
 
-Placeholder and preload state starts identically during SSR and hydration.
+SSR and initial hydration output use the same attributes.
 
 ## Native attributes
 
-The components expose common native attributes directly, including `class`, `style`, `id`, `role`, ARIA labels, `referrerpolicy`, `crossorigin`, `usemap`, and `data-testid`.
+Components expose common native attributes directly, including `class`, `style`, `id`, `role`, ARIA labels, `referrerpolicy`, `crossorigin`, `usemap`, and `data-testid`.
 
 Use `nativeAttrs` for arbitrary image attributes:
 
@@ -187,7 +234,7 @@ Use `nativeAttrs` for arbitrary image attributes:
 <ds-image src="/img/hero.jpg" alt="Hero" [nativeAttrs]="{ 'data-track': 'hero', draggable: false }" />
 ```
 
-For `<ds-picture>`, use `imgAttrs`, `imgClass`, and `imgStyle` for its fallback image. Generated attributes such as `src`, `srcset`, dimensions, loading, and decoding cannot be overridden accidentally.
+For `<ds-picture>`, use `imgAttrs`, `imgClass`, and `imgStyle` for the fallback image. Generated attributes such as `src`, `srcset`, dimensions, loading, and decoding are owned by the directive/component and cannot be overridden accidentally.
 
 ## Callable helper service
 
@@ -196,15 +243,25 @@ import { inject } from '@angular/core';
 import { DsImageService } from '@desource/image-angular';
 
 const $img = inject(DsImageService).create();
-const url = $img('/img/hero.jpg', { width: 800, format: 'webp', quality: 75 });
-const attrs = $img.getAttrs({ src: '/img/hero.jpg', alt: 'Hero', width: 800 });
+
+const url = $img('/img/hero.jpg', {
+  width: 800,
+  format: 'webp',
+  quality: 75
+});
+
+const attrs = $img.getAttrs({
+  src: '/img/hero.jpg',
+  alt: 'Hero',
+  width: 800
+});
 ```
 
-The callable helper also exposes `getImage`, `getSizes`, `getMeta`, `getPicture`, `getPreloadLink`, and one shortcut for every configured preset.
+The callable helper also exposes `getImage`, `getSizes`, `getMeta`, `getPicture`, `getPreloadLink`, and configured preset shortcuts.
 
 ## Providers and presets
 
-Convenience providers are available for the most common deployment paths:
+Convenience providers are available for common deployment paths:
 
 ```ts
 import { provideDsAwsAmplifyImage, provideDsIpxImage, provideDsVercelImage } from '@desource/image-angular';
@@ -214,7 +271,7 @@ provideDsVercelImage();
 provideDsAwsAmplifyImage();
 ```
 
-Register any built-in or custom provider through the shared package:
+Register built-in or custom providers from the core package:
 
 ```ts
 import { cloudinaryProvider } from '@desource/image/providers/cloudinary';
@@ -235,11 +292,11 @@ provideDsImage({
 <ds-image preset="avatar" src="/users/ada.jpg" alt="Ada" />
 ```
 
-The complete provider list and custom-provider contract are documented in [`@desource/image`](../core).
+Provider modules and custom-provider utilities are documented in [`@desource/image`](https://github.com/DeSource-Labs/image/tree/main/packages/core).
 
 ## Local IPX in Angular SSR
 
-Place the image middleware before static-file and Angular SSR handlers in the server entry:
+Place the image middleware before static-file and Angular SSR handlers:
 
 ```ts
 import { createDsImageMiddleware } from '@desource/image-angular/server';
@@ -271,9 +328,9 @@ Keep the Sharp-based optimizer out of the Angular server bundle:
 }
 ```
 
-The middleware loads `ipx` lazily and only for requests under `/_ipx`. Local directories resolve from the server process, remote optimization is denied by default, and `domains` should contain every trusted remote host. Set `allowAllDomains: true` only for a deliberately open proxy.
+The middleware loads `ipx` lazily and only handles requests under `/_ipx`. Local directories resolve from the server process. Remote optimization is denied by default; add trusted `domains`, or set `allowAllDomains: true` only for an intentionally public optimizer.
 
-Hosted providers generate URLs but do not emulate their platform endpoint. For example, use the Vercel provider with Vercel image configuration, not with the IPX middleware.
+Hosted providers generate platform URLs and should be paired with that platform's image configuration. For example, use the Vercel provider with Vercel image settings, not with the IPX middleware.
 
 ## Package checks
 
@@ -285,6 +342,14 @@ pnpm --filter @desource/image-angular test:e2e
 pnpm --filter @desource/image-angular publish:check
 ```
 
+## Links
+
+- [Repository](https://github.com/DeSource-Labs/image)
+- [Core package](https://github.com/DeSource-Labs/image/tree/main/packages/core)
+- [React package](https://github.com/DeSource-Labs/image/tree/main/packages/react)
+- [Svelte package](https://github.com/DeSource-Labs/image/tree/main/packages/svelte)
+- [Security policy](https://github.com/DeSource-Labs/image/blob/main/SECURITY.md)
+
 ## License
 
-MIT
+MIT © 2026 DeSource Labs

@@ -1,16 +1,39 @@
-# @desource/image
+<div align="center">
+  <h1>@desource/image</h1>
+  <p><strong>Framework-independent image URLs, responsive attributes, picture sources, providers, presets, aliases, placeholders, and preload metadata.</strong></p>
 
-Framework-independent image configuration, provider URLs, responsive candidates, picture sources, placeholders, preload metadata, validation, and provider-authoring utilities for Desource Image.
+  <p>
+    <a href="https://www.npmjs.com/package/@desource/image"><img src="https://img.shields.io/npm/v/@desource/image?logo=npm" alt="npm version"></a>
+    <a href="https://github.com/DeSource-Labs/image/actions/workflows/ci.yml"><img src="https://github.com/DeSource-Labs/image/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+    <a href="https://codecov.io/gh/DeSource-Labs/image"><img src="https://codecov.io/gh/DeSource-Labs/image/branch/main/graph/badge.svg" alt="Coverage"></a>
+    <a href="https://github.com/DeSource-Labs/image/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license"></a>
+  </p>
+</div>
 
-The package is ESM-only, has no DOM dependency for normal URL/attribute generation, and is shared by `@desource/image-angular` and `@desource/image-svelte`.
+`@desource/image` is the headless engine used by `@desource/image-angular`, `@desource/image-react`, and `@desource/image-svelte`.
+
+It has no DOM dependency for normal URL and attribute generation. Use it directly when you need a callable `$img` helper, provider URLs, responsive `srcset`, `<picture>` data, preload links, source validation, or custom provider utilities outside a framework renderer.
+
+## Why use the core package directly?
+
+Use `@desource/image` when image rules should live outside a component:
+
+- Generate URLs for metadata pipelines, server templates, emails, Open Graph images, or CMS previews.
+- Share provider config across Angular, React, Svelte, workers, and Node scripts.
+- Create a small `$img` helper with presets and aliases.
+- Build a custom renderer without reimplementing responsive widths, density candidates, placeholders, or picture sources.
+- Author a provider once and use it from every framework package.
+- Validate remote and local sources before they reach a public optimizer endpoint.
+
+If you only render images through one framework package, install that framework package first. It already depends on `@desource/image`.
 
 ## Install
 
 ```sh
-pnpm add @desource/image
+npm install @desource/image
 ```
 
-## Callable image helper
+## Quick start
 
 ```ts
 import { createImage } from '@desource/image';
@@ -32,23 +55,12 @@ const image = createImage({
   }
 });
 
-image('/img/hero.jpg', {
+const url = image('/img/hero.jpg', {
   width: 800,
-  format: 'webp',
-  quality: 76
-});
-// /_ipx/w_800&f_webp&q_76/img/hero.jpg
-
-image.getImage('/img/hero.jpg', {
-  modifiers: { width: 800 }
+  format: 'webp'
 });
 
-image.getSizes('/img/hero.jpg', {
-  sizes: '100vw md:760px',
-  modifiers: { width: 1600, height: 1000, format: 'webp' }
-});
-
-image.getAttrs({
+const attrs = image.getAttrs({
   src: '/img/hero.jpg',
   alt: 'Mountain lake',
   width: 1600,
@@ -57,31 +69,36 @@ image.getAttrs({
   placeholder: true
 });
 
-image.getPicture({
+const picture = image.getPicture({
   src: '/img/hero.jpg',
+  alt: 'Mountain lake',
   width: 1600,
   height: 1000,
   formats: ['avif', 'webp'],
   fallbackFormat: 'jpg'
 });
 
-image.getPreloadLink({
-  src: '/img/hero.jpg',
-  width: 1600,
-  preload: { fetchPriority: 'high' }
-});
-
-(image.avatar as typeof image)('/people/ada.jpg');
+const avatarUrl = image.avatar('/people/ada.jpg');
 ```
 
-The helper also exposes `getMeta()`. A provider can return its own metadata loader; in a browser, the helper otherwise falls back to the native `Image` API.
+The callable helper also exposes `getImage`, `getSizes`, `getMeta`, `getPreloadLink`, and one shortcut for every configured preset.
 
-## Stateless helpers
+## What it generates
 
-For renderers or metadata pipelines that do not need a callable helper:
+| API                     | Output                                                                  |
+| ----------------------- | ----------------------------------------------------------------------- |
+| `image(src, modifiers)` | Optimized URL string.                                                   |
+| `getImage()`            | Provider result with URL and optimization metadata.                     |
+| `getSizes()`            | Normalized `srcset`, `sizes`, candidate widths, and descriptor data.    |
+| `getAttrs()`            | Native `<img>` attributes, placeholder URL, and placeholder class.      |
+| `getPicture()`          | Native `<picture>` data: ordered sources plus fallback image attrs.     |
+| `getPreloadLink()`      | Responsive `<link rel="preload" as="image">` attributes.                |
+| `getMeta()`             | Image dimensions and metadata when a provider or runtime can load them. |
+
+Stateless helpers are available when a callable helper is not needed:
 
 ```ts
-import { getImage, getImageAttrs, getImagePreloadLink, getImageSizes, getPictureAttrs } from '@desource/image';
+import { getImageAttrs, getImagePreloadLink, getImageSizes, getPictureAttrs } from '@desource/image';
 
 const attrs = getImageAttrs({
   src: '/img/hero.jpg',
@@ -100,9 +117,10 @@ Other public generators include `generateSrcset`, `generatePictureSources`, `gen
 
 ```ts
 import type { ImageConfig } from '@desource/image';
+import { cloudinaryProvider } from '@desource/image/providers/cloudinary';
 
-const config: ImageConfig = {
-  provider: 'auto',
+export const config: ImageConfig = {
+  provider: 'cloudinary',
   baseURL: '/',
   quality: 76,
   format: 'webp',
@@ -119,13 +137,7 @@ const config: ImageConfig = {
   },
   domains: ['assets.example.com'],
   localPatterns: [{ pathname: '/img/**' }],
-  remotePatterns: [
-    {
-      protocol: 'https',
-      hostname: '*.example.com',
-      pathname: '/media/**'
-    }
-  ],
+  remotePatterns: [{ protocol: 'https', hostname: '*.example.com', pathname: '/media/**' }],
   presets: {
     card: {
       width: 960,
@@ -134,19 +146,23 @@ const config: ImageConfig = {
       format: 'webp'
     }
   },
-  providers: {},
-  providerOptions: {},
+  providers: {
+    cloudinary: cloudinaryProvider({ cloudName: 'demo' })
+  },
+  providerOptions: {
+    cloudinary: {
+      modifiers: { quality: 'auto' }
+    }
+  },
   onInvalidSource: 'warn'
 };
 ```
 
 `resolveImageConfig(config)` normalizes this once. `createImageContext(config)` returns the resolved config plus bound `getImage`, `getImageAttrs`, `getPictureAttrs`, `getPreloadLink`, and `getMeta` methods.
 
-Invalid-source policies are `throw`, `warn`, and `passthrough`. Local and remote patterns accept `*` for one path segment and `**` for recursive matches.
-
 ### Provider detection
 
-`detectImageProvider()` uses `std-env` once:
+`provider: 'auto'` is the default. Detection uses `std-env` once.
 
 | Runtime             | Provider            |
 | ------------------- | ------------------- |
@@ -158,9 +174,65 @@ Invalid-source policies are `throw`, `warn`, and `passthrough`. Local and remote
 
 An explicit provider bypasses detection. The package does not read Desource-specific environment variables and does not infer providers from browser hostnames.
 
+### Source validation
+
+Use source controls when an optimizer endpoint should only transform known sources:
+
+```ts
+const config: ImageConfig = {
+  domains: ['images.example.com'],
+  localPatterns: [{ pathname: '/img/**' }],
+  remotePatterns: [{ protocol: 'https', hostname: '*.example.com', pathname: '/media/**' }],
+  onInvalidSource: 'throw'
+};
+```
+
+Invalid-source policies:
+
+- `throw`: throw an error.
+- `warn`: log a warning and pass the source through.
+- `passthrough`: pass the source through without logging.
+
+Patterns accept `*` for one path segment and `**` for recursive matches.
+
+## Responsive output
+
+Supported `sizes` forms:
+
+```text
+100vw
+sm:100vw md:50vw lg:400px
+100vw md:760px
+```
+
+Object syntax is also accepted:
+
+```ts
+{
+  sm: '100vw',
+  md: '50vw',
+  lg: 600
+}
+```
+
+With `sizes`, output uses width descriptors and provider-size candidates. Without `sizes`, a known width uses density descriptors. Duplicate final URLs are removed, which matters for providers that normalize requested widths to configured breakpoints.
+
+## Placeholders and picture fallbacks
+
+Placeholder values:
+
+- `placeholder: true` → `[10, 10, 50, 3]`
+- `placeholder: 24` → width and height `24`
+- `placeholder: [24, 16, 40, 2]` → custom width, height, quality, blur
+- `placeholder: 'data:…'` → use the string directly
+
+Framework packages use the generated `placeholderSrc` and `placeholderClass` to show a small image until the full image decodes.
+
+Picture output skips generated sources for SVG input, avoids duplicate formats, and keeps transparent-safe PNG fallback behavior.
+
 ## Providers
 
-The main entry includes only the small automatic registry:
+The main entry includes a small default registry:
 
 - `ipx`
 - `ipxStatic`
@@ -171,34 +243,29 @@ The main entry includes only the small automatic registry:
 - `netlifyLargeMedia`
 - `none`
 
-Import the complete registry only when required:
+Import the full catalog only when required:
 
 ```ts
 import { BUILT_IN_PROVIDER_NAMES, createBuiltInProviders } from '@desource/image/providers';
 ```
 
-Prefer provider subpaths for the smallest application bundle:
+Prefer provider subpaths for application code:
 
 ```ts
 import { cloudinaryProvider } from '@desource/image/providers/cloudinary';
 import { imgixProvider } from '@desource/image/providers/imgix';
 import { sanityProvider } from '@desource/image/providers/sanity';
-
-const config = {
-  provider: 'cloudinary',
-  providers: {
-    cloudinary: cloudinaryProvider({ cloudName: 'demo' })
-  }
-};
 ```
 
-All provider files use stable ESM subpaths under `@desource/image/providers/*`. The catalog and default/alternate modifier behavior are parity-tested against the pinned Nuxt Image package.
+Provider modules:
+
+`aliyun`, `awsAmplify`, `builderio`, `bunny`, `caisy`, `cloudflare`, `cloudflareimages`, `cloudimage`, `cloudinary`, `contentful`, `directus`, `edgeonePages`, `fastly`, `filerobot`, `flyimg`, `github`, `glide`, `gumlet`, `hygraph`, `imageengine`, `imagekit`, `imgix`, `imgproxy`, `ipx`, `ipxStatic`, `netlify`, `netlifyImageCdn`, `netlifyLargeMedia`, `none`, `picsum`, `prepr`, `prismic`, `sanity`, `shopify`, `sirv`, `storyblok`, `strapi`, `strapi5`, `supabase`, `twicpics`, `umbraco`, `unsplash`, `uploadcare`, `vercel`, `wagtail`, and `weserv`.
+
+Provider behavior is parity-tested against a pinned Nuxt Image package where comparable behavior exists. The framework integrations remain native to Angular, React, and Svelte.
 
 ## Custom providers
 
-The provider API is Desource's own contract, inspired by the Nuxt Image library's provider shape so provider behavior remains easy to compare.
-
-### Provider contract
+The provider contract is Desource's own shape. It is intentionally small: a provider receives a normalized source, merged options, and an image context, then returns a URL.
 
 ```ts
 import { configureProvider, defineProvider } from '@desource/image';
@@ -216,6 +283,7 @@ const setup = defineProvider<AcmeOptions>({
       width: String(modifiers.width ?? ''),
       quality: String(modifiers.quality ?? '')
     });
+
     if (token) query.set('token', token);
 
     return {
@@ -236,7 +304,7 @@ export const acmeProvider = configureProvider(
 
 Provider setup is memoized. Per-config `providerOptions[name]` are merged over configured defaults, and standard width/height/quality/format modifiers are merged last. The context exposes resolved options and a memoized `$img` helper.
 
-Set `acceptsOpaqueSource: true` only for providers whose source is an asset ID rather than a path or URL. Set `validateDomains: true` when remote inputs must match the configured `domains` or `remotePatterns`.
+Set `acceptsOpaqueSource: true` only for providers whose source is an asset ID rather than a path or URL. Set `validateDomains: true` when remote inputs must match configured `domains` or `remotePatterns`.
 
 ### Provider-authoring utilities
 
@@ -252,7 +320,7 @@ The main entry exports reusable provider primitives:
 
 ## Framework integration kit
 
-`@desource/image/kit` contains small helpers shared by framework renderers:
+`@desource/image/kit` contains small helpers used by the framework packages:
 
 ```ts
 import {
@@ -264,54 +332,32 @@ import {
 } from '@desource/image/kit';
 ```
 
-The subpath is intentionally limited to framework glue; provider URL logic stays in the main package and rendering lifecycle remains in the framework packages.
-
-## Responsive behavior
-
-Supported size forms include:
-
-```text
-100vw
-sm:100vw md:50vw lg:400px
-100vw md:760px
-```
-
-and object syntax:
-
-```ts
-{
-  '1px': '100vw',
-  md: '760px'
-}
-```
-
-With `sizes`, output uses width descriptors and provider-size candidates. Without `sizes`, a known width uses density descriptors. Duplicate final URLs are removed—important for providers such as Vercel that normalize arbitrary requested widths to configured screens.
-
-## Placeholders and picture fallbacks
-
-- `placeholder: true` → `[10, 10, 50, 3]`
-- `placeholder: 24` → width and height `24`
-- `placeholder: [24, 16, 40, 2]` → custom width, height, quality, blur
-- `placeholder: 'data:…'` → use the string directly
-
-SVG sources pass through without generated picture sources. Picture output excludes a modern format when it is the same as the normalized fallback and preserves transparent-safe PNG fallback behavior.
+The subpath is limited to framework glue. Provider URL logic stays in the main package; rendering lifecycle stays in the framework packages.
 
 ## Security
 
-This package validates strings; it does not fetch remote bytes. The IPX server integrations live in the framework packages and deny all remote domains by default.
+This package validates strings and generates URLs; it does not fetch remote bytes. IPX server integrations live in the framework packages and deny all remote domains by default.
 
-For platform providers that expose a public optimizer endpoint, keep `domains`, `remotePatterns`, provider width lists, and quality lists aligned with the deployment configuration. Use narrow patterns to prevent transformation abuse.
+For public optimizer endpoints, keep `domains`, `remotePatterns`, provider width lists, and quality lists aligned with the deployment configuration. Use narrow patterns to avoid transformation abuse.
 
-## Publishing guarantees
+## Package checks
 
-The package is verified with:
+```sh
+pnpm --filter @desource/image build
+pnpm --filter @desource/image typecheck
+pnpm --filter @desource/image test:unit:coverage
+pnpm --filter @desource/image publish:check
+```
 
-- TypeScript strict checks;
-- provider parity and behavioral tests;
-- enforced 95%+ statement/function/line coverage;
-- `publint`;
-- Are The Types Wrong across Node 10 resolution, Node 16 ESM/CJS resolution, and bundlers;
-- explicit exports for the root, `/kit`, `/providers`, and wildcard provider subpaths.
+The package is verified with strict TypeScript, provider parity tests, coverage thresholds, `publint`, and Are The Types Wrong checks for the root, `/kit`, `/providers`, and wildcard provider subpaths.
+
+## Links
+
+- [Repository](https://github.com/DeSource-Labs/image)
+- [Angular package](https://github.com/DeSource-Labs/image/tree/main/packages/angular)
+- [React package](https://github.com/DeSource-Labs/image/tree/main/packages/react)
+- [Svelte package](https://github.com/DeSource-Labs/image/tree/main/packages/svelte)
+- [Security policy](https://github.com/DeSource-Labs/image/blob/main/SECURITY.md)
 
 ## License
 
