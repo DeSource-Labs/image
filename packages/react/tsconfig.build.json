@@ -2,6 +2,12 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "rootDir": "src",
+    "paths": {
+      "@desource/image": ["../core/dist/index.d.ts"],
+      "@desource/image/kit": ["../core/dist/kit.d.ts"],
+      "@desource/image/providers": ["../core/dist/providers/index.d.ts"],
+      "@desource/image/providers/*": ["../core/dist/providers/*.d.ts"]
+    },
     "emitDeclarationOnly": true
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],
