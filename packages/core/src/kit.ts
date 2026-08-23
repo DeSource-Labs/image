@@ -1,5 +1,16 @@
 import type { ImageConfig, ResolvedImageConfig } from './types.js';
 
+export {
+  escapeCssSelectorValue,
+  isPathUnderBasePath,
+  normalizeBasePath,
+  parseRequestPath,
+  stringifyModifierValue,
+  stripLeadingSlashes,
+  stripTrailingSlashes,
+  trimSlashes
+} from './utils.js';
+
 export type ClassValue =
   | string
   | number

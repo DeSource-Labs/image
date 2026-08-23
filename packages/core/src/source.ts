@@ -1,5 +1,12 @@
 import type { LocalPattern, RemotePattern, ResolvedImageConfig, SourceValidationResult } from './types.js';
-import { isDataSource, isLocalSource, isRemoteSource } from './utils.js';
+import {
+  isDataSource,
+  isLocalSource,
+  isRemoteSource,
+  stripLeadingSlashes,
+  stripTrailingSlashes,
+  trimSlashes
+} from './utils.js';
 
 export function normalizeImageSource(src: string, acceptsOpaqueSource = false): string {
   if (!src || isDataSource(src) || isLocalSource(src) || isRemoteSource(src) || src.startsWith('//')) {
@@ -134,22 +141,6 @@ function globToRegExp(glob: string): RegExp {
 
 function escapeRegExpChar(char: string): string {
   return '.+^${}()|[]\\'.includes(char) ? `\\${char}` : char;
-}
-
-function trimSlashes(value: string): string {
-  return stripTrailingSlashes(stripLeadingSlashes(value));
-}
-
-function stripLeadingSlashes(value: string): string {
-  let start = 0;
-  while (start < value.length && value[start] === '/') start += 1;
-  return value.slice(start);
-}
-
-function stripTrailingSlashes(value: string): string {
-  let end = value.length;
-  while (end > 0 && value[end - 1] === '/') end -= 1;
-  return value.slice(0, end);
 }
 
 function stripTrailingColon(value: string): string {

@@ -1,5 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { resolve } from 'node:path';
+import { isPathUnderBasePath, normalizeBasePath, parseRequestPath } from '@desource/image/kit';
 
 export interface DsImageServerOptions {
   /** URL prefix used by the IPX provider. */
@@ -37,7 +38,7 @@ export function createDsImageNodeMiddleware(options: DsImageServerOptions = {}):
     }
 
     const parsed = parseRequestPath(requestUrl);
-    if (!isImageRequest(parsed.pathname, basePath)) {
+    if (!isPathUnderBasePath(parsed.pathname, basePath)) {
       next();
       return;
     }
@@ -63,7 +64,7 @@ export function createDsImageWebHandler(options: DsImageServerOptions = {}): DsI
 
   return async (request) => {
     const url = new URL(request.url);
-    if (!isImageRequest(url.pathname, basePath)) return undefined;
+    if (!isPathUnderBasePath(url.pathname, basePath)) return undefined;
 
     url.pathname = url.pathname.slice(basePath.length) || '/';
     handler ??= createWebHandler(options);
@@ -96,26 +97,4 @@ async function createIpx(options: DsImageServerOptions) {
       maxAge
     })
   });
-}
-
-function normalizeBasePath(path: string): string {
-  const normalized = path.startsWith('/') ? path : `/${path}`;
-  return stripTrailingSlashes(normalized) || '/_ipx';
-}
-
-function stripTrailingSlashes(value: string): string {
-  let end = value.length;
-  while (end > 0 && value[end - 1] === '/') end -= 1;
-  return value.slice(0, end);
-}
-
-function isImageRequest(pathname: string, basePath: string): boolean {
-  return pathname === basePath || pathname.startsWith(`${basePath}/`);
-}
-
-function parseRequestPath(requestUrl: string): { pathname: string; search: string } {
-  const queryIndex = requestUrl.indexOf('?');
-  return queryIndex === -1
-    ? { pathname: requestUrl, search: '' }
-    : { pathname: requestUrl.slice(0, queryIndex), search: requestUrl.slice(queryIndex) };
 }

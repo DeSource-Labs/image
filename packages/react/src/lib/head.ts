@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import * as ReactDOM from 'react-dom';
 import type { ImagePreloadLink } from '@desource/image';
+import { escapeCssSelectorValue, stripUndefined } from '@desource/image/kit';
 
 interface PreloadOptions {
   crossorigin?: string;
@@ -16,7 +17,7 @@ export function addImagePreloadLink(attrs: ImagePreloadLink, options: PreloadOpt
   let entry = preloadEntries.get(key);
 
   if (!entry) {
-    const selector = `link[data-ds-image-preload-key="${escapeSelector(key)}"]`;
+    const selector = `link[data-ds-image-preload-key="${escapeCssSelectorValue(key)}"]`;
     const link =
       document.head.querySelector<HTMLLinkElement>(selector) ??
       findExistingPreload(attrs) ??
@@ -105,12 +106,4 @@ function findExistingPreload(attrs: ImagePreloadLink): HTMLLinkElement | undefin
     }
   }
   return undefined;
-}
-
-function escapeSelector(value: string): string {
-  return value.replace(/["\\]/g, String.raw`\$&`);
-}
-
-function stripUndefined<T extends Record<string, unknown>>(value: T): T {
-  return Object.fromEntries(Object.entries(value).filter(([, entry]) => entry !== undefined)) as T;
 }

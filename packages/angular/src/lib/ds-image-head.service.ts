@@ -1,6 +1,7 @@
 import { DOCUMENT } from '@angular/common';
 import { Injectable, inject } from '@angular/core';
 import type { ImagePreloadLink } from '@desource/image';
+import { escapeCssSelectorValue } from '@desource/image/kit';
 
 @Injectable({ providedIn: 'root' })
 export class DsImageHeadService {
@@ -12,7 +13,7 @@ export class DsImageHeadService {
     let entry = this.entries.get(key);
 
     if (!entry) {
-      const selector = `link[data-ds-image-preload-key="${escapeSelector(key)}"]`;
+      const selector = `link[data-ds-image-preload-key="${escapeCssSelectorValue(key)}"]`;
       const link = this.document.head?.querySelector<HTMLLinkElement>(selector) ?? this.document.createElement('link');
       link.dataset['dsImagePreload'] = attrs.href;
       link.dataset['dsImagePreloadKey'] = key;
@@ -60,8 +61,4 @@ function preloadKey(attrs: ImagePreloadLink, options: { crossorigin?: string; no
 function setAttribute(element: HTMLElement, name: string, value: string | undefined): void {
   if (value === undefined) element.removeAttribute(name);
   else element.setAttribute(name, value);
-}
-
-function escapeSelector(value: string): string {
-  return value.replace(/["\\]/g, String.raw`\$&`);
 }

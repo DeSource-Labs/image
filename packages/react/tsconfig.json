@@ -9,6 +9,7 @@
     "paths": {
       "@common/*": ["../../common/*"],
       "@desource/image": ["../core/src/index.ts"],
+      "@desource/image/kit": ["../core/src/kit.ts"],
       "@lib": ["./src/index.ts"],
       "@server": ["./src/server.ts"],
       "@src/*": ["./src/lib/*"]

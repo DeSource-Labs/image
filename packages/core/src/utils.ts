@@ -1,5 +1,10 @@
 import type { ImageFormat, ImageModifiers, ModifierValue, OperationGeneratorConfig } from './types.js';
 
+interface ParsedRequestPath {
+  pathname: string;
+  search: string;
+}
+
 export interface Mapper<Key, Value> {
   (key: Key): Value | Key;
   (): undefined;
@@ -125,6 +130,22 @@ export function uniqueSorted(values: readonly number[]): number[] {
   ].sort((a, b) => a - b);
 }
 
+export function stripLeadingSlashes(value: string): string {
+  let start = 0;
+  while (start < value.length && value[start] === '/') start += 1;
+  return value.slice(start);
+}
+
+export function stripTrailingSlashes(value: string): string {
+  let end = value.length;
+  while (end > 0 && value[end - 1] === '/') end -= 1;
+  return value.slice(0, end);
+}
+
+export function trimSlashes(value: string): string {
+  return stripTrailingSlashes(stripLeadingSlashes(value));
+}
+
 export function joinURL(base: string, path: string): string {
   if (!base) {
     return path;
@@ -134,7 +155,27 @@ export function joinURL(base: string, path: string): string {
     return base;
   }
 
-  return `${base.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`;
+  return `${stripTrailingSlashes(base)}/${stripLeadingSlashes(path)}`;
+}
+
+export function normalizeBasePath(path: string, fallback = '/_ipx'): string {
+  const normalized = path.startsWith('/') ? path : `/${path}`;
+  return stripTrailingSlashes(normalized) || fallback;
+}
+
+export function isPathUnderBasePath(pathname: string, basePath: string): boolean {
+  return pathname === basePath || pathname.startsWith(`${basePath}/`);
+}
+
+export function parseRequestPath(requestUrl: string): ParsedRequestPath {
+  const queryIndex = requestUrl.indexOf('?');
+  return queryIndex === -1
+    ? { pathname: requestUrl, search: '' }
+    : { pathname: requestUrl.slice(0, queryIndex), search: requestUrl.slice(queryIndex) };
+}
+
+export function escapeCssSelectorValue(value: string): string {
+  return value.replace(/["\\]/g, String.raw`\$&`);
 }
 
 export function appendQuery(url: string, params: Record<string, ModifierValue>): string {
@@ -153,7 +194,11 @@ export function appendQuery(url: string, params: Record<string, ModifierValue>):
   return `${url}${separator}${query}`;
 }
 
-export function stringifyModifierValue(value: Exclude<ModifierValue, undefined | null>): string {
+export function stringifyModifierValue(value: Exclude<ModifierValue, undefined>): string {
+  if (value === null) {
+    return 'null';
+  }
+
   if (Array.isArray(value)) {
     return value.map((entry) => (entry === undefined || entry === null ? '' : stringifyModifierValue(entry))).join(',');
   }
@@ -194,10 +239,6 @@ export function isDevelopment(): boolean {
 
 export function isLocalSource(src: string): boolean {
   return src.startsWith('/') && !src.startsWith('//');
-}
-
-export function stripLeadingSlash(src: string): string {
-  return src.replace(/^\/+/, '');
 }
 
 export function normalizeFormat(format: ImageFormat | undefined): string | undefined {

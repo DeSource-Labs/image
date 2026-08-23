@@ -1,5 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { resolve } from 'node:path';
+import { isPathUnderBasePath, normalizeBasePath, parseRequestPath } from '@desource/image/kit';
 
 export interface DsImageMiddlewareOptions {
   /** URL prefix used by the IPX provider. */
@@ -34,7 +35,7 @@ export function createDsImageMiddleware(options: DsImageMiddlewareOptions = {}):
     }
 
     const url = parseRequestPath(requestUrl);
-    if (!isIpxRequest(url.pathname, basePath)) {
+    if (!isPathUnderBasePath(url.pathname, basePath)) {
       next();
       return;
     }
@@ -70,26 +71,4 @@ async function createIpxHandler(options: DsImageMiddlewareOptions): Promise<Node
       })
     })
   );
-}
-
-function normalizeBasePath(path: string): string {
-  const normalized = path.startsWith('/') ? path : `/${path}`;
-  return stripTrailingSlashes(normalized) || '/_ipx';
-}
-
-function stripTrailingSlashes(value: string): string {
-  let end = value.length;
-  while (end > 0 && value[end - 1] === '/') end -= 1;
-  return value.slice(0, end);
-}
-
-function isIpxRequest(pathname: string, basePath: string): boolean {
-  return pathname === basePath || pathname.startsWith(`${basePath}/`);
-}
-
-function parseRequestPath(requestUrl: string): { pathname: string; search: string } {
-  const queryIndex = requestUrl.indexOf('?');
-  return queryIndex === -1
-    ? { pathname: requestUrl, search: '' }
-    : { pathname: requestUrl.slice(0, queryIndex), search: requestUrl.slice(queryIndex) };
 }
