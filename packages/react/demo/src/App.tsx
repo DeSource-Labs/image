@@ -16,9 +16,11 @@ export default function App() {
     <ImageProvider config={imageConfig}>
       <main>
         <header>
-          <span className="eyebrow">React package fixture</span>
-          <h1>Components and hooks for React and Next.</h1>
-          <p>React props stay idiomatic while provider, responsive, placeholder, and preload logic stays shared.</p>
+          <span className="eyebrow">Desource Image for React</span>
+          <h1>Optimized images for React and Next.js.</h1>
+          <p>
+            Components and hooks generate the same provider URLs, responsive candidates, placeholders, and preloads.
+          </p>
         </header>
 
         <label className="control">
