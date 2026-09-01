@@ -1,7 +1,22 @@
 {
   "name": "@desource/image-angular",
   "version": "0.1.0",
-  "description": "Production-ready Angular image optimization components, directives, providers, and SSR middleware.",
+  "description": "High-quality image optimization for Angular with responsive output, deployment-aware provider selection, 46 providers, and Angular SSR IPX.",
+  "keywords": [
+    "angular",
+    "ngoptimizedimage",
+    "image-loader",
+    "image",
+    "image-optimization",
+    "responsive-images",
+    "srcset",
+    "picture",
+    "image-cdn",
+    "ipx",
+    "vercel",
+    "netlify",
+    "aws-amplify"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",
