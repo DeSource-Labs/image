@@ -1,7 +1,22 @@
 {
   "name": "@desource/image-react",
   "version": "0.1.0",
-  "description": "Production-ready React image optimization components, hooks, providers, and Next.js helpers.",
+  "description": "High-quality image optimization for React and Next.js with responsive output, deployment-aware provider selection, 46 providers, and IPX.",
+  "keywords": [
+    "react",
+    "nextjs",
+    "next-image",
+    "image",
+    "image-optimization",
+    "responsive-images",
+    "srcset",
+    "picture",
+    "image-cdn",
+    "ipx",
+    "vercel",
+    "netlify",
+    "aws-amplify"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",
