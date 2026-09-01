@@ -1,6 +1,6 @@
 # Contributing to Desource Image
 
-Thanks for helping make high-quality image optimization feel native in Angular and Svelte.
+Thanks for helping make high-quality image optimization for Angular, React, and Svelte.
 
 By participating, you agree to the [Code of Conduct](./CODE_OF_CONDUCT.md). Report security issues privately as described in [SECURITY.md](./SECURITY.md).
 
@@ -19,14 +19,16 @@ Requirements:
 
 ```sh
 pnpm install
-pnpm build
-pnpm verify
+pnpm build:all
+pnpm typecheck
+pnpm test:unit
 ```
 
 Use the package demos for focused development and the root SvelteKit app for documentation and integration work:
 
 ```sh
 pnpm --filter @desource/image-angular dev
+pnpm --filter @desource/image-react dev
 pnpm --filter @desource/image-svelte dev
 pnpm dev:demo
 ```
@@ -36,13 +38,14 @@ pnpm dev:demo
 ```text
 packages/core       Framework-agnostic runtime, kit utilities, and providers
 packages/angular    Angular components, directives, SSR adapter, tests, and fixture
+packages/react      React components, hooks, Next/Vite adapters, tests, and fixture
 packages/svelte     Svelte components, action, attachment, Vite adapter, tests, and fixture
 common/test         Shared behavioral contracts and browser-test helpers
 demo                SSR SvelteKit documentation and interactive examples
 scripts             Coverage and release automation
 ```
 
-Framework-neutral behavior belongs in core. Reusable framework glue belongs in `@desource/image/kit`; DOM rendering and lifecycle behavior stay in the Angular or Svelte package.
+Framework-neutral behavior belongs in core. Reusable framework glue belongs in `@desource/image/kit`; DOM rendering and lifecycle behavior stay in the Angular, React, or Svelte package.
 
 ## Quality expectations
 
@@ -57,12 +60,12 @@ pnpm build:fixtures
 pnpm build:demo
 pnpm test:unit
 pnpm test:e2e
-pnpm publish:check
+pnpm validate:packages
 ```
 
 Add focused tests for behavior changes. Shared API behavior should use the contracts in `common/test`; framework-specific rendering and lifecycle behavior should remain in the owning package. Avoid tests that merely repeat TypeScript or implementation details.
 
-For provider changes, compare against the bundled `nuxt_image` reference and add URL-generation cases covering provider options and non-default modifiers.
+For provider changes, compare against the pinned Nuxt Image package and add URL-generation cases covering provider options and non-default modifiers.
 
 ## Pull requests
 
@@ -72,7 +75,7 @@ Use Conventional Commits (`feat:`, `fix:`, `docs:`, `refactor:`, `perf:`, `test:
 pnpm changeset
 ```
 
-All three public packages are released as a fixed group. Select every package and use the same summary so their versions and changelog entries stay aligned.
+All four public packages are released as a fixed group. Select every package and use the same summary so their versions and changelog entries stay aligned.
 
 ## Release process
 
@@ -80,7 +83,7 @@ Maintainers run:
 
 ```sh
 pnpm changeset:version
-pnpm verify:release
+pnpm check:release
 ```
 
 A release pull request uses the commit title `chore: Release packages`. After merge, the release workflow publishes all packages without package-specific Git tags, then creates one `X.Y.Z` Git tag and one GitHub release from the shared changelog entry.
