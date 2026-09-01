@@ -1,6 +1,6 @@
 <div align="center">
   <h1>Desource Image - Optimized images for React, Angular, and Svelte</h1>
-  <p><strong>High-quality image optimization with responsive, provider-first and SSR-friednly workflow for React/Next.js, Angular, and Svelte/SvelteKit.</strong></p>
+  <p><strong>High-quality image optimization with responsive, provider-first and SSR-friendly workflow for React/Next.js, Angular, and Svelte/SvelteKit.</strong></p>
 
   <p>
     <a href="https://github.com/DeSource-Labs/image/actions/workflows/ci.yml"><img src="https://github.com/DeSource-Labs/image/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
@@ -25,7 +25,11 @@
 
 ---
 
-Install the package for your framework and keep writing framework-native code. Desource Image turns one image input into provider URLs, responsive `srcset`, `<picture>` sources, placeholders, preload metadata, presets, aliases, source validation, and local IPX routes.
+AI-assisted development moves ideas into working products quickly. Desource Image keeps image preparation inside that development loop. Add one suitable local or remote source, then control its output with component props.
+
+Keep `/img/hero.jpg` instead of exporting `hero-480.webp`, `hero-960.webp`, and `hero-1600.webp`. Desource Image turns one image input into provider URLs, responsive `srcset`, `<picture>` sources, placeholders, preload metadata, presets, aliases, source validation, and local IPX routes.
+
+For MVPs and everyday product development, image quality becomes a code edit. Change `quality={80}` to `quality={65}` and keep the same source file, component, and URL.
 
 Provider configuration is optional. On Vercel, Netlify, or AWS Amplify, Desource Image selects the platform image service from the deployment environment. Everywhere else, it falls back to the built-in IPX path. An explicit provider always wins.
 
@@ -33,6 +37,8 @@ Provider configuration is optional. On Vercel, Netlify, or AWS Amplify, Desource
 
 Framework defaults solve images inside one framework. Desource Image handles image rules that must work across runtimes, providers, and deployment targets.
 
+- **Built for fast product iterations.** Change image quality, format, crop, or responsive sizes in code. Source files and filenames stay unchanged.
+- **One source instead of exported variants.** Start with one suitable image and generate the widths and formats each screen needs.
 - **Deployment-aware provider selection.** Leave `provider` on `auto`. Desource Image detects Vercel, Netlify, or AWS Amplify and uses IPX for local or other environments.
 - **Simplest way to deal with image providers.** CMS URLs need aliases, validation, and provider-specific modifiers. Desource Image handles provider selection, modifier translation, and URL generation for 46 built-in providers.
 - **Native framework APIs.** Use Angular components and directives, React components and hooks, or Svelte components, actions, and attachments. Output remains native `<img>` and `<picture>` markup.
@@ -51,13 +57,13 @@ Leave `provider` unset or set it to `auto`. The same source can use Vercel Image
 
 After adopting the package for your framework, image components need no host-specific provider code. Desource Image detects the deployment, not a CDN signature in `src`, so relative paths such as `/images/hero.jpg` can use the image service available on the host.
 
-| Option                                                                     | Best fit                                                                         | How optimization is selected                                                                                                                                                                                       | Choose Desource Image when                                                                                                                                                                               |
-| -------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| React `<img>`                                                              | Native browser images when the application owns its markup and URLs              | No optimizer is selected. The browser requests `src` unchanged; deploying to Vercel, Netlify, or Amplify does not rewrite it.                                                                                      | You want generated provider URLs, responsive `srcset`, `<picture>`, placeholders, preloads, and an optimizer that follows the deployment.                                                                |
-| [`next/image`](https://nextjs.org/docs/app/api-reference/components/image) | Next-only applications using the Next.js image pipeline                          | Next.js optimizer by default. Vercel, Netlify, and AWS Amplify integrate `next/image` with their hosting pipelines. For other image services, Next.js provides a custom-loader API rather than a provider catalog. | You want broader built-in provider support without replacing the component, or when provider policy, presets, aliases, and source rules must remain stable across frameworks, hosts, and image services. |
-| [`NgOptimizedImage`](https://angular.dev/guide/image-optimization)         | Angular performance checks, loading hints, and responsive `<img>` output         | Generic loader by default; a built-in or custom `IMAGE_LOADER` is selected in Angular configuration. Changing hosts does not select another loader automatically.                                                  | You want deployment auto-detection, local IPX, native `<picture>`, per-image providers, a broader provider catalog, or shared image configuration outside Angular.                                       |
-| [`@sveltejs/enhanced-img`](https://svelte.dev/docs/kit/images)             | Static local assets transformed during the Vite build                            | Images are processed at build time. The deployment target does not switch them to its runtime image service.                                                                                                       | Images arrive from a CMS, database, API, object store, or CDN, or the same source should use IPX locally and the deployment platform’s optimizer in production.                                          |
-| [Unpic](https://unpic.pics/)                                               | Cross-framework responsive images already hosted on recognizable CDN or CMS URLs | Detects the provider from each `src` URL. Local or unknown sources need a fallback or explicit provider; the deployment itself is not the selection signal.                                                        | Vercel, Netlify, or AWS Amplify should choose the optimizer for every source, including relative paths, and you also need presets, aliases, source rules, `<picture>`, or server adapters.               |
+| Option                                                                     | Best fit                                                                         | How optimization is selected                                                                                                                                                                                       | Choose Desource Image when                                                                                                                                                                                                                                         |
+| -------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| React `<img>`                                                              | Native browser images when the application owns its markup and URLs              | No optimizer is selected. The browser requests `src` unchanged; deploying to Vercel, Netlify, or Amplify does not rewrite it.                                                                                      | You want to keep one source image and control responsive sizes, format, and quality in component code instead of exporting variants or maintaining `srcset` and `<picture>` markup. You want placeholders, preloads, and an optimizer that follows the deployment. |
+| [`next/image`](https://nextjs.org/docs/app/api-reference/components/image) | Next-only applications using the Next.js image pipeline                          | Next.js optimizer by default. Vercel, Netlify, and AWS Amplify integrate `next/image` with their hosting pipelines. For other image services, Next.js provides a custom-loader API rather than a provider catalog. | You want broader built-in provider support without replacing the component, or when provider policy, presets, aliases, and source rules must remain stable across frameworks, hosts, and image services.                                                           |
+| [`NgOptimizedImage`](https://angular.dev/guide/image-optimization)         | Angular performance checks, loading hints, and responsive `<img>` output         | Generic loader by default; a built-in or custom `IMAGE_LOADER` is selected in Angular configuration. Changing hosts does not select another loader automatically.                                                  | You want deployment auto-detection, local IPX, native `<picture>`, per-image providers instead of maintaining an `IMAGE_LOADER`, a broader provider catalog, or shared image configuration outside Angular.                                                        |
+| [`@sveltejs/enhanced-img`](https://svelte.dev/docs/kit/images)             | Static local assets transformed during the Vite build                            | Images are processed at build time. The deployment target does not switch them to its runtime image service.                                                                                                       | You want local images transformed on demand to save your time. Your images arrive from a CMS, database, API, object store, or CDN, or the same source should use IPX locally and the deployment platform’s optimizer in production.                                |
+| [Unpic](https://unpic.pics/)                                               | Cross-framework responsive images already hosted on recognizable CDN or CMS URLs | Detects the provider from each `src` URL. Local or unknown sources need a fallback or explicit provider; the deployment itself is not the selection signal.                                                        | Vercel, Netlify, or AWS Amplify should choose the optimizer for every source, including relative paths, and you also need presets, aliases, source rules, `<picture>`, or server adapters.                                                                         |
 
 Desource Image combines deployment-aware selection and 46 provider modules under one configuration for React/Next.js, Angular, and Svelte/SvelteKit. Nuxt applications should continue to use [`@nuxt/image`](https://image.nuxt.com/).
 
@@ -74,6 +80,24 @@ Desource Image combines deployment-aware selection and 46 provider modules under
 Install only the framework package your app uses. Install `@desource/image` directly when you import core helpers or provider factories yourself.
 
 ## Quick start
+
+One source file: `/public/img/hero.jpg`
+
+One component:
+
+```tsx
+<Image
+  src="/img/hero.jpg"
+  alt="Product preview"
+  width={1600}
+  height={900}
+  sizes="100vw md:760px"
+  format="webp"
+  quality={76}
+/>
+```
+
+Need smaller files? Change `quality`. Need different breakpoints? Change `sizes`. No image re-export or filename update.
 
 ### React
 
@@ -245,7 +269,6 @@ const picture = image.getPicture({
 - Server adapters: IPX middleware for Angular SSR, React/Vite, Next.js App Router, SvelteKit, Fetch API servers, and Connect/Express-style Node servers.
 - Tree-shakable nature: import what you need, and the rest is removed by bundlers.
 - SSR support: deterministic attributes and URLs so hydration does not rewrite image markup.
-- Package validation: strict TypeScript, unit coverage gates, Playwright e2e, `publint`, and Are The Types Wrong checks.
 
 ## One image input model
 
