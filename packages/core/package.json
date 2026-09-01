@@ -1,7 +1,21 @@
 {
   "name": "@desource/image",
   "version": "0.1.0",
-  "description": "Framework-agnostic image URL, srcset, picture, provider, preset, alias, and placeholder helpers.",
+  "description": "Framework-independent image optimization with responsive output, deployment-aware selection, presets, aliases, IPX, and 46 provider modules.",
+  "keywords": [
+    "image",
+    "image-optimization",
+    "responsive-images",
+    "srcset",
+    "picture",
+    "image-cdn",
+    "ipx",
+    "vercel",
+    "netlify",
+    "aws-amplify",
+    "cloudinary",
+    "imgix"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",
