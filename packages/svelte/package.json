@@ -1,7 +1,22 @@
 {
   "name": "@desource/image-svelte",
   "version": "0.1.0",
-  "description": "Production-ready Svelte image components, actions, attachments, providers, and SvelteKit middleware.",
+  "description": "High-quality image optimization for Svelte and SvelteKit with responsive output, deployment-aware provider selection, 46 providers, and IPX.",
+  "keywords": [
+    "svelte",
+    "sveltekit",
+    "svelte-image",
+    "image",
+    "image-optimization",
+    "responsive-images",
+    "srcset",
+    "picture",
+    "image-cdn",
+    "ipx",
+    "vercel",
+    "netlify",
+    "aws-amplify"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",
