@@ -58,10 +58,7 @@
 
   <div class="controls">
     <header>
-      <div>
-        <small>01 / Tune</small>
-        <h3>Change the request</h3>
-      </div>
+      <h3>Change the request</h3>
       <span class="live"><i></i> live</span>
     </header>
 
@@ -72,7 +69,7 @@
 
     <label>
       <span>Quality <output>{quality}</output></span>
-      <input bind:value={quality} type="range" min="30" max="100" step="1" aria-label="Quality" />
+      <input bind:value={quality} type="range" min="10" max="100" step="1" aria-label="Quality" />
     </label>
 
     <div class="control-grid">
@@ -194,16 +191,9 @@
   }
   header {
     display: flex;
-    align-items: flex-start;
+    align-items: baseline;
     justify-content: space-between;
     gap: 16px;
-  }
-  header small {
-    color: var(--blue);
-    font-size: 0.7rem;
-    font-weight: 800;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
   }
   h3 {
     margin: 7px 0 0;
@@ -251,6 +241,11 @@
     border-radius: 10px;
     color: #ecf4ff;
     background: #0a1727;
+  }
+  input[type='range'],
+  input[type='checkbox'],
+  select {
+    cursor: pointer;
   }
   .switch-row {
     display: flex;

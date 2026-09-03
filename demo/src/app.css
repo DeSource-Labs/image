@@ -20,6 +20,8 @@
   --lime: #bff48b;
   --blue: #8fb8ff;
   --sand: #f1c690;
+  --radius: 12px;
+  --radius-small: 8px;
 }
 
 * {
@@ -91,22 +93,11 @@ select:focus-visible {
 }
 
 .eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
+  display: block;
   margin: 0 0 18px;
   color: var(--lime);
-  font-size: 0.76rem;
+  font-size: 0.78rem;
   font-weight: 750;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-.eyebrow::before {
-  width: 22px;
-  height: 1px;
-  content: '';
-  background: currentColor;
 }
 
 h1,
