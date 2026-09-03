@@ -136,9 +136,10 @@
   <div class="shell nav">
     <a class="brand" href="#top" aria-label="Desource Image home"><span>DS</span> Desource Image</a>
     <nav aria-label="Primary navigation">
-      <a href="#autodetect">Auto detect</a><a href="#frameworks">Frameworks</a><a href="#providers">Providers</a><a
-        href="#compare">Compare</a
-      >
+      <a href="#autodetect">Auto detect</a>
+      <a href="#frameworks">Frameworks</a>
+      <a href="#providers">Providers</a>
+      <a href="#compare">Compare</a>
     </nav>
     <a class="github-link" href="https://github.com/DeSource-Labs/image">GitHub <span>↗</span></a>
   </div>
@@ -159,10 +160,8 @@
         responsive sizes with component props.
       </p>
       <div class="hero-actions">
-        <a class="primary-action" href="#quickstart">Install the package <span>→</span></a><a
-          class="secondary-action"
-          href="#playground">Try the live controls</a
-        >
+        <a class="primary-action" href="#quickstart">Install the package</a>
+        <a class="secondary-action" href="#playground">Try the live controls</a>
       </div>
       <dl class="hero-stats">
         <div>
@@ -205,8 +204,11 @@
 
   <section class="trust-strip" aria-label="Core capabilities">
     <div class="shell">
-      <span>Angular 19-22</span><i></i><span>React 18-19</span><i></i><span>Svelte 5</span><i></i><span>Next.js</span><i
-      ></i><span>Deterministic SSR</span>
+      <span>Angular 19-22</span>
+      <span>React 18-19</span>
+      <span>Svelte 5</span>
+      <span>Next.js</span>
+      <span>SSR support</span>
     </div>
   </section>
 
@@ -224,22 +226,18 @@
 
   <section class="feature-grid shell" aria-label="Library benefits">
     <article>
-      <span>01</span>
       <h3>Deployment-aware provider selection</h3>
       <p>Leave provider on auto. Desource Image detects Vercel, Netlify, or AWS Amplify and uses IPX elsewhere.</p>
     </article>
     <article>
-      <span>02</span>
       <h3>46 provider modules</h3>
       <p>Use Cloudinary, Imgix, ImageKit, Sanity, Contentful, Shopify, or another built-in provider.</p>
     </article>
     <article>
-      <span>03</span>
       <h3>Responsive images and modern formats</h3>
       <p>Generate width or density candidates, breakpoint-aware sizes, AVIF/WebP sources, and a fallback image.</p>
     </article>
     <article>
-      <span>04</span>
       <h3>Native framework APIs</h3>
       <p>Use Angular components, React components and hooks, or Svelte components, actions, and attachments.</p>
     </article>
@@ -277,7 +275,9 @@
       </article>
     </div>
     <p class="detect-note">
-      Netlify Large Media is selected when its environment is present. Explicit provider config always takes priority.
+      Netlify Large Media is selected when its environment is present.
+      <br />
+      Explicit provider config always takes priority.
     </p>
   </section>
 
@@ -395,10 +395,10 @@
             <tr>
               <th>React <code>&lt;img&gt;</code></th>
               <td>Native browser images when the application owns its markup and URLs</td>
-              <td
-                >The browser requests <code>src</code> unchanged; deploying to Vercel, Netlify, or Amplify does not rewrite
-                it</td
-              >
+              <td>
+                The browser requests <code>src</code> unchanged; deploying to Vercel, Netlify, or Amplify does not rewrite
+                it
+              </td>
               <td>
                 You want responsive sizes, format, and quality controlled in component code, plus picture output,
                 placeholders, preloads, and an optimizer that follows the deployment.
@@ -495,10 +495,8 @@
       control.
     </p>
     <div>
-      <a class="primary-action" href="#quickstart">Start with Desource Image <span>→</span></a><a
-        class="secondary-action"
-        href="https://github.com/DeSource-Labs/image">Read the source</a
-      >
+      <a class="primary-action" href="#quickstart">Start with Desource Image <span>→</span></a>
+      <a class="secondary-action" href="https://github.com/DeSource-Labs/image">Read the source</a>
     </div>
   </section>
 </main>
@@ -508,9 +506,9 @@
     <a class="brand" href="#top"><span>DS</span> Desource Image</a>
     <p>High-quality image optimization for React, Angular, and Svelte. MIT licensed.</p>
     <div>
-      <a href="https://github.com/DeSource-Labs/image">GitHub</a><a href="#api">Documentation</a><a
-        href="mailto:hello@desource-labs.org">Contact</a
-      >
+      <a href="https://github.com/DeSource-Labs/image">GitHub</a>
+      <a href="#api">Documentation</a>
+      <a href="mailto:hello@desource-labs.org">Contact</a>
     </div>
   </div>
 </footer>
@@ -613,7 +611,7 @@
     gap: 18px;
     min-height: 48px;
     padding: 0 20px;
-    border-radius: 10px;
+    border-radius: var(--radius-small);
     font-size: 0.82rem;
     font-weight: 800;
     text-decoration: none;
@@ -806,18 +804,20 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 28px;
+    gap: 0;
     min-height: 72px;
     color: #8496ab;
     font-size: 0.72rem;
     font-weight: 650;
     text-transform: uppercase;
   }
-  .trust-strip i {
-    width: 3px;
-    height: 3px;
-    border-radius: 50%;
-    background: #42556b;
+  .trust-strip span {
+    white-space: nowrap;
+  }
+  .trust-strip span + span {
+    margin-left: 24px;
+    padding-left: 24px;
+    border-left: 1px solid var(--line);
   }
   .problem {
     display: grid;
@@ -841,13 +841,8 @@
   .feature-grid article:last-child {
     border: 0;
   }
-  .feature-grid span {
-    color: var(--blue);
-    font-size: 0.68rem;
-    font-weight: 800;
-  }
   .feature-grid h3 {
-    margin: 50px 0 13px;
+    margin: 0 0 13px;
     font-size: 1.05rem;
   }
   .feature-grid p {
@@ -963,7 +958,7 @@
   .code-card {
     overflow: hidden;
     border: 1px solid var(--line);
-    border-radius: 20px;
+    border-radius: var(--radius);
     background: #050d17;
     box-shadow: 0 28px 70px rgba(0, 0, 0, 0.3);
   }
@@ -977,7 +972,7 @@
   .package-switch button {
     padding: 8px 13px;
     border: 0;
-    border-radius: 7px;
+    border-radius: 6px;
     color: #8092a8;
     background: transparent;
     font-size: 0.74rem;
@@ -1019,7 +1014,7 @@
   .install-card {
     padding: 28px;
     border: 1px solid rgba(7, 17, 31, 0.13);
-    border-radius: 20px;
+    border-radius: var(--radius);
     background: #fff;
     box-shadow: 0 28px 80px rgba(38, 33, 23, 0.1);
   }
@@ -1036,7 +1031,7 @@
     align-items: center;
     gap: 14px;
     padding: 14px;
-    border-radius: 10px;
+    border-radius: var(--radius-small);
     color: #d8e6f5;
     background: #07111f;
   }
@@ -1075,7 +1070,7 @@
     height: 24px;
     place-items: center;
     border: 1px solid #ccd2ca;
-    border-radius: 50%;
+    border-radius: 6px;
     font-size: 0.66rem;
     font-weight: 800;
   }
@@ -1114,7 +1109,7 @@
   .comparison-table {
     overflow-x: auto;
     border: 1px solid var(--line);
-    border-radius: 18px;
+    border-radius: var(--radius);
   }
   .comparison table {
     width: 100%;
@@ -1190,9 +1185,9 @@
     margin-bottom: 120px;
     padding: 80px;
     border: 1px solid rgba(191, 244, 139, 0.2);
-    border-radius: 30px;
+    border-radius: var(--radius);
     text-align: center;
-    background: radial-gradient(circle at 50% 110%, rgba(191, 244, 139, 0.14), transparent 48%), #0c192a;
+    background: var(--panel);
   }
   .cta h2 {
     margin-inline: auto;
@@ -1220,6 +1215,9 @@
   }
   footer a {
     text-decoration: none;
+  }
+  footer p {
+    margin: 0;
   }
   @media (max-width: 980px) {
     .hero {
@@ -1279,9 +1277,6 @@
       justify-content: flex-start;
       overflow: auto;
     }
-    .trust-strip i {
-      display: none;
-    }
     .problem,
     .autodetect,
     .playground-section,
@@ -1315,9 +1310,6 @@
       flex-direction: column;
       justify-content: center;
       gap: 18px;
-    }
-    footer p {
-      margin: 0;
     }
   }
 </style>

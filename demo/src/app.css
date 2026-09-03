@@ -11,15 +11,12 @@
   background: #07111f;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
-  --ink: #07111f;
-  --panel: #0c192a;
-  --panel-soft: #112238;
+  --panel: radial-gradient(circle at 50% 110%, rgba(191, 244, 139, 0.14), transparent 48%), #0c192a;
   --line: rgba(185, 209, 239, 0.14);
   --muted: #9eb0c6;
   --paper: #f5f2e9;
   --lime: #bff48b;
   --blue: #8fb8ff;
-  --sand: #f1c690;
   --radius: 12px;
   --radius-small: 8px;
 }
