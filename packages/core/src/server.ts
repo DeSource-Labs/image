@@ -18,7 +18,7 @@ export interface DsImageServerOptions {
 }
 
 type Next = (error?: unknown) => void;
-type NodeHandler<NodeRequest, NodeResponse> = (request: NodeRequest, response: NodeResponse) => void;
+type NodeHandler<NodeRequest, NodeResponse> = (request: NodeRequest, response: NodeResponse) => void | Promise<void>;
 type WebHandler = (request: Request) => Response | Promise<Response>;
 
 interface IpxModule<NodeRequest, NodeResponse> {
