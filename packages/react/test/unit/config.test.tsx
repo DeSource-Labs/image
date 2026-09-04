@@ -22,6 +22,7 @@ describe('React image config', () => {
 
     expect(first).toBe(second);
     expect(resolveCachedConfig(first)).toBe(first);
+    expect(resolveCachedConfig(undefined)).toBe(getDefaultImageConfig());
     expect(imageForConfig(first)).toBe(imageForConfig(first));
     expect(getDefaultImageConfig().provider).toBe('ipx');
   });

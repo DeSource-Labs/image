@@ -1,280 +1,93 @@
-export const providers = [
-  {
-    id: 'ipx',
-    name: 'IPX',
-    slug: 'ipx',
-    icon: '/providers/ipx.svg'
-  },
-  {
-    id: 'cloudinary',
-    name: 'Cloudinary',
-    slug: 'cloudinary',
-    icon: '/providers/cloudinary.svg'
-  },
-  {
-    id: 'imgix',
-    name: 'Imgix',
-    slug: 'imgix',
-    icon: '/providers/imgix.svg'
-  },
-  {
-    id: 'vercel',
-    name: 'Vercel',
-    slug: 'vercel',
-    icon: '/providers/vercel.svg'
-  },
-  {
-    id: 'netlifyImageCdn',
-    name: 'Netlify Image CDN',
-    slug: 'netlify-image-cdn',
-    icon: '/providers/netlify.svg'
-  },
-  {
-    id: 'awsAmplify',
-    name: 'AWS Amplify',
-    slug: 'aws-amplify',
-    icon: '/providers/aws-amplify.svg'
-  },
-  {
-    id: 'imagekit',
-    name: 'ImageKit',
-    slug: 'imagekit',
-    icon: '/providers/imagekit.svg'
-  },
-  {
-    id: 'cloudflare',
-    name: 'Cloudflare Transformations',
-    slug: 'cloudflare',
-    icon: '/providers/cloudflare.svg'
-  },
-  {
-    id: 'contentful',
-    name: 'Contentful',
-    slug: 'contentful',
-    icon: '/providers/contentful.svg'
-  },
-  {
-    id: 'directus',
-    name: 'Directus',
-    slug: 'directus',
-    icon: '/providers/directus.svg'
-  },
-  {
-    id: 'sanity',
-    name: 'Sanity',
-    slug: 'sanity',
-    icon: '/providers/sanity.svg'
-  },
-  {
-    id: 'storyblok',
-    name: 'Storyblok',
-    slug: 'storyblok',
-    icon: '/providers/storyblok.svg'
-  },
-  {
-    id: 'shopify',
-    name: 'Shopify',
-    slug: 'shopify',
-    icon: '/providers/shopify.svg'
-  },
-  {
-    id: 'supabase',
-    name: 'Supabase',
-    slug: 'supabase',
-    icon: '/providers/supabase.svg'
-  },
-  {
-    id: 'uploadcare',
-    name: 'Uploadcare',
-    slug: 'uploadcare',
-    icon: '/providers/uploadcare.svg'
-  },
-  {
-    id: 'unsplash',
-    name: 'Unsplash',
-    slug: 'unsplash',
-    icon: '/providers/unsplash.svg'
-  },
-  {
-    id: 'aliyun',
-    name: 'Aliyun',
-    slug: 'aliyun',
-    icon: '/providers/aliyun.svg'
-  },
-  {
-    id: 'bunny',
-    name: 'Bunny',
-    slug: 'bunny',
-    icon: '/providers/bunny.svg'
-  },
-  {
-    id: 'builderio',
-    name: 'Builder.io',
-    slug: 'builderio',
-    icon: '/providers/builderio.svg'
-  },
-  {
-    id: 'caisy',
-    name: 'Caisy',
-    slug: 'caisy',
-    icon: '/providers/caisy.svg'
-  },
-  {
-    id: 'cloudflareimages',
-    name: 'Cloudflare Images',
-    slug: 'cloudflareimages',
-    icon: '/providers/cloudflare.svg'
-  },
-  {
-    id: 'cloudimage',
-    name: 'Cloudimage',
-    slug: 'cloudimage',
-    icon: '/providers/cloudimage.svg'
-  },
-  {
-    id: 'edgeonePages',
-    name: 'EdgeOne Pages',
-    slug: 'edgeone-pages',
-    icon: '/providers/edgeone-pages.svg'
-  },
-  {
-    id: 'fastly',
-    name: 'Fastly',
-    slug: 'fastly',
-    icon: '/providers/fastly.svg'
-  },
-  {
-    id: 'filerobot',
-    name: 'Filerobot',
-    slug: 'filerobot',
-    icon: '/providers/filerobot.svg'
-  },
-  {
-    id: 'flyimg',
-    name: 'Flyimg',
-    slug: 'flyimg',
-    icon: '/providers/flyimg.svg'
-  },
-  {
-    id: 'github',
-    name: 'GitHub Avatars',
-    slug: 'github',
-    icon: '/providers/github.svg'
-  },
-  {
-    id: 'glide',
-    name: 'Glide',
-    slug: 'glide',
-    icon: '/providers/glide.svg'
-  },
-  {
-    id: 'gumlet',
-    name: 'Gumlet',
-    slug: 'gumlet',
-    icon: '/providers/gumlet.svg'
-  },
-  {
-    id: 'hygraph',
-    name: 'Hygraph',
-    slug: 'hygraph',
-    icon: '/providers/hygraph.svg'
-  },
-  {
-    id: 'imageengine',
-    name: 'ImageEngine',
-    slug: 'imageengine',
-    icon: '/providers/imageengine.svg'
-  },
-  {
-    id: 'imgproxy',
-    name: 'imgproxy',
-    slug: 'imgproxy',
-    icon: '/providers/imgproxy.svg'
-  },
-  {
-    id: 'ipxStatic',
-    name: 'IPX Static',
-    slug: 'ipx-static',
-    icon: '/providers/ipx.svg'
-  },
-  {
-    id: 'netlify',
-    name: 'Netlify',
-    slug: 'netlify',
-    icon: '/providers/netlify.svg'
-  },
-  {
-    id: 'netlifyLargeMedia',
-    name: 'Netlify Large Media',
-    slug: 'netlify-large-media',
-    icon: '/providers/netlify.svg'
-  },
-  {
-    id: 'picsum',
-    name: 'Picsum',
-    slug: 'picsum',
-    icon: '/providers/picsum.svg'
-  },
-  {
-    id: 'prepr',
-    name: 'Prepr',
-    slug: 'prepr',
-    icon: '/providers/prepr.svg'
-  },
-  {
-    id: 'none',
-    name: 'None',
-    slug: 'none',
-    icon: '/providers/none.svg'
-  },
-  {
-    id: 'prismic',
-    name: 'Prismic',
-    slug: 'prismic',
-    icon: '/providers/prismic.svg'
-  },
-  {
-    id: 'strapi',
-    name: 'Strapi',
-    slug: 'strapi',
-    icon: '/providers/strapi.svg'
-  },
-  {
-    id: 'strapi5',
-    name: 'Strapi 5',
-    slug: 'strapi5',
-    icon: '/providers/strapi.svg'
-  },
-  {
-    id: 'twicpics',
-    name: 'TwicPics',
-    slug: 'twicpics',
-    icon: '/providers/twicpics.svg'
-  },
-  {
-    id: 'umbraco',
-    name: 'Umbraco',
-    slug: 'umbraco',
-    icon: '/providers/umbraco.svg'
-  },
-  {
-    id: 'wagtail',
-    name: 'Wagtail',
-    slug: 'wagtail',
-    icon: '/providers/wagtail.svg'
-  },
-  {
-    id: 'weserv',
-    name: 'Weserv',
-    slug: 'weserv',
-    icon: '/providers/weserv.svg'
-  },
-  {
-    id: 'sirv',
-    name: 'Sirv',
-    slug: 'sirv',
-    icon: '/providers/sirv.svg'
-  }
-] as const;
+import { BUILT_IN_PROVIDER_NAMES, type BuiltInProviderName } from '@desource/image/providers';
 
-export type ProviderId = (typeof providers)[number]['id'];
+const featuredProviderIds = [
+  'ipx',
+  'cloudinary',
+  'imgix',
+  'vercel',
+  'netlifyImageCdn',
+  'awsAmplify',
+  'imagekit',
+  'cloudflare',
+  'contentful',
+  'directus',
+  'sanity',
+  'storyblok',
+  'shopify',
+  'supabase',
+  'uploadcare',
+  'unsplash'
+] as const satisfies readonly BuiltInProviderName[];
+
+const providerNames = {
+  aliyun: 'Aliyun',
+  awsAmplify: 'AWS Amplify',
+  bunny: 'Bunny',
+  builderio: 'Builder.io',
+  caisy: 'Caisy',
+  cloudflare: 'Cloudflare Transformations',
+  cloudflareimages: 'Cloudflare Images',
+  cloudimage: 'Cloudimage',
+  cloudinary: 'Cloudinary',
+  contentful: 'Contentful',
+  directus: 'Directus',
+  edgeonePages: 'EdgeOne Pages',
+  fastly: 'Fastly',
+  filerobot: 'Filerobot',
+  flyimg: 'Flyimg',
+  github: 'GitHub Avatars',
+  glide: 'Glide',
+  gumlet: 'Gumlet',
+  hygraph: 'Hygraph',
+  imageengine: 'ImageEngine',
+  imagekit: 'ImageKit',
+  imgix: 'Imgix',
+  imgproxy: 'imgproxy',
+  ipx: 'IPX',
+  ipxStatic: 'IPX Static',
+  netlify: 'Netlify',
+  netlifyImageCdn: 'Netlify Image CDN',
+  netlifyLargeMedia: 'Netlify Large Media',
+  none: 'None',
+  picsum: 'Picsum',
+  prepr: 'Prepr',
+  prismic: 'Prismic',
+  sanity: 'Sanity',
+  shopify: 'Shopify',
+  sirv: 'Sirv',
+  storyblok: 'Storyblok',
+  strapi: 'Strapi',
+  strapi5: 'Strapi 5',
+  supabase: 'Supabase',
+  twicpics: 'TwicPics',
+  umbraco: 'Umbraco',
+  unsplash: 'Unsplash',
+  uploadcare: 'Uploadcare',
+  vercel: 'Vercel',
+  wagtail: 'Wagtail',
+  weserv: 'Weserv'
+} satisfies Record<BuiltInProviderName, string>;
+
+const sharedIconProviders: Partial<Record<BuiltInProviderName, BuiltInProviderName>> = {
+  cloudflareimages: 'cloudflare',
+  ipxStatic: 'ipx',
+  netlifyImageCdn: 'netlify',
+  netlifyLargeMedia: 'netlify',
+  strapi5: 'strapi'
+};
+
+const featuredProviderIdSet = new Set<BuiltInProviderName>(featuredProviderIds);
+const providerIds = [...featuredProviderIds, ...BUILT_IN_PROVIDER_NAMES.filter((id) => !featuredProviderIdSet.has(id))];
+
+export type ProviderId = BuiltInProviderName;
+
+export const providers = providerIds.map((id) => ({
+  id,
+  name: providerNames[id],
+  slug: toProviderSlug(id),
+  icon: `/providers/${toProviderSlug(sharedIconProviders[id] ?? id)}.svg`
+}));
+
+function toProviderSlug(id: BuiltInProviderName): string {
+  return id.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
+}

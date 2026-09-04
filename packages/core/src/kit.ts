@@ -11,6 +11,16 @@ export {
   trimSlashes
 } from './utils.js';
 
+export {
+  createDsImageServer,
+  type DsImageNodeMiddleware,
+  type DsImageNodeRequest,
+  type DsImageServer,
+  type DsImageServerOptions,
+  type DsImageServerRuntime,
+  type DsImageWebHandler
+} from './server.js';
+
 export type ClassValue =
   | string
   | number
