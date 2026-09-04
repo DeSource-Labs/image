@@ -5,7 +5,7 @@
   "scripts": {
     "clean": "rimraf .svelte-kit build .vercel test-results",
     "clean:modules": "rimraf node_modules",
-    "prepare": "svelte-kit sync",
+    "prepare:deps": "svelte-kit sync",
     "dev": "vite dev",
     "build": "vite build",
     "preview": "vite preview",

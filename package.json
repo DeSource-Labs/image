@@ -11,7 +11,7 @@
     "build": "pnpm -r --filter \"./packages/**\" --stream run build",
     "build:demo": "pnpm --filter @desource/image-demo build",
     "dev:demo": "pnpm --filter @desource/image-demo dev",
-    "dev:prepare": "pnpm --filter @desource/image-demo prepare",
+    "dev:prepare": "pnpm --filter @desource/image-demo prepare:deps",
     "dev:angular": "pnpm --filter @desource/image-angular dev",
     "dev:react": "pnpm --filter @desource/image-react dev",
     "dev:svelte": "pnpm --filter @desource/image-svelte dev",
