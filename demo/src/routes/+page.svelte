@@ -1,6 +1,9 @@
 <script lang="ts">
-  import { Picture } from '@desource/image-svelte';
+  import { resolve } from '$app/paths';
+  import { Picture, Image } from '@desource/image-svelte';
   import Playground from '$lib/Playground.svelte';
+  import Gallery from '$lib/Gallery.svelte';
+  import { providers } from '$lib/providers';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
@@ -8,24 +11,15 @@
   let framework = $state<'angular' | 'react' | 'svelte'>('svelte');
   let installLabel = $state('Copy');
 
-  const providers = [
-    'IPX',
-    'Cloudinary',
-    'Imgix',
-    'Vercel',
-    'Netlify',
-    'AWS Amplify',
-    'ImageKit',
-    'Cloudflare',
-    'Contentful',
-    'Directus',
-    'Sanity',
-    'Storyblok',
-    'Shopify',
-    'Supabase',
-    'Uploadcare',
-    'Unsplash'
-  ];
+  let packageManager = $state<'npm' | 'yarn' | 'pnpm' | 'bun'>('npm');
+  const installCommand = $derived(
+    `${packageManager} ${packageManager === 'npm' ? 'install' : 'add'} @desource/image-${framework}`
+  );
+  const providerImages = providers.map((provider) => ({
+    src: provider.icon,
+    alt: provider.name,
+    href: resolve('/providers/[provider]', { provider: provider.slug })
+  }));
 
   const examples = {
     svelte: [
@@ -97,7 +91,7 @@
   };
 
   async function copyInstall() {
-    await navigator.clipboard.writeText(`pnpm add @desource/image-${framework}`);
+    await navigator.clipboard.writeText(installCommand);
     installLabel = 'Copied';
     globalThis.setTimeout(() => (installLabel = 'Copy'), 1400);
   }
@@ -134,14 +128,24 @@
 
 <header class="site-header">
   <div class="shell nav">
-    <a class="brand" href="#top" aria-label="Desource Image home"><span>DS</span> Desource Image</a>
+    <a class="brand" href="#top" aria-label="Desource Image home">
+      <Image src="/logo.png" format="avif" width="31" height="31" alt="DeSource Labs" />
+      Desource Image
+    </a>
     <nav aria-label="Primary navigation">
       <a href="#autodetect">Auto detect</a>
       <a href="#frameworks">Frameworks</a>
       <a href="#providers">Providers</a>
       <a href="#compare">Compare</a>
     </nav>
-    <a class="github-link" href="https://github.com/DeSource-Labs/image">GitHub <span>↗</span></a>
+    <a class="github-link" href="https://github.com/DeSource-Labs/image" aria-label="GitHub repository">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true">
+        <path
+          d="M12 .75a11.25 11.25 0 0 0-3.56 21.92c.56.1.77-.24.77-.54v-2.1c-3.13.68-3.79-1.33-3.79-1.33-.51-1.3-1.25-1.65-1.25-1.65-1.02-.7.08-.69.08-.69 1.13.08 1.73 1.16 1.73 1.16 1 1.72 2.64 1.22 3.28.93.1-.73.4-1.22.71-1.5-2.5-.28-5.13-1.25-5.13-5.56 0-1.23.44-2.23 1.16-3.02-.12-.28-.5-1.43.11-2.98 0 0 .95-.3 3.09 1.15a10.75 10.75 0 0 1 5.62 0c2.14-1.45 3.08-1.15 3.08-1.15.62 1.55.24 2.7.12 2.98.72.79 1.15 1.79 1.15 3.02 0 4.32-2.63 5.27-5.14 5.55.4.35.76 1.03.76 2.08v3.11c0 .3.2.65.77.54A11.25 11.25 0 0 0 12 .75Z"
+        />
+      </svg>
+      <span>GitHub</span>
+    </a>
   </div>
 </header>
 
@@ -333,20 +337,39 @@
         </p>
       </div>
       <div class="install-card">
-        <div class="package-switch">
-          <button class:active={framework === 'svelte'} onclick={() => (framework = 'svelte')}>Svelte</button><button
-            class:active={framework === 'react'}
-            onclick={() => (framework = 'react')}>React</button
-          ><button class:active={framework === 'angular'} onclick={() => (framework = 'angular')}>Angular</button>
+        <div class="install-selectors">
+          <div class="package-switch">
+            <button class:active={framework === 'svelte'} onclick={() => (framework = 'svelte')}>Svelte</button>
+            <button class:active={framework === 'react'} onclick={() => (framework = 'react')}>React</button>
+            <button class:active={framework === 'angular'} onclick={() => (framework = 'angular')}>Angular</button>
+          </div>
+          <select class="package-manager-switch" aria-label="Package manager" bind:value={packageManager}>
+            <option value="npm">npm</option>
+            <option value="yarn">yarn</option>
+            <option value="pnpm">pnpm</option>
+            <option value="bun">bun</option>
+          </select>
         </div>
         <div class="install-command">
-          <code>pnpm add @desource/image-{framework}</code><button onclick={copyInstall}>{installLabel}</button>
+          <code>{installCommand}</code><button onclick={copyInstall}>{installLabel}</button>
         </div>
         <ol>
-          <li><span>1</span> Add the framework package</li>
-          <li><span>2</span> Render <code>Image</code>, <code>Picture</code>, or a native-element integration</li>
-          <li><span>3</span> Set quality, format, crop, and responsive sizes in code</li>
-          <li><span>4</span> Let <code>provider: 'auto'</code> follow the deployment</li>
+          <li>
+            <span class="step-number" aria-hidden="true">1</span>
+            <div>Add the framework package</div>
+          </li>
+          <li>
+            <span class="step-number" aria-hidden="true">2</span>
+            <div>Render <code>Image</code>, <code>Picture</code>, or a native-element integration</div>
+          </li>
+          <li>
+            <span class="step-number" aria-hidden="true">3</span>
+            <div>Set quality, format, crop, and responsive sizes in code</div>
+          </li>
+          <li>
+            <span class="step-number" aria-hidden="true">4</span>
+            <div>Let <code>provider: 'auto'</code> follow the deployment</div>
+          </li>
         </ol>
       </div>
     </div>
@@ -363,11 +386,24 @@
         remain tree-shakable. Set a default provider or override it per image.
       </p>
     </div>
-    <div class="provider-list">
-      {#each providers as provider, index (provider)}<span><b>{String(index + 1).padStart(2, '0')}</b>{provider}</span
-        >{/each}
-      <span class="more"><b>+</b>and more</span>
+    <div class="provider-gallery">
+      <Gallery
+        images={providerImages}
+        overlayBlurColor="#07111f"
+        imageFit="contain"
+        imageBorderRadius="18px"
+        minRadius={600}
+      />
     </div>
+    <p class="gallery-hint">Drag to explore. Select a provider for setup, options, and examples.</p>
+    <details class="provider-directory animated-details">
+      <summary>Browse all {providers.length} providers</summary>
+      <ul>
+        {#each providers as provider (provider.slug)}<li>
+            <a href={resolve('/providers/[provider]', { provider: provider.slug })}>{provider.name}</a>
+          </li>{/each}
+      </ul>
+    </details>
   </section>
 
   <section class="comparison" id="compare">
@@ -394,51 +430,59 @@
           <tbody>
             <tr>
               <th>React <code>&lt;img&gt;</code></th>
-              <td>Native browser images when the application owns its markup and URLs</td>
-              <td>
+              <td data-label="Best fit">Native browser images when the application owns its markup and URLs</td>
+              <td data-label="Provider choice">
                 The browser requests <code>src</code> unchanged; deploying to Vercel, Netlify, or Amplify does not rewrite
                 it
               </td>
-              <td>
+              <td data-label="Use Desource Image when">
                 You want responsive sizes, format, and quality controlled in component code, plus picture output,
                 placeholders, preloads, and an optimizer that follows the deployment.
               </td>
             </tr>
             <tr>
               <th><a href="https://nextjs.org/docs/app/api-reference/components/image">next/image</a></th>
-              <td>Next-only applications using the Next.js image pipeline</td>
-              <td>
+              <td data-label="Best fit">Next-only applications using the Next.js image pipeline</td>
+              <td data-label="Provider choice">
                 Next.js optimizer by default. Vercel, Netlify, and AWS Amplify integrate <code>next/image</code> with their
                 hosting pipelines. Other image services use a custom loader.
               </td>
-              <td>
+              <td data-label="Use Desource Image when">
                 You want broader built-in provider support without replacing the component, or provider policy, presets,
                 aliases, and source rules must remain stable across frameworks and hosts.
               </td>
             </tr>
             <tr>
               <th><a href="https://angular.dev/guide/image-optimization">NgOptimizedImage</a></th>
-              <td>Angular performance checks, loading hints, and responsive image output</td>
-              <td>A generic, built-in, or custom <code>IMAGE_LOADER</code> selected in Angular configuration</td>
-              <td>
+              <td data-label="Best fit">Angular performance checks, loading hints, and responsive image output</td>
+              <td data-label="Provider choice">
+                A generic, built-in, or custom <code>IMAGE_LOADER</code> selected in Angular configuration
+              </td>
+              <td data-label="Use Desource Image when">
                 You want deployment auto-detection, local IPX, native picture output, per-image providers, or a broader
                 provider catalog.
               </td>
             </tr>
             <tr>
               <th><a href="https://svelte.dev/docs/kit/images">enhanced:img</a></th>
-              <td>Static local assets transformed during the Vite build</td>
-              <td>Images are processed at build time; the deployment does not switch them to its image service</td>
-              <td>
+              <td data-label="Best fit">Static local assets transformed during the Vite build</td>
+              <td data-label="Provider choice"
+                >Images are processed at build time; the deployment does not switch them to its image service</td
+              >
+              <td data-label="Use Desource Image when">
                 You want local images transformed on demand, images from a CMS or API, or the deployment platform's
                 optimizer in production.
               </td>
             </tr>
             <tr>
               <th><a href="https://unpic.pics/">Unpic</a></th>
-              <td>Cross-framework responsive images already hosted on recognizable CDN or CMS URLs</td>
-              <td>Detects the provider from each source URL; local or unknown sources need a fallback</td>
-              <td>
+              <td data-label="Best fit">
+                Cross-framework responsive images already hosted on recognizable CDN or CMS URLs
+              </td>
+              <td data-label="Provider choice">
+                Detects the provider from each source URL; local or unknown sources need a fallback
+              </td>
+              <td data-label="Use Desource Image when">
                 Vercel, Netlify, or AWS Amplify should choose the optimizer for every source, including relative paths,
                 with presets, aliases, source rules, picture output, or server adapters.
               </td>
@@ -503,7 +547,10 @@
 
 <footer>
   <div class="shell">
-    <a class="brand" href="#top"><span>DS</span> Desource Image</a>
+    <a class="brand" href="#top">
+      <Image src="/logo.png" format="avif" width="31" height="31" alt="DeSource Labs" />
+      Desource Image
+    </a>
     <p>High-quality image optimization for React, Angular, and Svelte. MIT licensed.</p>
     <div>
       <a href="https://github.com/DeSource-Labs/image">GitHub</a>
@@ -536,17 +583,6 @@
     font-size: 0.95rem;
     font-weight: 750;
     text-decoration: none;
-  }
-  .brand span {
-    display: grid;
-    width: 31px;
-    height: 31px;
-    place-items: center;
-    border: 1px solid rgba(191, 244, 139, 0.45);
-    border-radius: 8px;
-    color: var(--lime);
-    font-size: 0.67rem;
-    letter-spacing: 0.08em;
   }
   nav {
     display: flex;
@@ -634,6 +670,10 @@
     padding-left: 14px;
     border-left: 1px solid var(--line);
   }
+  .hero-stats div:first-child {
+    padding-left: 0;
+    border-left: 0;
+  }
   .hero-stats dt {
     color: #f4f8fd;
     font-size: 1.15rem;
@@ -656,13 +696,11 @@
     pointer-events: none;
     content: '';
     opacity: 0.9;
-    /* deslop-ignore-next-line 06 -- this fading measurement grid explains image cropping and transformation. */
     background-image:
       linear-gradient(rgba(143, 184, 255, 0.14) 1px, transparent 1px),
       linear-gradient(90deg, rgba(143, 184, 255, 0.14) 1px, transparent 1px);
     background-position: 23px 23px;
     background-size: 46px 46px;
-    /* deslop-ignore-next-line 06 -- edge fade makes the measurement grid read as unbounded space. */
     mask-image: radial-gradient(ellipse at center, black 48%, rgba(0, 0, 0, 0.72) 72%, transparent 100%);
   }
   .image-frame {
@@ -1021,7 +1059,6 @@
   .package-switch {
     display: flex;
     gap: 5px;
-    margin-bottom: 20px;
   }
   .package-switch button {
     background: #edf0ea;
@@ -1038,9 +1075,9 @@
   .install-command code {
     min-width: 0;
     flex: 1;
-    overflow: hidden;
+    overflow-wrap: anywhere;
     font-size: 0.77rem;
-    text-overflow: ellipsis;
+    line-height: 1.6;
   }
   .install-command button {
     border: 0;
@@ -1060,11 +1097,13 @@
     font-size: 0.82rem;
   }
   .install-card li {
-    display: flex;
-    align-items: center;
+    display: grid;
+    grid-template-columns: 24px minmax(0, 1fr);
+    align-items: start;
+    line-height: 1.7;
     gap: 11px;
   }
-  .install-card li span {
+  .install-card .step-number {
     display: grid;
     width: 24px;
     height: 24px;
@@ -1077,29 +1116,60 @@
   .providers {
     padding-block: 150px;
   }
-  .provider-list {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    border-top: 1px solid var(--line);
-    border-left: 1px solid var(--line);
+  .provider-gallery {
+    height: clamp(420px, 55vw, 620px);
   }
-  .provider-list span {
-    display: flex;
-    gap: 16px;
-    align-items: center;
-    min-height: 70px;
-    padding: 16px;
-    border-right: 1px solid var(--line);
-    border-bottom: 1px solid var(--line);
-    color: #cad6e4;
-    font-size: 0.82rem;
+  .gallery-hint {
+    color: var(--muted);
+    text-align: center;
+    font-size: 0.85rem;
   }
-  .provider-list b {
-    color: #5e728a;
-    font-size: 0.65rem;
+  .provider-directory {
+    margin-top: 28px;
+    border-block: 1px solid var(--line);
+    padding: 20px 0;
   }
-  .provider-list .more {
+  .provider-directory summary {
+    cursor: pointer;
     color: var(--lime);
+  }
+  .provider-directory ul {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 16px;
+    padding: 24px 0 0;
+    list-style: none;
+  }
+  .provider-directory li {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    text-wrap: nowrap;
+  }
+  .provider-directory a {
+    color: #cad6e4;
+    font-size: 0.85rem;
+  }
+  .install-selectors {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .package-manager-switch {
+    min-width: 70px;
+    padding: 8px;
+    border-radius: 6px;
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: #07111f;
+    background: var(--lime);
+    border: none;
+    cursor: pointer;
+  }
+  .install-card,
+  .code-card {
+    min-width: 0;
   }
   .comparison {
     padding-block: 140px;
@@ -1219,6 +1289,58 @@
   footer p {
     margin: 0;
   }
+  @media (max-width: 1023px) {
+    .comparison-table {
+      overflow: visible;
+      border: 0;
+      border-radius: 0;
+    }
+    .comparison table {
+      display: block;
+      min-width: 0;
+    }
+    .comparison thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+    .comparison tbody {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+    .comparison tr {
+      display: block;
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: #081421;
+    }
+    .comparison tbody th {
+      display: block;
+      width: auto;
+      font-size: 1rem;
+    }
+    .comparison td {
+      display: block;
+    }
+    .comparison th,
+    .comparison td {
+      border: 0;
+      padding: 16px 20px;
+    }
+    .comparison td::before {
+      content: attr(data-label);
+      display: block;
+      margin-bottom: 8px;
+      color: var(--blue);
+      font-size: 0.7rem;
+      font-weight: 750;
+    }
+  }
   @media (max-width: 980px) {
     .hero {
       grid-template-columns: 1fr;
@@ -1252,17 +1374,38 @@
     .feature-grid article:nth-child(2) {
       border-right: 0;
     }
-    .provider-list {
-      grid-template-columns: repeat(3, 1fr);
-    }
     .detect-grid {
       grid-template-columns: 1fr 1fr;
     }
     .api-list {
       grid-template-columns: 1fr 1fr;
     }
+    .providers {
+      width: 100%;
+      margin-inline: unset;
+    }
+    .providers > :not(.provider-gallery) {
+      padding-left: 20px;
+      padding-right: 20px;
+    }
   }
   @media (max-width: 680px) {
+    .comparison tbody {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .trust-strip span,
+    .trust-strip span + span {
+      grid-column: span 2;
+      margin: 0;
+      padding: 0;
+      border: 0;
+    }
+    .trust-strip span:nth-child(4) {
+      grid-column: 2 / span 2;
+    }
+    .trust-strip span:nth-child(5) {
+      grid-column: 4 / span 2;
+    }
     nav {
       display: none;
     }
@@ -1274,8 +1417,11 @@
       gap: 14px;
     }
     .trust-strip .shell {
-      justify-content: flex-start;
-      overflow: auto;
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 16px 8px;
+      padding-block: 20px;
+      text-align: center;
     }
     .problem,
     .autodetect,
@@ -1286,7 +1432,6 @@
     }
     .feature-grid,
     .detect-grid,
-    .provider-list,
     .api-list {
       grid-template-columns: 1fr;
     }
@@ -1309,6 +1454,42 @@
       align-items: flex-start;
       flex-direction: column;
       justify-content: center;
+      gap: 18px;
+    }
+  }
+  @media (max-width: 480px) {
+    .hero-actions > a {
+      width: 100%;
+    }
+    .github-link {
+      min-width: 44px;
+      min-height: 44px;
+      justify-content: center;
+    }
+    .github-link span {
+      display: none;
+    }
+    .install-card {
+      padding: 18px 14px;
+    }
+    .install-selectors {
+      gap: 8px;
+    }
+    .package-switch {
+      gap: 3px;
+    }
+    .package-switch button {
+      padding: 8px;
+      font-size: 0.7rem;
+    }
+    .install-command {
+      padding: 12px;
+      gap: 8px;
+    }
+    .install-command button {
+      flex-shrink: 0;
+    }
+    .install-card ol {
       gap: 18px;
     }
   }

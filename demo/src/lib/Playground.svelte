@@ -26,7 +26,7 @@
   const url = $derived(image('/img/workspace.jpg', { width, height, quality, format, fit }));
 
   async function copyUrl() {
-    await navigator.clipboard.writeText(url);
+    await navigator.clipboard.writeText(new URL(url, window.location.origin).href);
     copyLabel = 'Copied';
     globalThis.setTimeout(() => (copyLabel = 'Copy URL'), 1400);
   }
@@ -183,6 +183,7 @@
     font-weight: 650;
   }
   .controls {
+    min-width: 0;
     display: flex;
     flex-direction: column;
     gap: 24px;
@@ -231,10 +232,14 @@
   }
   .control-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
   }
+  label {
+    min-width: 0;
+  }
   select {
+    min-width: 0;
     width: 100%;
     padding: 11px 12px;
     border: 1px solid var(--line);
@@ -244,7 +249,11 @@
   }
   input[type='range'],
   input[type='checkbox'],
+  label {
+    min-width: 0;
+  }
   select {
+    min-width: 0;
     cursor: pointer;
   }
   .switch-row {
@@ -299,7 +308,8 @@
     color: #bed1e8;
     font-size: 0.72rem;
     text-overflow: ellipsis;
-    white-space: nowrap;
+    overflow-wrap: anywhere;
+    white-space: normal;
   }
   button {
     padding: 9px 11px;
@@ -326,10 +336,26 @@
   }
   @media (max-width: 520px) {
     .controls {
-      padding: 24px 18px;
+      min-width: 0;
+      padding: 22px 14px;
     }
-    .control-grid {
-      grid-template-columns: 1fr;
+    .preview {
+      padding: 10px;
+    }
+    .preview-bar {
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 10px;
+      font-size: 0.65rem;
+    }
+    .preview-bar > span:nth-child(2) {
+      text-align: center;
+    }
+    .image-stage,
+    .image-stage img {
+      min-height: 260px;
+    }
+    .switch-row input {
+      flex-shrink: 0;
     }
     .url-output {
       align-items: stretch;

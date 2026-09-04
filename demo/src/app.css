@@ -125,6 +125,35 @@ h2 {
   line-height: 1.75;
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  .animated-details::details-content {
+    opacity: 0;
+    transition:
+      opacity 180ms ease,
+      content-visibility 180ms allow-discrete;
+  }
+
+  .animated-details[open]::details-content {
+    opacity: 1;
+  }
+
+  @supports (interpolate-size: allow-keywords) {
+    .animated-details::details-content {
+      interpolate-size: allow-keywords;
+      block-size: 0;
+      overflow: clip;
+      transition:
+        block-size 180ms ease,
+        opacity 180ms ease,
+        content-visibility 180ms allow-discrete;
+    }
+
+    .animated-details[open]::details-content {
+      block-size: auto;
+    }
+  }
+}
+
 @media (max-width: 640px) {
   .shell {
     width: min(100% - 24px, 1180px);
