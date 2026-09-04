@@ -1,6 +1,6 @@
 <div align="center">
-  <h1>@desource/image</h1>
-  <p><strong>Framework-independent image URLs, responsive attributes, picture sources, providers, presets, aliases, placeholders, and preload metadata.</strong></p>
+  <h1>Desource Image Core - Framework-independent image optimization</h1>
+  <p><strong><code>@desource/image</code> provides URL generation, responsive attributes, picture sources, configuration, presets, aliases, and provider tools for any JavaScript runtime.</strong></p>
 
   <p>
     <a href="https://www.npmjs.com/package/@desource/image"><img src="https://img.shields.io/npm/v/@desource/image?logo=npm" alt="npm version"></a>
@@ -10,20 +10,29 @@
   </p>
 </div>
 
-`@desource/image` is the headless engine used by `@desource/image-angular`, `@desource/image-react`, and `@desource/image-svelte`.
+AI-assisted development moves ideas into working products quickly. Desource Image keeps image preparation inside that development loop. Add one suitable local or remote source, then control its output with typed image options.
 
-It has no DOM dependency for normal URL and attribute generation. Use it directly when you need a callable `$img` helper, provider URLs, responsive `srcset`, `<picture>` data, preload links, source validation, or custom provider utilities outside a framework renderer.
+Keep `/img/hero.jpg` instead of exporting `hero-480.webp`, `hero-960.webp`, and `hero-1600.webp`. The core engine generates provider URLs, responsive `srcset` data, `<picture>` sources, placeholders, and preload metadata, then applies presets, aliases, and source validation.
+
+For MVPs and everyday product development, image quality becomes a code edit. Change `quality: 80` to `quality: 65` and keep the same source file, helper call, and URL in application code.
+
+`@desource/image` powers the Angular, React, and Svelte packages, but it does not depend on a DOM or framework renderer. Use it anywhere that needs the same image URL and responsive-output rules: server templates, workers, metadata pipelines, emails, design systems, or custom components.
+
+Provider configuration is optional. On Vercel, Netlify, or AWS Amplify, Desource Image selects the platform image service from the deployment environment. Everywhere else, it falls back to the built-in IPX path. An explicit provider always wins.
 
 ## Why use the core package directly?
 
-Use `@desource/image` when image rules should live outside a component:
+Use `@desource/image` when image rules should live above a component:
 
-- Generate URLs for metadata pipelines, server templates, emails, Open Graph images, or CMS previews.
-- Share provider config across Angular, React, Svelte, workers, and Node scripts.
-- Create a small `$img` helper with presets and aliases.
-- Build a custom renderer without reimplementing responsive widths, density candidates, placeholders, or picture sources.
-- Author a provider once and use it from every framework package.
-- Validate remote and local sources before they reach a public optimizer endpoint.
+- Change image quality, format, crop, or responsive sizes in code while the source and filename stay unchanged.
+- Start with one suitable image and generate the widths and formats each screen needs.
+- Generate one URL or complete `src`, `srcset`, `sizes`, `<picture>`, placeholder, and preload data.
+- Let the deployment select Vercel, Netlify, or AWS Amplify, with IPX for local and other environments.
+- Share deployment detection, provider config, presets, aliases, and source rules across Angular, React, Svelte, workers, and Node scripts.
+- Create a callable `$img` helper for CSS, metadata, canvas, Open Graph images, email, or CMS previews.
+- Build a custom renderer without reimplementing width candidates, density candidates, format fallbacks, or preload metadata.
+- Author one typed provider and use it from every framework package.
+- Validate local and remote sources before they reach a public optimizer endpoint.
 
 If you only render images through one framework package, install that framework package first. It already depends on `@desource/image`.
 
@@ -162,7 +171,7 @@ export const config: ImageConfig = {
 
 ### Provider detection
 
-`provider: 'auto'` is the default. Detection uses `std-env` once.
+`provider: 'auto'` is the default. Desource Image detects the deployment environment once and selects its image backend:
 
 | Runtime             | Provider            |
 | ------------------- | ------------------- |
@@ -172,7 +181,9 @@ export const config: ImageConfig = {
 | Netlify Large Media | `netlifyLargeMedia` |
 | Other / local       | `ipx`               |
 
-An explicit provider bypasses detection. The package does not read Desource-specific environment variables and does not infer providers from browser hostnames.
+An explicit provider bypasses detection. React and Svelte Vite integrations can compile the result into client and SSR bundles, preventing provider drift during hydration.
+
+Detection is based on the deployment, not the source URL. This lets the same local path use the platform optimizer in production and IPX during local development. The package does not read environment variables specific to Desource Image or infer providers from browser hostnames.
 
 ### Source validation
 
@@ -243,7 +254,7 @@ The main entry includes a small default registry:
 - `netlifyLargeMedia`
 - `none`
 
-Import the full catalog only when required:
+Import all 46 provider modules only when required:
 
 ```ts
 import { BUILT_IN_PROVIDER_NAMES, createBuiltInProviders } from '@desource/image/providers';
@@ -265,7 +276,7 @@ Provider behavior is parity-tested against a pinned Nuxt Image package where com
 
 ## Custom providers
 
-The provider contract is Desource's own shape. It is intentionally small: a provider receives a normalized source, merged options, and an image context, then returns a URL.
+The provider contract is Desource Image's own shape. It is intentionally small: a provider receives a normalized source, merged options, and an image context, then returns a URL.
 
 ```ts
 import { configureProvider, defineProvider } from '@desource/image';

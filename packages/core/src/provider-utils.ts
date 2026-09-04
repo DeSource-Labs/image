@@ -9,7 +9,7 @@ import type {
   ImageProviderSetup,
   ModifierValue
 } from './types.js';
-import { appendQuery, joinURL, normalizeFormat, stableModifiers } from './utils.js';
+import { appendQuery, joinURL, normalizeFormat, stableModifiers, stringifyModifierValue } from './utils.js';
 
 export interface GenericProviderOptions {
   baseURL?: string;
@@ -117,12 +117,7 @@ export function mappedModifiers(
     }
 
     const mapper = valueMap[key];
-    const value =
-      typeof mapper === 'function'
-        ? mapper(rawValue)
-        : mapper && typeof rawValue === 'string'
-          ? (mapper[rawValue] ?? rawValue)
-          : rawValue;
+    const value = mapModifierValue(rawValue, mapper);
 
     result[keyMap[key] ?? key] = value;
   }
@@ -153,12 +148,10 @@ export function createMappedQueryProvider(
   return {
     name,
     defaults,
-    getImage(
-      src,
-      providerOptions: ImageProviderRequestOptions<GenericProviderOptions> = { modifiers: {} }
-    ): ImageProviderResult {
-      const options = { ...defaults, ...providerOptions };
-      const input = inputFromModifiers(src, providerOptions.modifiers);
+    getImage(src, providerOptions?: ImageProviderRequestOptions<GenericProviderOptions>): ImageProviderResult {
+      const requestOptions = providerOptions ?? emptyProviderOptions;
+      const options = { ...defaults, ...requestOptions };
+      const input = inputFromModifiers(src, requestOptions.modifiers);
       return {
         url: mappedQueryURL(input, options, keyMap, valueMap),
         isOptimized: isTransformable(input)
@@ -172,7 +165,7 @@ export function pathOperations(
   keyMap: ModifierKeyMap = {},
   valueMap: ModifierValueMap = {},
   formatter: (key: string, value: Exclude<ModifierValue, undefined | null>) => string = (key, value) =>
-    `${key}_${value}`,
+    `${key}_${stringifyModifierValue(value)}`,
   joinWith = ','
 ): string {
   return stableModifiers(mappedModifiers(input, keyMap, valueMap))
@@ -182,6 +175,23 @@ export function pathOperations(
 
 export function cleanColor(value: Exclude<ModifierValue, undefined | null>): ModifierValue {
   return typeof value === 'string' && value.startsWith('#') ? value.slice(1) : value;
+}
+
+const emptyProviderOptions = { modifiers: {} } satisfies ImageProviderRequestOptions<GenericProviderOptions>;
+
+function mapModifierValue(
+  rawValue: Exclude<ModifierValue, undefined | null>,
+  mapper: ModifierValueMap[string] | undefined
+): ModifierValue {
+  if (typeof mapper === 'function') {
+    return mapper(rawValue);
+  }
+
+  if (mapper && typeof rawValue === 'string') {
+    return mapper[rawValue] ?? rawValue;
+  }
+
+  return rawValue;
 }
 
 export const formatJpgValue = {

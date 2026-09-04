@@ -9,9 +9,9 @@ import { DsImageComponent, DsImageDirective, DsPictureComponent, DsPictureDirect
   template: `
     <main>
       <header>
-        <span class="eyebrow">Angular package fixture</span>
-        <h1>One image API, four Angular surfaces.</h1>
-        <p>Components and attribute directives share the same resolved provider configuration.</p>
+        <span class="eyebrow">Desource Image for Angular</span>
+        <h1>Optimized images across four Angular surfaces.</h1>
+        <p>Image and picture components and directives share one provider and responsive-output model.</p>
       </header>
 
       <label class="control">

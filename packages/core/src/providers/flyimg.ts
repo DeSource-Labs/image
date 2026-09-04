@@ -1,8 +1,7 @@
 // https://docs.flyimg.io/url-options/
 
 import { joinURL, hasProtocol } from 'ufo';
-import { createOperationsGenerator } from '../utils.js';
-import { isDevelopment } from '../utils.js';
+import { createOperationsGenerator, isDevelopment } from '../utils.js';
 import { configureProvider, defineProvider, type ProviderOptionsOf } from '../provider-utils.js';
 
 /**

@@ -108,7 +108,6 @@ export {
   normalizeFormat,
   parseSize,
   stableModifiers,
-  stripLeadingSlash,
   toNumber,
   uniqueSorted
 } from './utils.js';

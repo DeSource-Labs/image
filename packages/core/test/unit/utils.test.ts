@@ -16,7 +16,6 @@ import {
   normalizeFormat,
   parseSize,
   stableModifiers,
-  stripLeadingSlash,
   toNumber,
   uniqueSorted
 } from '@src/index';
@@ -107,7 +106,6 @@ describe('generic value and URL utilities', () => {
     expect(isDataSource('/photo.jpg')).toBe(false);
     expect(isLocalSource('/photo.jpg')).toBe(true);
     expect(isLocalSource('//example.com/photo.jpg')).toBe(false);
-    expect(stripLeadingSlash('///photo.jpg')).toBe('photo.jpg');
     expect(normalizeFormat('jpg')).toBe('jpeg');
     expect(normalizeFormat('webp')).toBe('webp');
     expect(normalizeFormat(undefined)).toBeUndefined();

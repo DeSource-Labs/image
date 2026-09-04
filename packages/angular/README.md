@@ -1,6 +1,6 @@
 <div align="center">
-  <h1>@desource/image-angular</h1>
-  <p><strong>Angular image components, directives, provider configuration, Angular IMAGE_LOADER integration, and SSR middleware.</strong></p>
+  <h1>Desource Image - Optimized images for Angular</h1>
+  <p><strong>High-quality image optimization with responsive, provider-first and SSR-friendly workflow for Angular.</strong></p>
 
   <p>
     <a href="https://www.npmjs.com/package/@desource/image-angular"><img src="https://img.shields.io/npm/v/@desource/image-angular?logo=angular&logoColor=white" alt="npm version"></a>
@@ -10,27 +10,39 @@
   </p>
 </div>
 
-`@desource/image-angular` brings the shared Desource Image engine to Angular through standalone components, native-element directives, a callable service, `IMAGE_LOADER` integration, head preloads, placeholder lifecycle, and lazy IPX middleware for SSR.
+AI-assisted development moves ideas into working products quickly. Desource Image keeps image preparation inside that development loop. Add one suitable local or remote source, then control its output with component inputs.
+
+Keep `/img/hero.jpg` instead of exporting `hero-480.webp`, `hero-960.webp`, and `hero-1600.webp`. Desource Image turns one image input into provider URLs, responsive `srcset`, `<picture>` sources, placeholders, preload metadata, presets, aliases, source validation, and local IPX routes.
+
+For MVPs and everyday product development, image quality becomes a template edit. Change `quality="80"` to `quality="65"` and keep the same source file, component, and URL.
+
+`@desource/image-angular` provides standalone components, native-element directives, a callable service, and an `IMAGE_LOADER` for `NgOptimizedImage`. Every rendering API keeps native `<img>` and `<picture>` elements in the final output.
+
+Provider configuration is optional. On Vercel, Netlify, or AWS Amplify, Desource Image selects the platform image service from the deployment environment. Everywhere else, it falls back to the built-in IPX path. An explicit provider always wins.
 
 The package supports Angular 19, 20, 21, and 22.
 
-## Why use it?
+## Why Desource Image for Angular?
 
-Angular's `NgOptimizedImage` is a strong built-in directive for enforcing image best practices. It can prioritize LCP images, generate `srcset`, work with Angular image loaders, and warn about common layout problems.
+Angular's `NgOptimizedImage` remains a strong built-in choice for performance checks and loading guidance on a native `<img>`. Desource Image adds deployment-aware provider selection, native `<picture>` output, per-image providers, and local IPX for Angular SSR.
 
-Use Desource Image when your image layer needs more than a single `<img>` directive:
+- **Built for fast product iterations.** Change image quality, format, crop, or responsive sizes in the template. Source files and filenames stay unchanged.
+- **One source instead of exported variants.** Start with one suitable image and generate the widths and formats each screen needs.
+- **Deployment-aware provider selection.** Leave `provider` on `auto`. Desource Image detects Vercel, Netlify, or AWS Amplify and uses IPX for local or other environments.
+- **`<picture>` is a first-class API.** Components and directives generate ordered AVIF/WebP sources with fallback control.
+- **Native framework APIs.** Use standalone components and native-element directives. Output remains native `<img>` and `<picture>` markup.
+- **46 built-in provider modules.** Import one provider subpath, use the complete registry, or register a typed custom provider.
+- **Built-in local optimizer.** Angular SSR middleware can serve IPX transformations without a separate image service.
+- **`NgOptimizedImage` still works.** `provideDsImage()` registers Desource Image as Angular's `IMAGE_LOADER`.
 
-- You want Angular components and native-element directives from the same package.
-- You need first-class `<picture>` output with AVIF/WebP sources and fallback control.
-- You want the same provider, preset, alias, and validation model used by React and Svelte packages.
-- You need a larger provider catalog, typed custom providers, or provider behavior inspired by `@nuxt/image`.
-- You want local IPX middleware for Angular SSR instead of writing the optimizer route yourself.
-- You want generated placeholders, preload links, and provider URLs from one config object.
-- You still want to use `NgOptimizedImage`, but with Desource registered as Angular's `IMAGE_LOADER`.
+### How it compares
 
-If `NgOptimizedImage` plus one Angular loader already covers your app, keep it. Desource Image is for teams that need Angular-native rendering plus a portable provider model.
+| Option                                                             | Best fit                                                                         | How optimization is selected                                                                                                                                      | Choose Desource Image when                                                                                                                                                                                  |
+| ------------------------------------------------------------------ | -------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`NgOptimizedImage`](https://angular.dev/guide/image-optimization) | Angular performance checks, loading hints, and responsive `<img>` output         | Generic loader by default; a built-in or custom `IMAGE_LOADER` is selected in Angular configuration. Changing hosts does not select another loader automatically. | You want deployment auto-detection, local IPX, native `<picture>`, per-image providers instead of maintaining an `IMAGE_LOADER`, a broader provider catalog, or shared image configuration outside Angular. |
+| [Unpic Angular](https://unpic.pics/img/angular/)                   | Cross-framework responsive images already hosted on recognizable CDN or CMS URLs | Detects the provider from each `src` URL. Local or unknown sources need a fallback or explicit provider; the deployment itself is not the selection signal.       | Vercel, Netlify, or AWS Amplify should choose the optimizer for every source, including relative paths, and you also need presets, aliases, source rules, `<picture>`, or server adapters.                  |
 
-Reference: [Angular NgOptimizedImage guide](https://angular.dev/guide/image-optimization).
+Use `NgOptimizedImage` when its performance guidance and one loader cover the application. Choose Desource Image when the optimizer should follow the deployment, Angular needs native `<picture>` and local IPX, or the same provider policy must work outside Angular.
 
 ## Install
 

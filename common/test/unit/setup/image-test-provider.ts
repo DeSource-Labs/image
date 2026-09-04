@@ -1,11 +1,12 @@
 import { defineProvider, type ImageConfig } from '@desource/image';
+import { stringifyModifierValue } from '@desource/image/kit';
 
 export const imageComponentTestProvider = defineProvider({
   getImage(src, { modifiers }) {
     const query = new URLSearchParams();
     for (const [key, value] of Object.entries(modifiers)) {
       if (value !== undefined && value !== false) {
-        query.set(key, String(value));
+        query.set(key, stringifyModifierValue(value));
       }
     }
 

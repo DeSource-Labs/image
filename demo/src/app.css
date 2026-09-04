@@ -11,15 +11,14 @@
   background: #07111f;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
-  --ink: #07111f;
-  --panel: #0c192a;
-  --panel-soft: #112238;
+  --panel: radial-gradient(circle at 50% 110%, rgba(191, 244, 139, 0.14), transparent 48%), #0c192a;
   --line: rgba(185, 209, 239, 0.14);
   --muted: #9eb0c6;
   --paper: #f5f2e9;
   --lime: #bff48b;
   --blue: #8fb8ff;
-  --sand: #f1c690;
+  --radius: 12px;
+  --radius-small: 8px;
 }
 
 * {
@@ -91,22 +90,11 @@ select:focus-visible {
 }
 
 .eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
+  display: block;
   margin: 0 0 18px;
   color: var(--lime);
-  font-size: 0.76rem;
+  font-size: 0.78rem;
   font-weight: 750;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-.eyebrow::before {
-  width: 22px;
-  height: 1px;
-  content: '';
-  background: currentColor;
 }
 
 h1,
@@ -135,6 +123,35 @@ h2 {
   color: var(--muted);
   font-size: 1.05rem;
   line-height: 1.75;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .animated-details::details-content {
+    opacity: 0;
+    transition:
+      opacity 180ms ease,
+      content-visibility 180ms allow-discrete;
+  }
+
+  .animated-details[open]::details-content {
+    opacity: 1;
+  }
+
+  @supports (interpolate-size: allow-keywords) {
+    .animated-details::details-content {
+      interpolate-size: allow-keywords;
+      block-size: 0;
+      overflow: clip;
+      transition:
+        block-size 180ms ease,
+        opacity 180ms ease,
+        content-visibility 180ms allow-discrete;
+    }
+
+    .animated-details[open]::details-content {
+      block-size: auto;
+    }
+  }
 }
 
 @media (max-width: 640px) {

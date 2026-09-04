@@ -13,7 +13,7 @@ We aim to acknowledge reports within 48 hours and provide a status update within
 
 ## Scope
 
-Security reports are welcome for `@desource/image`, `@desource/image-angular`, `@desource/image-svelte`, their image-provider URL generation, and the optional local IPX integrations.
+Security reports are welcome for `@desource/image`, `@desource/image-angular`, `@desource/image-react`, `@desource/image-svelte`, their image-provider URL generation, and the optional local IPX integrations.
 
 When enabling remote image optimization, restrict `domains` or `remotePatterns`. An unrestricted optimizer can become a server-side request forgery or bandwidth-abuse surface. Keep framework, `ipx`, and image-processing dependencies current, and do not expose private network hosts through custom providers.
 

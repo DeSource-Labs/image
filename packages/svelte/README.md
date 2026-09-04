@@ -1,6 +1,6 @@
 <div align="center">
-  <h1>@desource/image-svelte</h1>
-  <p><strong>Svelte 5 image components, actions, attachments, SSR prop helpers, Vite middleware, and SvelteKit server handlers.</strong></p>
+  <h1>Desource Image - Optimized images for Svelte and SvelteKit</h1>
+  <p><strong>High-quality image optimization with responsive, provider-first and SSR-friendly workflow for Svelte and SvelteKit.</strong></p>
 
   <p>
     <a href="https://www.npmjs.com/package/@desource/image-svelte"><img src="https://img.shields.io/npm/v/@desource/image-svelte?logo=svelte" alt="npm version"></a>
@@ -10,26 +10,38 @@
   </p>
 </div>
 
-`@desource/image-svelte` brings the Desource Image provider engine to Svelte 5 and SvelteKit. It renders native image markup without wrapper elements and offers every Svelte surface you are likely to need: components, actions, Svelte 5.29+ attachments, SSR prop helpers, Vite dev/preview middleware, and production server handlers.
+AI-assisted development moves ideas into working products quickly. Desource Image keeps image preparation inside that development loop. Add one suitable local or remote source, then control its output with component props.
+
+Keep `/img/hero.jpg` instead of exporting `hero-480.webp`, `hero-960.webp`, and `hero-1600.webp`. Desource Image turns one image input into provider URLs, responsive `srcset`, `<picture>` sources, placeholders, preload metadata, presets, aliases, source validation, and local IPX routes.
+
+For MVPs and everyday product development, image quality becomes a code edit. Change `quality={80}` to `quality={65}` and keep the same source file, component, and URL.
+
+`@desource/image-svelte` renders native image markup without wrapper elements and provides components, actions, Svelte 5.29+ attachments, SSR prop helpers, Vite dev/preview middleware, and production server handlers. Local paths and dynamic URLs use the same component API.
+
+Provider configuration is optional. On Vercel, Netlify, or AWS Amplify, Desource Image selects the platform image service from the deployment environment. Everywhere else, it falls back to the built-in IPX path. An explicit provider always wins.
 
 The package requires Svelte 5.29 or newer when using attachments. Components and actions require Svelte 5.
 
-## Why use it?
+## Why Desource Image for Svelte?
 
-SvelteKit's `@sveltejs/enhanced-img` is a good fit for static local assets processed at build time. It can generate modern formats, dimensions, and responsive sources for images that live in the project.
+SvelteKit's `@sveltejs/enhanced-img` is a strong build-time tool for imported local files. Desource Image transforms local images on demand and accepts sources from a CMS, database, API, object store, CDN, or user upload through the same component API.
 
-Use Desource Image when your image layer is runtime-driven:
+- **Built for fast product iterations.** Change image quality, format, crop, or responsive sizes in Svelte. Source files and filenames stay unchanged.
+- **Local and dynamic sources.** Use a local path, CMS response, database value, API result, object-store URL, CDN URL, or user upload with the same component props.
+- **Deployment-aware provider selection.** Leave `provider` on `auto`. Desource Image detects Vercel, Netlify, or AWS Amplify and uses IPX for local or other environments.
+- **Native framework APIs.** Use components, actions, Svelte 5 attachments, snippets, or SSR prop helpers. Output remains native `<img>` and `<picture>` markup.
+- **46 built-in provider modules.** Import one provider subpath, use the complete registry, or register a typed custom provider.
+- **Built-in local optimizer.** Vite middleware and SvelteKit server handlers can serve IPX transformations without a separate image service.
+- **Responsive images and modern formats.** Generate width or density candidates, breakpoint-aware `sizes`, ordered AVIF/WebP sources, and a fallback image.
 
-- Images come from a CMS, database, object storage, backend, or external media service.
-- You need Cloudinary, Imgix, Sanity, ImageKit, Vercel, Netlify, IPX, or a custom provider from the same config model.
-- You want components for common cases and actions/attachments for existing native `<img>` / `<picture>` markup.
-- You need presets, aliases, remote source validation, placeholders, and preload links outside a build-time asset pipeline.
-- You deploy the same design system across Svelte, React, and Angular.
-- You want local IPX URLs in Vite dev/preview and a matching SvelteKit production handler.
+### How it compares
 
-If all images are static files imported from the repo and build-time optimization is enough, `@sveltejs/enhanced-img` may be the simpler choice. Desource Image is for dynamic and provider-backed image systems.
+| Option                                                         | Best fit                                                                         | How optimization is selected                                                                                                                                | Choose Desource Image when                                                                                                                                                                                                          |
+| -------------------------------------------------------------- | -------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`@sveltejs/enhanced-img`](https://svelte.dev/docs/kit/images) | Static local assets transformed during the Vite build                            | Images are processed at build time. The deployment target does not switch them to its runtime image service.                                                | You want local images transformed on demand to save your time. Your images arrive from a CMS, database, API, object store, or CDN, or the same source should use IPX locally and the deployment platform's optimizer in production. |
+| [Unpic Svelte](https://unpic.pics/img/svelte/)                 | Cross-framework responsive images already hosted on recognizable CDN or CMS URLs | Detects the provider from each `src` URL. Local or unknown sources need a fallback or explicit provider; the deployment itself is not the selection signal. | Vercel, Netlify, or AWS Amplify should choose the optimizer for every source, including relative paths, and you also need presets, aliases, source rules, `<picture>`, or server adapters.                                          |
 
-Reference: [SvelteKit image docs](https://svelte.dev/docs/kit/images).
+Use `enhanced:img` when every image is imported at build time and you want all variants produced during that build with no runtime optimizer. Choose Desource Image for local images transformed on demand, dynamic sources, or an optimizer that follows the deployment.
 
 ## Install
 

@@ -1,7 +1,7 @@
 import { testImageComponent } from '@common/test/e2e/Image';
 
 testImageComponent({
-  heading: 'One image API, four Angular surfaces.',
+  heading: 'Optimized images across four Angular surfaces.',
   imageSelector: '[data-testid="image-component"] img',
   widthControlTestId: 'width',
   widthValueTestId: 'width-value',

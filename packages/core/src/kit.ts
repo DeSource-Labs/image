@@ -1,5 +1,26 @@
 import type { ImageConfig, ResolvedImageConfig } from './types.js';
 
+export {
+  escapeCssSelectorValue,
+  isPathUnderBasePath,
+  normalizeBasePath,
+  parseRequestPath,
+  stringifyModifierValue,
+  stripLeadingSlashes,
+  stripTrailingSlashes,
+  trimSlashes
+} from './utils.js';
+
+export {
+  createDsImageServer,
+  type DsImageNodeMiddleware,
+  type DsImageNodeRequest,
+  type DsImageServer,
+  type DsImageServerOptions,
+  type DsImageServerRuntime,
+  type DsImageWebHandler
+} from './server.js';
+
 export type ClassValue =
   | string
   | number
@@ -42,7 +63,7 @@ export function mergeClassNames(...values: ClassValue[]): string | undefined {
   const visit = (value: ClassValue): void => {
     if (!value) return;
     if (typeof value === 'string' || typeof value === 'number' || typeof value === 'bigint') {
-      classes.push(String(value));
+      classes.push(value.toString());
       return;
     }
     if (typeof value === 'boolean') return;
@@ -66,7 +87,7 @@ export function styleWithPlaceholder(
 ): string | undefined {
   if (!placeholderSrc || loaded) return style ?? undefined;
 
-  const escaped = placeholderSrc.replace(/"/g, '%22');
+  const escaped = placeholderSrc.replaceAll('"', '%22');
   return [style, `background-image:url("${escaped}")`, 'background-size:cover', 'background-position:center']
     .filter(Boolean)
     .join(';');

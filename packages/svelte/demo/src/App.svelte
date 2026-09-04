@@ -24,9 +24,9 @@
 
 <main>
   <header>
-    <span class="eyebrow">Svelte package fixture</span>
-    <h1>Components, actions, and attachments in one engine.</h1>
-    <p>Every surface resolves the same provider once and reacts without fallback timers.</p>
+    <span class="eyebrow">Desource Image for Svelte</span>
+    <h1>One provider model for every Svelte surface.</h1>
+    <p>Components, actions, and attachments generate the same responsive output without wrapper elements.</p>
   </header>
 
   <label class="control">

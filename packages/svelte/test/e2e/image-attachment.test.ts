@@ -1,23 +1,11 @@
-import { expect, test } from '@playwright/test';
-import { collectConsoleErrors } from '@common/test/e2e/setup/browser';
+import { testImageBinding } from '@common/test/e2e/Image';
 
-test.describe('imageAttachment', () => {
-  test('renders and updates a native img element', async ({ page }) => {
-    const consoleErrors = collectConsoleErrors(page);
-
-    await page.goto('/');
-    await expect(
-      page.getByRole('heading', { name: 'Components, actions, and attachments in one engine.' })
-    ).toBeVisible();
-
-    const image = page.getByTestId('image-attachment');
-    await expect(image).toHaveAttribute('data-ds-image', '');
-    await expect(image).toHaveAttribute('src', /(?=.*720)(?=.*webp)/);
-
-    await page.getByTestId('width').fill('880');
-    await expect(page.getByTestId('width-value')).toHaveText('880px');
-    await expect(image).toHaveAttribute('src', /(?=.*880)(?=.*webp)/);
-
-    expect(consoleErrors).toEqual([]);
-  });
+testImageBinding({
+  name: 'imageAttachment',
+  heading: 'One provider model for every Svelte surface.',
+  imageSelector: '[data-testid="image-attachment"]',
+  widthControlTestId: 'width',
+  widthValueTestId: 'width-value',
+  initialSrc: /(?=.*720)(?=.*webp)/,
+  updatedSrc: /(?=.*880)(?=.*webp)/
 });

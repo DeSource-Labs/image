@@ -26,9 +26,13 @@
   const url = $derived(image('/img/workspace.jpg', { width, height, quality, format, fit }));
 
   async function copyUrl() {
-    await navigator.clipboard.writeText(url);
-    copyLabel = 'Copied';
-    globalThis.setTimeout(() => (copyLabel = 'Copy URL'), 1400);
+    try {
+      await navigator.clipboard.writeText(new URL(url, window.location.origin).href);
+      copyLabel = 'Copied';
+      globalThis.setTimeout(() => (copyLabel = 'Copy URL'), 1400);
+    } catch (error) {
+      console.warn('Failed to copy URL:', error);
+    }
   }
 </script>
 
@@ -58,10 +62,7 @@
 
   <div class="controls">
     <header>
-      <div>
-        <small>01 / Tune</small>
-        <h3>Change the request</h3>
-      </div>
+      <h3>Change the request</h3>
       <span class="live"><i></i> live</span>
     </header>
 
@@ -72,7 +73,7 @@
 
     <label>
       <span>Quality <output>{quality}</output></span>
-      <input bind:value={quality} type="range" min="30" max="100" step="1" aria-label="Quality" />
+      <input bind:value={quality} type="range" min="10" max="100" step="1" aria-label="Quality" />
     </label>
 
     <div class="control-grid">
@@ -186,6 +187,7 @@
     font-weight: 650;
   }
   .controls {
+    min-width: 0;
     display: flex;
     flex-direction: column;
     gap: 24px;
@@ -194,16 +196,9 @@
   }
   header {
     display: flex;
-    align-items: flex-start;
+    align-items: baseline;
     justify-content: space-between;
     gap: 16px;
-  }
-  header small {
-    color: var(--blue);
-    font-size: 0.7rem;
-    font-weight: 800;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
   }
   h3 {
     margin: 7px 0 0;
@@ -241,16 +236,29 @@
   }
   .control-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
   }
+  label {
+    min-width: 0;
+  }
   select {
+    min-width: 0;
     width: 100%;
     padding: 11px 12px;
     border: 1px solid var(--line);
     border-radius: 10px;
     color: #ecf4ff;
     background: #0a1727;
+  }
+  input[type='range'],
+  input[type='checkbox'],
+  label {
+    min-width: 0;
+  }
+  select {
+    min-width: 0;
+    cursor: pointer;
   }
   .switch-row {
     display: flex;
@@ -304,7 +312,8 @@
     color: #bed1e8;
     font-size: 0.72rem;
     text-overflow: ellipsis;
-    white-space: nowrap;
+    overflow-wrap: anywhere;
+    white-space: normal;
   }
   button {
     padding: 9px 11px;
@@ -331,10 +340,26 @@
   }
   @media (max-width: 520px) {
     .controls {
-      padding: 24px 18px;
+      min-width: 0;
+      padding: 22px 14px;
     }
-    .control-grid {
-      grid-template-columns: 1fr;
+    .preview {
+      padding: 10px;
+    }
+    .preview-bar {
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 10px;
+      font-size: 0.65rem;
+    }
+    .preview-bar > span:nth-child(2) {
+      text-align: center;
+    }
+    .image-stage,
+    .image-stage img {
+      min-height: 260px;
+    }
+    .switch-row input {
+      flex-shrink: 0;
     }
     .url-output {
       align-items: stretch;

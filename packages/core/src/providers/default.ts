@@ -2,11 +2,10 @@ import type { ImageProviderDefinition } from '../types.js';
 import { awsAmplifyProvider } from './awsAmplify.js';
 import { ipxProvider } from './ipx.js';
 import { ipxStaticProvider } from './ipxStatic.js';
-import { netlifyImageCdnProvider } from './netlifyImageCdn.js';
+import { netlifyImageCdnProvider, type NetlifyImageCdnProviderOptions } from './netlifyImageCdn.js';
 import { netlifyLargeMediaProvider } from './netlifyLargeMedia.js';
 import { noneProvider } from './none.js';
 import { vercelProvider } from './vercel.js';
-import type { NetlifyImageCdnProviderOptions } from './netlifyImageCdn.js';
 
 /** Alias for Netlify Image CDN */
 export function netlifyProvider(options: NetlifyImageCdnProviderOptions = {}): ImageProviderDefinition {

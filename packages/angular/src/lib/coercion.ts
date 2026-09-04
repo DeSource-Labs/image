@@ -1,6 +1,7 @@
-import type { ImagePlaceholder, ImagePreload } from '@desource/image';
-import { mergeClassNames, normalizeCrossorigin, stripUndefined, styleWithPlaceholder } from '@desource/image/kit';
-import { parseSize } from '@desource/image';
+import { parseSize, type ImagePlaceholder, type ImagePreload } from '@desource/image';
+import { normalizeCrossorigin } from '@desource/image/kit';
+
+export { mergeClassNames, stripUndefined, styleWithPlaceholder } from '@desource/image/kit';
 
 export function coerceNumber(value: unknown): number | undefined {
   if (value === null || value === undefined || value === '') {
@@ -27,7 +28,11 @@ export function coercePlaceholder(value: unknown): ImagePlaceholder | undefined 
     return value as unknown as ImagePlaceholder;
   }
 
-  return String(value);
+  if (typeof value === 'number' || typeof value === 'string') {
+    return value;
+  }
+
+  return undefined;
 }
 
 export function coercePreload(value: unknown): ImagePreload | undefined {
@@ -49,5 +54,3 @@ export function coercePreload(value: unknown): ImagePreload | undefined {
 export function coerceCrossorigin(value: unknown): 'anonymous' | 'use-credentials' | undefined {
   return normalizeCrossorigin(value);
 }
-
-export { mergeClassNames, stripUndefined, styleWithPlaceholder };
