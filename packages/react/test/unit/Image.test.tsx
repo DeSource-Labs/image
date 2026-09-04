@@ -15,7 +15,8 @@ import {
   flushReact,
   imagePropsFromOptions,
   renderReact,
-  requireElement
+  requireElement,
+  testTools
 } from './setup';
 
 afterEach(cleanupDocument);
@@ -55,7 +56,7 @@ testImageComponent(async (options = {}) => {
     onLoad: events.onLoad,
     onError: events.onError
   };
-});
+}, testTools);
 
 describe('React Image component behavior', () => {
   it('forwards refs to the rendered image element', async () => {

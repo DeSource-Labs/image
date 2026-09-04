@@ -1,13 +1,18 @@
 import { createElement, type CSSProperties, type ReactElement } from 'react';
-import { act } from 'react';
+import { act as reactAct } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { vi, type Mock } from 'vitest';
 import { imageComponentTestConfig } from '@common/test/unit/setup/image-test-provider';
+import type { TestTools } from '@common/test/unit/setup/tools';
 import { ImageProvider, type ImageComponentProps, type PictureComponentProps } from '@lib';
 import type { ImageComponentSetupOptions } from '@common/test/unit/Image';
 import type { PictureComponentSetupOptions } from '@common/test/unit/Picture';
 
-(globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
+export const testTools: TestTools = {
+  async act(callback) {
+    await reactAct(callback);
+  }
+};
 
 export function requireElement<T extends Element>(
   container: { querySelector<E extends Element = Element>(selectors: string): E | null },
@@ -19,7 +24,7 @@ export function requireElement<T extends Element>(
 }
 
 export async function flushReact(): Promise<void> {
-  await act(async () => {
+  await reactAct(async () => {
     await Promise.resolve();
     await Promise.resolve();
     await Promise.resolve();
@@ -34,7 +39,7 @@ export function createReactRoot() {
 }
 
 export async function renderReact(root: Root, element: ReactElement): Promise<void> {
-  await act(async () => {
+  await reactAct(async () => {
     root.render(createElement(ImageProvider, { config: imageComponentTestConfig }, element));
   });
 }

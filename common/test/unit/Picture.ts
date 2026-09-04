@@ -13,6 +13,7 @@ import type {
 } from '@desource/image';
 import type { NativeAttributeValue, TestContainer } from './Image';
 import { installMockImage } from './setup/mock-image';
+import { defaultTestTools, type TestTools } from './setup/tools';
 
 export interface PictureComponentSetupOptions {
   src?: string;
@@ -71,7 +72,7 @@ export type PictureComponentSetup = (
   options?: PictureComponentSetupOptions
 ) => PictureComponentSetupResult | Promise<PictureComponentSetupResult>;
 
-export function testPictureComponent(setup: PictureComponentSetup): void {
+export function testPictureComponent(setup: PictureComponentSetup, { act }: TestTools = defaultTestTools): void {
   describe('Picture component shared behavior', () => {
     it('renders sources, fallback attrs and forwarded picture/image attrs', async () => {
       const rendered = await setup({
@@ -249,8 +250,10 @@ export function testPictureComponent(setup: PictureComponentSetup): void {
         expect(pathname(image.getAttribute('src'))).toBe('/picture-placeholder-next.jpg');
         expect(searchParam(image.getAttribute('src'), 'width')).toBe('10');
 
-        mockedImage.images[1]!.onload?.(new Event('load'));
-        await mockedImage.flush();
+        await act(async () => {
+          mockedImage.images[1]!.onload?.(new Event('load'));
+          await mockedImage.flush();
+        });
         await rendered.flush();
 
         expect(rendered.sources()).toHaveLength(2);

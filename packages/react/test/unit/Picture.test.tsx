@@ -15,7 +15,8 @@ import {
   flushReact,
   picturePropsFromOptions,
   renderReact,
-  requireElement
+  requireElement,
+  testTools
 } from './setup';
 
 afterEach(cleanupDocument);
@@ -57,7 +58,7 @@ testPictureComponent(async (options = {}) => {
     onLoad: events.onLoad,
     onError: events.onError
   };
-});
+}, testTools);
 
 describe('React Picture component behavior', () => {
   it('forwards refs to the rendered picture element', async () => {

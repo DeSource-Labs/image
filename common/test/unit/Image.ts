@@ -12,6 +12,7 @@ import type {
   SizesInput
 } from '@desource/image';
 import { installMockImage } from './setup/mock-image';
+import { defaultTestTools, type TestTools } from './setup/tools';
 
 export type NativeAttributeValue = string | number | boolean | null | undefined;
 
@@ -70,7 +71,7 @@ export type ImageComponentSetup = (
   options?: ImageComponentSetupOptions
 ) => ImageComponentSetupResult | Promise<ImageComponentSetupResult>;
 
-export function testImageComponent(setup: ImageComponentSetup): void {
+export function testImageComponent(setup: ImageComponentSetup, { act }: TestTools = defaultTestTools): void {
   describe('Image component shared behavior', () => {
     it('renders generated attrs and forwards native image attrs', async () => {
       const rendered = await setup({
@@ -230,8 +231,10 @@ export function testImageComponent(setup: ImageComponentSetup): void {
         expect(pathname(image.getAttribute('src'))).toBe('/placeholder-next.jpg');
         expect(searchParam(image.getAttribute('src'), 'width')).toBe('10');
 
-        mockedImage.images[1]!.onload?.(new Event('load'));
-        await mockedImage.flush();
+        await act(async () => {
+          mockedImage.images[1]!.onload?.(new Event('load'));
+          await mockedImage.flush();
+        });
         await rendered.flush();
 
         expect(pathname(image.getAttribute('src'))).toBe('/placeholder-next.jpg');
