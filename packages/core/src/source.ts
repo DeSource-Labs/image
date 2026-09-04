@@ -140,7 +140,7 @@ function globToRegExp(glob: string): RegExp {
 }
 
 function escapeRegExpChar(char: string): string {
-  return '.+^${}()|[]\\'.includes(char) ? `\\${char}` : char;
+  return '.+^${}()|[]\\?'.includes(char) ? `\\${char}` : char;
 }
 
 function stripTrailingColon(value: string): string {

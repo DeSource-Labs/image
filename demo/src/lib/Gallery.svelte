@@ -73,7 +73,7 @@
           width: 60,
           height: 60,
           quality: 100,
-          style: `object-fit:${imageFit}`
+          style: `display:block;width:100%;height:100%;object-fit:${imageFit}`
         }
       })
     );
@@ -552,7 +552,11 @@
       animOverlay.style.opacity = '0';
     });
 
+    let cleanedUp = false;
     const cleanup = () => {
+      if (cleanedUp) return;
+      cleanedUp = true;
+      clearTimeout(cleanupTimer);
       removeOverlay(animOverlay);
       originalTilePositionRef = null;
       if (refDiv) refDiv.remove();
@@ -574,8 +578,8 @@
               el.style.transition = '';
               el.style.opacity = '';
               openingRef = false;
-              if (!draggingRef && rootRef?.getAttribute('data-enlarging') !== 'true') {
-                document.body.classList.remove('dg-scroll-lock');
+              if (!draggingRef) {
+                unlockScroll();
               }
             }, 300);
           });
@@ -584,6 +588,7 @@
     };
 
     animOverlay.addEventListener('transitionend', cleanup, { once: true });
+    const cleanupTimer = setTimeout(cleanup, enlargeTransitionMs + 50);
   };
 
   const onTileClick = (e: MouseEvent, item: TileItem) => {
@@ -706,7 +711,7 @@
               <a
                 class="gallery-tile"
                 href={item.href}
-                aria-label={`${item.alt} documentation`}
+                aria-label={item.alt ? `${item.alt} documentation` : 'Provider documentation'}
                 draggable="false"
                 onclick={(event) => onTileClick(event, item)}
                 onkeydown={(event) => onTileKeydown(event, item)}

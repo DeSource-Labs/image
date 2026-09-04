@@ -91,9 +91,13 @@
   };
 
   async function copyInstall() {
-    await navigator.clipboard.writeText(installCommand);
-    installLabel = 'Copied';
-    globalThis.setTimeout(() => (installLabel = 'Copy'), 1400);
+    try {
+      await navigator.clipboard.writeText(installCommand);
+      installLabel = 'Copied';
+      globalThis.setTimeout(() => (installLabel = 'Copy'), 1400);
+    } catch (error) {
+      console.warn('Failed to copy install command:', error);
+    }
   }
 </script>
 

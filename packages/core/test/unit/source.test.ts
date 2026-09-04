@@ -137,6 +137,16 @@ describe('source normalization and validation', () => {
     expect(validateSource('/private/photo.jpg', restricted).reason).toContain('localPatterns');
   });
 
+  it('treats question marks in local patterns as literals', () => {
+    const restricted = config({
+      localPatterns: [{ pathname: '/images/photo?.png' }]
+    });
+
+    expect(validateSource('/images/photo?.png', restricted).valid).toBe(true);
+    expect(validateSource('/images/photo.png', restricted).valid).toBe(false);
+    expect(validateSource('/images/phot.png', restricted).valid).toBe(false);
+  });
+
   it('validates remote domains and every remote-pattern constraint', () => {
     expect(validateSource('https://images.example.com/photo.jpg', config()).valid).toBe(true);
     expect(

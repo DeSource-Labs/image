@@ -26,9 +26,13 @@
   const url = $derived(image('/img/workspace.jpg', { width, height, quality, format, fit }));
 
   async function copyUrl() {
-    await navigator.clipboard.writeText(new URL(url, window.location.origin).href);
-    copyLabel = 'Copied';
-    globalThis.setTimeout(() => (copyLabel = 'Copy URL'), 1400);
+    try {
+      await navigator.clipboard.writeText(new URL(url, window.location.origin).href);
+      copyLabel = 'Copied';
+      globalThis.setTimeout(() => (copyLabel = 'Copy URL'), 1400);
+    } catch (error) {
+      console.warn('Failed to copy URL:', error);
+    }
   }
 </script>
 
