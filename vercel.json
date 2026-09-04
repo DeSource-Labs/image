@@ -1,7 +1,7 @@
 {
   "version": 2,
   "installCommand": "pnpm install",
-  "buildCommand": "pnpm --filter demo run vercel-build",
+  "buildCommand": "pnpm --filter @desource/image-demo run vercel-build",
   "outputDirectory": "demo/.vercel/output",
   "images": {
     "sizes": [640, 768, 1024, 1280, 1536],
