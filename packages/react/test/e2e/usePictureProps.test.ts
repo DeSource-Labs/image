@@ -6,7 +6,7 @@ test.describe('usePictureProps', () => {
     const consoleErrors = collectConsoleErrors(page);
 
     await page.goto('/');
-    await expect(page.getByRole('heading', { name: 'Components and hooks for React and Next.' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Optimized images for React and Next.js.' })).toBeVisible();
 
     const picture = page.getByTestId('picture-hook');
     const image = picture.locator('img');

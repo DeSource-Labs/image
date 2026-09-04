@@ -6,9 +6,7 @@ test.describe('imageAttachment', () => {
     const consoleErrors = collectConsoleErrors(page);
 
     await page.goto('/');
-    await expect(
-      page.getByRole('heading', { name: 'Components, actions, and attachments in one engine.' })
-    ).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'One provider model for every Svelte surface.' })).toBeVisible();
 
     const image = page.getByTestId('image-attachment');
     await expect(image).toHaveAttribute('data-ds-image', '');

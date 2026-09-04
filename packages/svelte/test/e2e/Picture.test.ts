@@ -1,7 +1,7 @@
 import { testPictureComponent } from '@common/test/e2e/Picture';
 
 testPictureComponent({
-  heading: 'Components, actions, and attachments in one engine.',
+  heading: 'One provider model for every Svelte surface.',
   pictureSelector: 'picture[data-testid="picture-component"]',
   widthControlTestId: 'width',
   widthValueTestId: 'width-value',

@@ -1,7 +1,7 @@
 import { testImageComponent } from '@common/test/e2e/Image';
 
 testImageComponent({
-  heading: 'Components and hooks for React and Next.',
+  heading: 'Optimized images for React and Next.js.',
   imageSelector: 'img[data-testid="image-component"]',
   widthControlTestId: 'width',
   widthValueTestId: 'width-value',

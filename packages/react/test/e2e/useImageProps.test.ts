@@ -6,7 +6,7 @@ test.describe('useImageProps', () => {
     const consoleErrors = collectConsoleErrors(page);
 
     await page.goto('/');
-    await expect(page.getByRole('heading', { name: 'Components and hooks for React and Next.' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Optimized images for React and Next.js.' })).toBeVisible();
 
     const image = page.getByTestId('image-hook');
     await expect(image).toHaveAttribute('data-ds-image', '');

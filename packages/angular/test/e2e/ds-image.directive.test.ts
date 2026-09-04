@@ -6,7 +6,7 @@ test.describe('DsImageDirective', () => {
     const consoleErrors = collectConsoleErrors(page);
 
     await page.goto('/');
-    await expect(page.getByRole('heading', { name: 'One image API, four Angular surfaces.' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Optimized images across four Angular surfaces.' })).toBeVisible();
 
     const image = page.getByTestId('image-directive');
     await expect(image).toHaveAttribute('data-ds-image', '');
