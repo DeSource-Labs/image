@@ -96,6 +96,7 @@
   let openingRef = false;
   let openStartedAtRef = 0;
   let lastDragEndAt = 0;
+  let activeTileIndex = $state(0);
   let focusedElRef: HTMLElement | null = null;
   let originalTilePositionRef: { left: number; top: number; width: number; height: number } | null = null;
   let scrollLockedRef = false;
@@ -163,6 +164,7 @@
   }
 
   const items = $derived(buildItems(images, segments));
+  const tabStopIndex = $derived(Math.min(activeTileIndex, Math.max(items.length - 1, 0)));
 
   function computeItemBaseRotation(offsetX: number, offsetY: number, segments: number) {
     const unit = 360 / segments / 2;
@@ -602,6 +604,8 @@
 
   function focusTile(el: HTMLElement, item: TileItem) {
     stopInertia();
+    const index = items.indexOf(item);
+    if (index >= 0) activeTileIndex = index;
     const base = computeItemBaseRotation(item.x, item.y, segments);
     rotationRef.y = wrapAngleSigned(-base.rotateY);
     rotationRef.x = clamp(-base.rotateX, -maxVerticalRotationDeg, maxVerticalRotationDeg);
@@ -713,6 +717,7 @@
                 href={item.href}
                 aria-label={item.alt ? `${item.alt} documentation` : 'Provider documentation'}
                 draggable="false"
+                tabindex={i === tabStopIndex ? 0 : -1}
                 onclick={(event) => onTileClick(event, item)}
                 onkeydown={(event) => onTileKeydown(event, item)}
                 onfocus={(event) => {
@@ -735,6 +740,7 @@
                 type="button"
                 class="gallery-tile"
                 aria-label={item.alt || 'Open image'}
+                tabindex={i === tabStopIndex ? 0 : -1}
                 onclick={(event) => onTileClick(event, item)}
                 onkeydown={(event) => onTileKeydown(event, item)}
                 onfocus={(event) => {
