@@ -11,7 +11,7 @@ export default {
         domains: [],
         minimumCacheTTL: 2678400,
         formats: ['image/avif', 'image/webp'],
-        dangerouslyAllowSVG: false
+        dangerouslyAllowSVG: true
       }
     })
   }
