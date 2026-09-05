@@ -121,5 +121,5 @@ export const Image = forwardRef<HTMLImageElement, ImageComponentProps>(function 
     return <>{children(renderProps)}</>;
   }
 
-  return <img ref={ref} {...imgProps} />;
+  return <img ref={ref} {...imgProps} alt={imgProps.alt} />;
 });

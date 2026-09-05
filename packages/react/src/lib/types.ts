@@ -15,7 +15,7 @@ import type {
   ResolvedImageConfig
 } from '@desource/image';
 
-export type CrossOriginInput = boolean | '' | 'true' | 'anonymous' | 'use-credentials' | null | undefined;
+export type CrossOriginInput = boolean | '' | 'true' | 'anonymous' | 'use-credentials' | null;
 export type ImageEvent = Event | SyntheticEvent<HTMLImageElement>;
 
 export type NativeImageAttrs = Omit<

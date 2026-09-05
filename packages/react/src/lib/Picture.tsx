@@ -151,7 +151,7 @@ export const Picture = forwardRef<HTMLPictureElement, PictureComponentProps>(fun
       {sources.map(({ key, ...source }) => (
         <source key={key} {...source} />
       ))}
-      <img {...imgProps} />
+      <img {...imgProps} alt={imgProps.alt} />
     </picture>
   );
 });
