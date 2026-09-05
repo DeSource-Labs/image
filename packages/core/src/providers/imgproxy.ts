@@ -1,12 +1,14 @@
 import { hmac } from '@noble/hashes/hmac.js';
 import { sha256 } from '@noble/hashes/sha2.js';
 import { joinURL } from 'ufo';
-import { createOperationsGenerator } from '../utils.js';
+import { createOperationsGenerator, stringifyModifierValue } from '../utils.js';
 import { configureProvider, defineProvider, type ProviderOptionsOf } from '../provider-utils.js';
 import type { ImageFit, ImageModifiers, ModifierValue } from '../types.js';
 
 export type ImgproxyResizingType = 'fit' | 'fill' | 'fill-down' | 'force' | 'auto';
 export type ImgproxyGravityType = 'ce' | 'no' | 'so' | 'ea' | 'we' | 'noea' | 'nowe' | 'soea' | 'sowe';
+type ImgproxyBoolean = boolean | string | number;
+type ImgproxyFit = Extract<ImageFit, 'cover' | 'contain' | 'fill' | 'inside' | 'outside'>;
 export interface ImgproxyCrop extends Record<string, ModifierValue> {
   width: number;
   height: number;
@@ -33,7 +35,7 @@ interface ImgproxyModifiers extends Omit<ImageModifiers, 'fit' | 'format' | 'bac
   width?: number;
   height?: number;
   format?: ImgproxyFormat;
-  fit?: Extract<ImageFit, 'cover' | 'contain' | 'fill' | 'inside' | 'outside'>;
+  fit?: ImgproxyFit;
   resizingType?: ImgproxyResizingType;
   resize?: string;
   size?: string;
@@ -41,26 +43,26 @@ interface ImgproxyModifiers extends Omit<ImageModifiers, 'fit' | 'format' | 'bac
   minHeight?: number;
   zoom?: string | number;
   dpr?: number;
-  enlarge?: boolean | string | number;
-  extend?: boolean | string | number;
+  enlarge?: ImgproxyBoolean;
+  extend?: ImgproxyBoolean;
   extendAspectRatio?: string;
   gravity?: ImgproxyGravityType | string;
   crop?: ImgproxyCrop;
-  autoRotate?: boolean | string | number;
+  autoRotate?: ImgproxyBoolean;
   rotate?: number;
   background?: string;
   sharpen?: number;
   pixelate?: number;
-  stripMetadata?: boolean | string | number;
-  keepCopyright?: boolean | string | number;
-  stripColorProfile?: boolean | string | number;
-  enforceThumbnail?: boolean | string | number;
+  stripMetadata?: ImgproxyBoolean;
+  keepCopyright?: ImgproxyBoolean;
+  stripColorProfile?: ImgproxyBoolean;
+  enforceThumbnail?: ImgproxyBoolean;
   maxBytes?: number;
-  raw?: boolean | string | number;
+  raw?: ImgproxyBoolean;
   cachebuster?: string;
   expires?: number;
   filename?: string;
-  returnAttachment?: boolean | string | number;
+  returnAttachment?: ImgproxyBoolean;
   preset?: string;
   maxSrcResolution?: number;
   maxSrcFileSize?: number;
@@ -92,7 +94,7 @@ const booleanMap = (value: DefinedModifierValue): number => {
   }
 };
 
-const operationsGenerator = createOperationsGenerator<string, DefinedModifierValue, string, ModifierValue>({
+const operationsGenerator = createOperationsGenerator<string, DefinedModifierValue, string, DefinedModifierValue>({
   keyMap: {
     resize: 'rs',
     size: 's',
@@ -137,7 +139,8 @@ const operationsGenerator = createOperationsGenerator<string, DefinedModifierVal
     crop: (value) => {
       if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
         const crop = value as unknown as ImgproxyCrop;
-        return `${crop.width}:${crop.height}${crop.gravity ? `:${crop.gravity}` : ''}`;
+        const gravity = crop.gravity ? `:${crop.gravity}` : '';
+        return `${crop.width}:${crop.height}${gravity}`;
       }
       return value;
     },
@@ -158,7 +161,7 @@ const operationsGenerator = createOperationsGenerator<string, DefinedModifierVal
       return normalized - (normalized % 90);
     }
   },
-  formatter: (key, value) => `${key}:${value}`,
+  formatter: (key, value) => `${key}:${stringifyModifierValue(value)}`,
   joinWith: '/'
 });
 
@@ -177,9 +180,9 @@ function urlSafeBase64(input: string | Uint8Array): string {
   const bytes = typeof input === 'string' ? new TextEncoder().encode(input) : input;
   let binary = '';
   for (const byte of bytes) {
-    binary += String.fromCharCode(byte);
+    binary += String.fromCodePoint(byte);
   }
-  return btoa(binary).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+  return btoa(binary).replaceAll('=', '').replaceAll('+', '-').replaceAll('/', '_');
 }
 
 function sign(salt: string | undefined, target: string, secret: string | undefined): string {
@@ -192,34 +195,29 @@ function sign(salt: string | undefined, target: string, secret: string | undefin
   return urlSafeBase64(signature.digest());
 }
 
-function resolveModifiers(modifiers: Partial<ImgproxyModifiers>): Partial<ImgproxyModifiers> {
-  if (modifiers.fit) {
-    const hasWidth = typeof modifiers.width === 'number' && modifiers.width > 0;
-    const hasHeight = typeof modifiers.height === 'number' && modifiers.height > 0;
-    const hasBoth = hasWidth && hasHeight;
+const resizingTypeByFit: Record<ImgproxyFit, ImgproxyResizingType> = {
+  cover: 'fill',
+  contain: 'fit',
+  fill: 'force',
+  inside: 'fit',
+  outside: 'fill'
+};
 
-    switch (modifiers.fit) {
-      case 'cover':
-        modifiers.resizingType = hasBoth ? 'fill' : 'fit';
-        break;
-      case 'contain':
-        modifiers.resizingType = 'fit';
-        if (hasBoth) {
-          modifiers.extend = true;
-        }
-        break;
-      case 'fill':
-        modifiers.resizingType = hasBoth ? 'force' : 'fit';
-        break;
-      case 'inside':
-        modifiers.resizingType = 'fit';
-        break;
-      case 'outside':
-        modifiers.resizingType = hasBoth ? 'fill' : 'fit';
-        break;
-    }
-    delete modifiers.fit;
+function resolveModifiers(modifiers: Partial<ImgproxyModifiers>): Partial<ImgproxyModifiers> {
+  const fit = modifiers.fit;
+  if (!fit) {
+    return modifiers;
   }
+
+  const hasWidth = typeof modifiers.width === 'number' && modifiers.width > 0;
+  const hasHeight = typeof modifiers.height === 'number' && modifiers.height > 0;
+  const hasBoth = hasWidth && hasHeight;
+  modifiers.resizingType = hasBoth ? resizingTypeByFit[fit] : 'fit';
+  if (fit === 'contain' && hasBoth) {
+    modifiers.extend = true;
+  }
+
+  delete modifiers.fit;
   return modifiers;
 }
 
