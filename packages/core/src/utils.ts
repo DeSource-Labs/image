@@ -5,6 +5,8 @@ interface ParsedRequestPath {
   search: string;
 }
 
+type NumberInput = number | string | null | undefined;
+
 export interface Mapper<Key, Value> {
   (key: Key): Value | Key;
   (): undefined;
@@ -26,11 +28,12 @@ export function createOperationsGenerator<
   FinalKey = ModifierKey,
   FinalValue = InputValue
 >(config: OperationGeneratorConfig<ModifierKey, InputValue, FinalKey, FinalValue> = {}) {
-  const keyMap = config.keyMap
-    ? typeof config.keyMap === 'function'
-      ? config.keyMap
-      : createMapper(config.keyMap)
-    : undefined;
+  let keyMap: ((key: ModifierKey) => FinalKey | ModifierKey | undefined) | undefined;
+  if (typeof config.keyMap === 'function') {
+    keyMap = config.keyMap;
+  } else if (config.keyMap) {
+    keyMap = createMapper(config.keyMap);
+  }
   type ValueMapper =
     Mapper<Extract<InputValue, string>, FinalValue> | ((value: InputValue) => InputValue | FinalValue | undefined);
   const valueMap: Partial<Record<ModifierKey, ValueMapper>> = {};
@@ -79,7 +82,7 @@ export function createOperationsGenerator<
   return generate as typeof generate & ((modifiers: ImageModifiers) => string);
 }
 
-export function toNumber(value: number | string | null | undefined): number | undefined {
+export function toNumber(value: NumberInput): number | undefined {
   if (typeof value === 'number' && Number.isFinite(value)) {
     return value;
   }
@@ -92,7 +95,7 @@ export function toNumber(value: number | string | null | undefined): number | un
   return undefined;
 }
 
-export function parseSize(input: string | number | null | undefined): number | undefined {
+export function parseSize(input: NumberInput): number | undefined {
   if (typeof input === 'number') {
     return Number.isFinite(input) ? input : undefined;
   }
@@ -115,7 +118,7 @@ export function checkDensities(densities: readonly number[]): void {
   }
 }
 
-export function clampQuality(value: number | string | null | undefined): number | undefined {
+export function clampQuality(value: NumberInput): number | undefined {
   const quality = toNumber(value);
   if (quality === undefined) {
     return undefined;
