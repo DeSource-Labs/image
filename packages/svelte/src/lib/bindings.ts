@@ -1,5 +1,5 @@
 import { getImageAttrs, getPictureAttrs, type ImageAttrs, type ImageInput } from '@desource/image';
-import { mergeClassNames, normalizeCrossorigin, stripUndefined } from '@desource/image/kit';
+import { mergeClassNames, normalizeCrossorigin, pickImageInput, stripUndefined } from '@desource/image/kit';
 import type { HTMLImgAttributes } from 'svelte/elements';
 import { resolveCachedConfig } from './context.js';
 import type {
@@ -432,30 +432,5 @@ function imageSourceKey(attrs: ImageAttrs): string {
 }
 
 export function toImageInput(options: ImageBindingOptions): ImageInput {
-  return stripUndefined({
-    src: options.src,
-    alt: options.alt,
-    width: options.width,
-    height: options.height,
-    sizes: options.sizes,
-    quality: options.quality,
-    format: options.format,
-    formats: options.formats,
-    fallbackFormat: options.fallbackFormat,
-    legacyFormat: options.legacyFormat,
-    fit: options.fit,
-    position: options.position,
-    background: options.background,
-    modifiers: options.modifiers,
-    provider: options.provider,
-    preset: options.preset,
-    densities: options.densities,
-    loading: options.loading,
-    decoding: options.decoding,
-    fetchpriority: options.fetchpriority,
-    priority: options.priority,
-    preload: options.preload,
-    placeholder: options.placeholder,
-    placeholderClass: options.placeholderClass
-  });
+  return pickImageInput(options);
 }

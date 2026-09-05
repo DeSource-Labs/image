@@ -11,8 +11,10 @@ import type {
   ImagePreload,
   SizesInput
 } from '@desource/image';
+import { expectPriorityImageAndPreload } from './setup/assertions';
 import { installMockImage } from './setup/mock-image';
 import { defaultTestTools, type TestTools } from './setup/tools';
+import { pathname, searchParam } from './setup/url';
 
 export type NativeAttributeValue = string | number | boolean | null | undefined;
 
@@ -179,20 +181,7 @@ export function testImageComponent(setup: ImageComponentSetup, { act }: TestTool
       });
 
       try {
-        await rendered.flush();
-
-        const image = rendered.image();
-        expect(image.getAttribute('loading')).toBe('eager');
-        expect(image.getAttribute('fetchpriority')).toBe('high');
-
-        const links = rendered.preloadLinks();
-        expect(links).toHaveLength(1);
-        expect(links[0]!.getAttribute('rel')).toBe('preload');
-        expect(links[0]!.getAttribute('as')).toBe('image');
-        expect(pathname(links[0]!.getAttribute('href'))).toBe('/preload.jpg');
-        expect(links[0]!.getAttribute('fetchpriority')).toBe('high');
-        expect(links[0]!.getAttribute('crossorigin')).toBe('use-credentials');
-        expect(links[0]!.getAttribute('nonce')).toBe('head-nonce');
+        await expectPriorityImageAndPreload(rendered, { pathname: '/preload.jpg', nonce: 'head-nonce' });
       } finally {
         await rendered.unmount();
       }
@@ -268,12 +257,4 @@ export function testImageComponent(setup: ImageComponentSetup, { act }: TestTool
       }
     });
   });
-}
-
-function pathname(value: string | null): string {
-  return new URL(value ?? '', 'https://image.test').pathname;
-}
-
-function searchParam(value: string | null, key: string): string | null {
-  return new URL(value ?? '', 'https://image.test').searchParams.get(key);
 }

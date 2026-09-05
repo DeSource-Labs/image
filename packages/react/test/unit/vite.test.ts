@@ -28,6 +28,7 @@ describe('React Vite plugin', () => {
     const plugin = desourceImage({ root: '/configured-root' });
     const use = vi.fn();
 
+    callHook(plugin.config, {}, { command: 'serve', mode: 'development' });
     callHook(plugin.configResolved, { root: '/vite-root' });
     callHook(plugin.configureServer, { middlewares: { use } });
     use.mock.calls[0]![0]({ url: '/not-image' }, {}, vi.fn());

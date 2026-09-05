@@ -1,4 +1,24 @@
-import type { ImageConfig, ResolvedImageConfig } from './types.js';
+import type { DesourceImage, ImageConfig, ImageInput, ResolvedImageConfig } from './types.js';
+
+export interface ImageConfigCache {
+  defaultConfig: ResolvedImageConfig;
+  resolve(config?: ImageConfig | ResolvedImageConfig): ResolvedImageConfig;
+  image(config: ResolvedImageConfig): DesourceImage;
+}
+
+export interface ImageVitePluginOptions {
+  provider?: string;
+  root?: string;
+}
+
+interface ImageVitePluginRuntime<TOptions extends ImageVitePluginOptions, TServer, TMiddleware> {
+  name: string;
+  options: TOptions;
+  defaultRoot: string;
+  detectProvider(): string;
+  createMiddleware(options: TOptions): TMiddleware;
+  installMiddleware(server: TServer, middleware: TMiddleware): void;
+}
 
 export {
   escapeCssSelectorValue,
@@ -45,8 +65,100 @@ export function isResolvedImageConfig(config: ImageConfig | ResolvedImageConfig)
   );
 }
 
+export function createImageConfigCache(runtime: {
+  resolveConfig(config?: ImageConfig): ResolvedImageConfig;
+  createImage(config: ResolvedImageConfig): DesourceImage;
+}): ImageConfigCache {
+  const defaultConfig = runtime.resolveConfig();
+  const images = new WeakMap<ResolvedImageConfig, DesourceImage>();
+  const resolvedConfigs = new WeakMap<object, ResolvedImageConfig>();
+
+  return {
+    defaultConfig,
+    resolve(config) {
+      if (!config) return defaultConfig;
+      if (isResolvedImageConfig(config)) return config;
+
+      const cached = resolvedConfigs.get(config);
+      if (cached) return cached;
+      const resolved = runtime.resolveConfig(config);
+      resolvedConfigs.set(config, resolved);
+      return resolved;
+    },
+    image(config) {
+      let image = images.get(config);
+      if (!image) {
+        image = runtime.createImage(config);
+        images.set(config, image);
+      }
+      return image;
+    }
+  };
+}
+
+export function createImageVitePlugin<TOptions extends ImageVitePluginOptions, TServer, TMiddleware>(
+  runtime: ImageVitePluginRuntime<TOptions, TServer, TMiddleware>
+) {
+  let root = runtime.defaultRoot;
+  let middleware: TMiddleware | undefined;
+
+  const getMiddleware = (): TMiddleware => {
+    middleware ??= runtime.createMiddleware({
+      ...runtime.options,
+      root: runtime.options.root ?? root
+    });
+    return middleware;
+  };
+  const installMiddleware = (server: TServer): void => runtime.installMiddleware(server, getMiddleware());
+
+  return {
+    name: runtime.name,
+    config() {
+      return {
+        define: {
+          __DESOURCE_IMAGE_PROVIDER__: JSON.stringify(runtime.detectProvider())
+        }
+      };
+    },
+    configResolved(config: { root: string }) {
+      root = config.root;
+    },
+    configureServer: installMiddleware,
+    configurePreviewServer: installMiddleware
+  };
+}
+
 export function stripUndefined<T extends Record<string, unknown>>(value: T): T {
   return Object.fromEntries(Object.entries(value).filter(([, entry]) => entry !== undefined)) as T;
+}
+
+export function pickImageInput(options: ImageInput): ImageInput {
+  return stripUndefined({
+    src: options.src,
+    alt: options.alt,
+    width: options.width,
+    height: options.height,
+    sizes: options.sizes,
+    quality: options.quality,
+    format: options.format,
+    formats: options.formats,
+    fallbackFormat: options.fallbackFormat,
+    legacyFormat: options.legacyFormat,
+    fit: options.fit,
+    position: options.position,
+    background: options.background,
+    modifiers: options.modifiers,
+    provider: options.provider,
+    preset: options.preset,
+    densities: options.densities,
+    loading: options.loading,
+    decoding: options.decoding,
+    fetchpriority: options.fetchpriority,
+    priority: options.priority,
+    preload: options.preload,
+    placeholder: options.placeholder,
+    placeholderClass: options.placeholderClass
+  });
 }
 
 export function normalizeCrossorigin(value: unknown): 'anonymous' | 'use-credentials' | undefined {

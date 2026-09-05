@@ -7,20 +7,12 @@ import type {
   SyntheticEvent
 } from 'react';
 import type {
-  DensityInput,
   ImageConfig,
-  ImageDecoding,
   ImageFetchPriority,
-  ImageFit,
   ImageFormat,
   ImageInput,
-  ImageLoading,
-  ImageModifiers,
-  ImagePlaceholder,
-  ImagePreload,
   PictureSource,
-  ResolvedImageConfig,
-  SizesInput
+  ResolvedImageConfig
 } from '@desource/image';
 
 export type CrossOriginInput = boolean | '' | 'true' | 'anonymous' | 'use-credentials' | null | undefined;
@@ -48,29 +40,9 @@ export type NativeImageAttrs = Omit<
   | 'children'
 >;
 
-export interface BaseImageProps {
-  src: string;
+export interface BaseImageProps extends Omit<ImageInput, 'alt' | 'formats' | 'fallbackFormat' | 'legacyFormat'> {
   alt: string;
-  width?: number | string;
-  height?: number | string;
-  sizes?: SizesInput;
-  quality?: number | string;
-  format?: ImageFormat | readonly ImageFormat[];
-  fit?: ImageFit;
-  position?: string;
-  background?: string;
-  modifiers?: ImageModifiers;
-  provider?: string;
-  preset?: string;
-  densities?: DensityInput;
-  loading?: ImageLoading;
-  decoding?: ImageDecoding;
   fetchPriority?: ImageFetchPriority;
-  fetchpriority?: ImageFetchPriority;
-  priority?: boolean;
-  preload?: ImagePreload;
-  placeholder?: ImagePlaceholder;
-  placeholderClass?: string;
   crossOrigin?: CrossOriginInput;
   crossorigin?: CrossOriginInput;
   nonce?: string;
@@ -126,9 +98,6 @@ export interface ImageBindingOptions extends ImageInput {
 }
 
 export interface PictureBindingOptions extends ImageBindingOptions {
-  formats?: readonly ImageFormat[];
-  fallbackFormat?: ImageFormat;
-  legacyFormat?: ImageFormat;
   pictureAttrs?: ReactPictureAttrs;
   imgAttrs?: NativeImageAttrs;
   imgClassName?: string;
