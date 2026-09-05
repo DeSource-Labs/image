@@ -149,6 +149,73 @@ interface FlyimgOptions {
   processType?: 'upload' | 'path';
 }
 
+type FlyimgModifierValue = string | number | boolean;
+type ResolvedFlyimgModifiers = Partial<Record<string, FlyimgModifierValue>>;
+
+function isDisabled(value: unknown): boolean {
+  return value === false || value === 0 || value === '0';
+}
+
+function applyFit(modifiers: ResolvedFlyimgModifiers, fit: unknown, preserveAspectRatio: unknown): void {
+  // Flyimg default behaviour when width + height are given — no extra flags needed
+  // so we don't need to handle 'inside' or 'contain' explicitly.
+  switch (fit) {
+    case 'cover':
+      // Crop to fill the target rectangle (Flyimg: c_1)
+      if (!modifiers.crop) modifiers.crop = true;
+      break;
+    case 'fill':
+      // Stretch to fill — disable aspect-ratio preservation (Flyimg: par_0)
+      if (preserveAspectRatio !== false) modifiers.preserveAspectRatio = false;
+      break;
+    case 'outside':
+      if (isDevelopment()) {
+        console.warn('[nuxt] [image] [flyimg] fit="outside" is not supported by Flyimg and will be ignored.');
+      }
+      break;
+  }
+}
+
+/**
+ * Strip / mozjpeg / preserveAspectRatio / preserveNaturalSize default to
+ * 1 (enabled) in Flyimg, so we only need to emit them when explicitly
+ * disabled. Treat boolean false, numeric 0, and string '0' as opt-out.
+ */
+function applyInvertedDefaults(
+  modifiers: ResolvedFlyimgModifiers,
+  values: Record<'strip' | 'mozjpeg' | 'preserveAspectRatio' | 'preserveNaturalSize', unknown>
+): void {
+  for (const [key, value] of Object.entries(values)) {
+    if (value != null && isDisabled(value)) {
+      modifiers[key] = false;
+    }
+  }
+}
+
+function resolveModifiers(rawModifiers: Record<string, unknown>): ResolvedFlyimgModifiers {
+  const { fit, strip, mozjpeg, preserveAspectRatio, preserveNaturalSize, ...rest } = rawModifiers;
+  const modifiers = { ...rest } as ResolvedFlyimgModifiers;
+
+  applyFit(modifiers, fit, preserveAspectRatio);
+  applyInvertedDefaults(modifiers, { strip, mozjpeg, preserveAspectRatio, preserveNaturalSize });
+  return modifiers;
+}
+
+/**
+ * Flyimg needs an absolute source URL.
+ * If src is relative and sourceURL is configured, make it absolute.
+ */
+function resolveImageUrl(src: string, sourceURL: string | undefined): string {
+  const isAbsolute = hasProtocol(src);
+  if (isDevelopment() && !isAbsolute && !sourceURL) {
+    console.warn(
+      '[nuxt] [image] [flyimg] `src` is a relative path but `sourceURL` is not configured. Flyimg requires an absolute source URL. Set `image.flyimg.sourceURL` in your nuxt.config.'
+    );
+  }
+
+  return !isAbsolute && sourceURL ? joinURL(sourceURL, src) : src;
+}
+
 const providerSetup = defineProvider<FlyimgOptions>({
   getImage: (src, options) => {
     const { modifiers: rawModifiers = {}, baseURL, sourceURL, processType = 'upload' } = options;
@@ -159,55 +226,8 @@ const providerSetup = defineProvider<FlyimgOptions>({
       );
     }
 
-    // --- fit → Flyimg flags ------------------------------------------------
-    const { fit, strip, mozjpeg, preserveAspectRatio, preserveNaturalSize, ...rest } = rawModifiers as Record<
-      string,
-      unknown
-    >;
-
-    const modifiers: Partial<Record<string, string | number | boolean>> = { ...rest } as Partial<
-      Record<string, string | number | boolean>
-    >;
-
-    switch (fit) {
-      case 'cover':
-        // Crop to fill the target rectangle (Flyimg: c_1)
-        if (!modifiers.crop) modifiers.crop = true;
-        break;
-      case 'fill':
-        // Stretch to fill — disable aspect-ratio preservation (Flyimg: par_0)
-        if (preserveAspectRatio !== false) modifiers.preserveAspectRatio = false;
-        break;
-      case 'contain':
-      case 'inside':
-        // Flyimg default behaviour when width + height are given — no extra flags needed
-        break;
-      case 'outside':
-        if (isDevelopment()) {
-          console.warn('[nuxt] [image] [flyimg] fit="outside" is not supported by Flyimg and will be ignored.');
-        }
-        break;
-    }
-
-    // --- Inverted-defaults --------------------------------------------------
-    // strip / mozjpeg / preserveAspectRatio / preserveNaturalSize default to
-    // 1 (enabled) in Flyimg, so we only need to emit them when explicitly
-    // disabled. Treat boolean false, numeric 0, and string '0' as opt-out.
-    const isDisabled = (v: unknown) => v === false || v === 0 || v === '0';
-    if (strip != null && isDisabled(strip)) modifiers.strip = false;
-    if (mozjpeg != null && isDisabled(mozjpeg)) modifiers.mozjpeg = false;
-    if (preserveAspectRatio != null && isDisabled(preserveAspectRatio)) modifiers.preserveAspectRatio = false;
-    if (preserveNaturalSize != null && isDisabled(preserveNaturalSize)) modifiers.preserveNaturalSize = false;
-
-    // --- Resolve image URL -------------------------------------------------
-    // Flyimg needs an absolute source URL. If src is relative and sourceURL is
-    // configured, make it absolute.
-    if (isDevelopment() && !hasProtocol(src) && !sourceURL) {
-      console.warn(
-        '[nuxt] [image] [flyimg] `src` is a relative path but `sourceURL` is not configured. Flyimg requires an absolute source URL. Set `image.flyimg.sourceURL` in your nuxt.config.'
-      );
-    }
-    const imageUrl = !hasProtocol(src) && sourceURL ? joinURL(sourceURL, src) : src;
+    const modifiers = resolveModifiers(rawModifiers as Record<string, unknown>);
+    const imageUrl = resolveImageUrl(src, sourceURL);
 
     // --- Build Flyimg URL --------------------------------------------------
     const operations = operationsGenerator(modifiers as Partial<Record<string, string | number>>);
