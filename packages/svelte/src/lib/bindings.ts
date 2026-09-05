@@ -383,7 +383,7 @@ function applyPictureSources(
     let element = elements[index];
     if (!element) {
       element = picture.ownerDocument.createElement('source');
-      picture.insertBefore(element, image);
+      image.before(element);
       elements[index] = element;
     }
     const source = sources[index]!;
