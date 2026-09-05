@@ -60,7 +60,7 @@ const providerSetup = defineProvider<AmplifyOptions>({
   validateDomains: true,
   getImage: (src, { modifiers, baseURL = '/_amplify/image' }, ctx) => {
     const validWidths = Object.values(ctx.options.screens || {}).sort((a, b) => a - b);
-    const largestWidth = validWidths[validWidths.length - 1] || 0;
+    const largestWidth = validWidths.at(-1) ?? 0;
     let width = Number(modifiers?.width || 0);
 
     if (!width) {
