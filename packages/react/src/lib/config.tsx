@@ -14,7 +14,7 @@ import type { ImageProviderProps } from './types.js';
 const ImageConfigContext = createContext<ResolvedImageConfig | undefined>(undefined);
 const configCache = createImageConfigCache({ resolveConfig: resolveImageConfig, createImage });
 
-export function ImageProvider({ config = configCache.defaultConfig, children }: ImageProviderProps) {
+export function ImageProvider({ config = configCache.defaultConfig, children }: Readonly<ImageProviderProps>) {
   const resolved = useMemo(() => resolveCachedConfig(config), [config]);
   return <ImageConfigContext.Provider value={resolved}>{children}</ImageConfigContext.Provider>;
 }
