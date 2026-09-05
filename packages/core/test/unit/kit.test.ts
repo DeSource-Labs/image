@@ -73,38 +73,37 @@ describe('framework kit utilities', () => {
   });
 
   it('shares provider definition, resolved root and middleware across Vite server modes', () => {
-    const createMiddleware = vi.fn(() => ({ id: 'middleware' }));
-    const installMiddleware = vi.fn();
-    const plugin = createImageVitePlugin({
+    const middleware = vi.fn(async () => undefined);
+    const createMiddleware = vi.fn(() => middleware);
+    const createPlugin = createImageVitePlugin({
       name: 'image-plugin',
-      options: {},
-      defaultRoot: '/default-root',
-      detectProvider: () => 'vercel',
-      createMiddleware,
-      installMiddleware
+      createMiddleware
     });
+    const plugin = createPlugin({ provider: 'vercel' });
+    const use = vi.fn();
 
     expect(plugin.config()).toEqual({ define: { __DESOURCE_IMAGE_PROVIDER__: '"vercel"' } });
     plugin.configResolved({ root: '/project-root' });
-    plugin.configureServer({ mode: 'dev' });
-    plugin.configurePreviewServer({ mode: 'preview' });
+    plugin.configureServer({ middlewares: { use } });
+    plugin.configurePreviewServer({ middlewares: { use } });
 
     expect(createMiddleware).toHaveBeenCalledOnce();
-    expect(createMiddleware).toHaveBeenCalledWith({ root: '/project-root' });
-    expect(installMiddleware).toHaveBeenCalledTimes(2);
-    expect(installMiddleware.mock.calls[0]![1]).toBe(installMiddleware.mock.calls[1]![1]);
+    expect(createMiddleware).toHaveBeenCalledWith({ provider: 'vercel', root: '/project-root' });
+    expect(use).toHaveBeenCalledTimes(2);
 
-    const createExplicitMiddleware = vi.fn(() => 'explicit-middleware');
+    const next = vi.fn();
+    use.mock.calls[0]![0]({ url: '/image.jpg' }, {}, next);
+    use.mock.calls[1]![0]({ url: '/image.jpg' }, {}, next);
+    expect(middleware).toHaveBeenCalledTimes(2);
+
+    const explicitMiddleware = vi.fn(async () => undefined);
+    const createExplicitMiddleware = vi.fn(() => explicitMiddleware);
     const explicitPlugin = createImageVitePlugin({
       name: 'explicit-root-plugin',
-      options: { root: '/configured-root' },
-      defaultRoot: '/default-root',
-      detectProvider: () => 'ipx',
-      createMiddleware: createExplicitMiddleware,
-      installMiddleware: vi.fn()
-    });
+      createMiddleware: createExplicitMiddleware
+    })({ root: '/configured-root' });
     explicitPlugin.configResolved({ root: '/ignored-root' });
-    explicitPlugin.configureServer({});
+    explicitPlugin.configureServer({ middlewares: { use: vi.fn() } });
     expect(createExplicitMiddleware).toHaveBeenCalledWith({ root: '/configured-root' });
   });
 

@@ -1,3 +1,5 @@
+import { detectImageProvider } from './config.js';
+import type { DsImageNodeMiddleware, DsImageNodeRequest, DsImageServerOptions } from './server.js';
 import type { DesourceImage, ImageConfig, ImageInput, ResolvedImageConfig } from './types.js';
 
 export interface ImageConfigCache {
@@ -6,18 +8,27 @@ export interface ImageConfigCache {
   image(config: ResolvedImageConfig): DesourceImage;
 }
 
-export interface ImageVitePluginOptions {
+export interface ImageVitePluginOptions extends DsImageServerOptions {
   provider?: string;
-  root?: string;
 }
 
-interface ImageVitePluginRuntime<TOptions extends ImageVitePluginOptions, TServer, TMiddleware> {
+interface ImageViteMiddlewareServer<NodeRequest extends DsImageNodeRequest, NodeResponse> {
+  middlewares: {
+    use(middleware: (request: NodeRequest, response: NodeResponse, next: (error?: unknown) => void) => void): void;
+  };
+}
+
+interface ImageVitePlugin<NodeRequest extends DsImageNodeRequest, NodeResponse> {
   name: string;
-  options: TOptions;
-  defaultRoot: string;
-  detectProvider(): string;
-  createMiddleware(options: TOptions): TMiddleware;
-  installMiddleware(server: TServer, middleware: TMiddleware): void;
+  config(): { define: { __DESOURCE_IMAGE_PROVIDER__: string } };
+  configResolved(config: { root: string }): void;
+  configureServer(server: ImageViteMiddlewareServer<NodeRequest, NodeResponse>): void;
+  configurePreviewServer(server: ImageViteMiddlewareServer<NodeRequest, NodeResponse>): void;
+}
+
+interface ImageVitePluginRuntime<NodeRequest extends DsImageNodeRequest, NodeResponse> {
+  name: string;
+  createMiddleware(options: ImageVitePluginOptions): DsImageNodeMiddleware<NodeRequest, NodeResponse>;
 }
 
 export {
@@ -96,35 +107,42 @@ export function createImageConfigCache(runtime: {
   };
 }
 
-export function createImageVitePlugin<TOptions extends ImageVitePluginOptions, TServer, TMiddleware>(
-  runtime: ImageVitePluginRuntime<TOptions, TServer, TMiddleware>
-) {
-  let root = runtime.defaultRoot;
-  let middleware: TMiddleware | undefined;
+export function createImageVitePlugin<NodeRequest extends DsImageNodeRequest, NodeResponse>(
+  runtime: ImageVitePluginRuntime<NodeRequest, NodeResponse>
+): (options?: ImageVitePluginOptions) => ImageVitePlugin<NodeRequest, NodeResponse> {
+  return function desourceImage(options: ImageVitePluginOptions = {}) {
+    let root = globalThis.process.cwd();
+    let middleware: DsImageNodeMiddleware<NodeRequest, NodeResponse> | undefined;
 
-  const getMiddleware = (): TMiddleware => {
-    middleware ??= runtime.createMiddleware({
-      ...runtime.options,
-      root: runtime.options.root ?? root
-    });
-    return middleware;
-  };
-  const installMiddleware = (server: TServer): void => runtime.installMiddleware(server, getMiddleware());
+    const getMiddleware = (): DsImageNodeMiddleware<NodeRequest, NodeResponse> => {
+      middleware ??= runtime.createMiddleware({
+        ...options,
+        root: options.root ?? root
+      });
+      return middleware;
+    };
+    const installMiddleware = (server: ImageViteMiddlewareServer<NodeRequest, NodeResponse>): void => {
+      const installedMiddleware = getMiddleware();
+      server.middlewares.use((request, response, next) => {
+        void installedMiddleware(request, response, next);
+      });
+    };
 
-  return {
-    name: runtime.name,
-    config() {
-      return {
-        define: {
-          __DESOURCE_IMAGE_PROVIDER__: JSON.stringify(runtime.detectProvider())
-        }
-      };
-    },
-    configResolved(config: { root: string }) {
-      root = config.root;
-    },
-    configureServer: installMiddleware,
-    configurePreviewServer: installMiddleware
+    return {
+      name: runtime.name,
+      config() {
+        return {
+          define: {
+            __DESOURCE_IMAGE_PROVIDER__: JSON.stringify(options.provider ?? detectImageProvider())
+          }
+        };
+      },
+      configResolved(config: { root: string }) {
+        root = config.root;
+      },
+      configureServer: installMiddleware,
+      configurePreviewServer: installMiddleware
+    };
   };
 }
 
