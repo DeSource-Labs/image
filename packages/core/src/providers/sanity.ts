@@ -4,6 +4,12 @@ import { configureProvider, defineProvider, type ProviderOptionsOf } from '../pr
 
 const sanityCDN = 'https://cdn.sanity.io/images';
 
+type SanityOperationValue = string | true | number | Record<string, unknown>;
+
+function stringifyOperationValue(value: SanityOperationValue): string {
+  return typeof value === 'object' ? JSON.stringify(value) : value.toString();
+}
+
 const operationsGenerator = createOperationsGenerator({
   keyMap: {
     format: 'fm',
@@ -38,13 +44,15 @@ const operationsGenerator = createOperationsGenerator({
       outside: 'max'
     }
   },
-  formatter: (key, value: string | true | number | Record<string, unknown>) =>
-    String(value) === 'true' ? key : encodePath(`${key}=${value}`)
+  formatter: (key, value: SanityOperationValue) => {
+    const stringValue = stringifyOperationValue(value);
+    return stringValue === 'true' ? key : encodePath(`${key}=${stringValue}`);
+  }
 });
 
 const getMetadata = (id: string) => {
-  const result = id.match(/-(?<width>\d*)x(?<height>\d*)-(?<format>.*)$/);
-  if (!result || !result.groups) {
+  const result = /-(?<width>\d*)x(?<height>\d*)-(?<format>.*)$/.exec(id);
+  if (!result?.groups) {
     // Invalid Sanity image asset ID
     if (isDevelopment()) {
       console.warn(`An invalid image asset ID was passed in: ${id}`);
