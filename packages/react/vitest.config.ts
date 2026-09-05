@@ -1,33 +1,24 @@
-import { fileURLToPath } from 'node:url';
-import { defineConfig } from 'vitest/config';
+import { defineFrameworkVitestConfig } from '../../common/test/config/vitest.js';
 
-export default defineConfig({
-  resolve: {
-    conditions: ['browser'],
-    alias: {
-      '@desource/image': fileURLToPath(new URL('../../packages/core/src', import.meta.url)),
-      '@common': fileURLToPath(new URL('../../common', import.meta.url)),
-      '@src': fileURLToPath(new URL('./src/lib', import.meta.url)),
-      '@lib': fileURLToPath(new URL('./src/index', import.meta.url)),
-      '@server': fileURLToPath(new URL('./src/server', import.meta.url))
-    }
+export default defineFrameworkVitestConfig({
+  configUrl: import.meta.url,
+  conditions: ['browser'],
+  aliases: {
+    '@src': './src/lib',
+    '@lib': './src/index',
+    '@server': './src/server'
   },
-  test: {
-    environment: 'jsdom',
-    setupFiles: ['./test/unit/setup-environment.ts'],
-    include: ['./test/unit/**/*.test.ts', './test/unit/**/*.test.tsx'],
-    restoreMocks: true,
-    coverage: {
-      provider: 'v8',
-      include: ['src/**/*.{ts,tsx}'],
-      exclude: [],
-      reporter: ['text', 'lcov'],
-      thresholds: {
-        statements: 98,
-        branches: 88,
-        functions: 98,
-        lines: 98
-      }
+  environment: 'jsdom',
+  setupFiles: ['./test/unit/setup-environment.ts'],
+  include: ['./test/unit/**/*.test.ts', './test/unit/**/*.test.tsx'],
+  coverage: {
+    include: ['src/**/*.{ts,tsx}'],
+    exclude: [],
+    thresholds: {
+      statements: 98,
+      branches: 88,
+      functions: 98,
+      lines: 98
     }
   }
 });

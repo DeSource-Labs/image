@@ -1,84 +1,52 @@
 // @vitest-environment jsdom
 
-import { createElement, createRef } from 'react';
 import { act } from 'react';
-import { renderToStaticMarkup } from 'react-dom/server';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { testImageComponent, type ImageComponentSetupOptions } from '@common/test/unit/Image';
-import { imageComponentTestConfig } from '@common/test/unit/setup/image-test-provider';
-import { ImageProvider } from '@lib';
+import { installMockImage } from '@common/test/unit/setup/mock-image';
 import { Image } from '@src/Image';
 import {
   cleanupDocument,
-  createEventMocks,
+  createReactHarness,
   createReactRoot,
   flushReact,
   imagePropsFromOptions,
+  renderConfiguredMarkup,
   renderReact,
   requireElement,
-  testTools
+  testTools,
+  withRenderedRef
 } from './setup';
 
 afterEach(cleanupDocument);
 
 testImageComponent(async (options = {}) => {
-  const { target, root } = createReactRoot();
-  let current = { src: '/image.jpg', alt: 'Image', ...options } satisfies ImageComponentSetupOptions;
-  const events = createEventMocks();
-
-  const paint = async () =>
-    renderReact(
-      root,
-      createElement(Image, {
-        ...imagePropsFromOptions(current),
-        onLoad: events.onLoad,
-        onError: events.onError
-      })
-    );
-
-  await paint();
-  await flushReact();
+  const harness = await createReactHarness(
+    { src: '/image.jpg', alt: 'Image', ...options } satisfies ImageComponentSetupOptions,
+    (current, events) => <Image {...imagePropsFromOptions(current)} onLoad={events.onLoad} onError={events.onError} />
+  );
 
   return {
-    container: target,
-    image: () => requireElement<HTMLImageElement>(target, 'img'),
-    preloadLinks: () => Array.from(document.head.querySelectorAll<HTMLLinkElement>('link[rel="preload"][as="image"]')),
-    async update(nextOptions) {
-      current = { ...current, ...nextOptions };
-      await paint();
-      await flushReact();
-    },
-    flush: flushReact,
-    async unmount() {
-      await act(async () => root.unmount());
-      target.remove();
-    },
-    onLoad: events.onLoad,
-    onError: events.onError
+    ...harness,
+    image: () => requireElement<HTMLImageElement>(harness.container, 'img')
   };
 }, testTools);
 
 describe('React Image component behavior', () => {
   it('forwards refs to the rendered image element', async () => {
-    const { target, root } = createReactRoot();
-    const ref = createRef<HTMLImageElement>();
-
-    try {
-      await renderReact(root, <Image ref={ref} src="/ref.jpg" alt="Ref" width={320} />);
-
-      expect(ref.current).toBe(requireElement<HTMLImageElement>(target, 'img'));
-      expect(ref.current?.getAttribute('src')).toContain('/ref.jpg');
-    } finally {
-      await act(async () => root.unmount());
-      target.remove();
-    }
+    await withRenderedRef<HTMLImageElement>(
+      'img',
+      (ref) => <Image ref={ref} src="/ref.jpg" alt="Ref" width={320} />,
+      (ref, image) => {
+        expect(ref).toBe(image);
+        expect(image.getAttribute('src')).toContain('/ref.jpg');
+      }
+    );
   });
 
   it('renders deterministic server markup with generated attrs', () => {
-    const body = renderToStaticMarkup(
-      <ImageProvider config={imageComponentTestConfig}>
-        <Image src="/hero.png" alt="Hero" width={800} format="webp" crossOrigin nonce="nonce-value" />
-      </ImageProvider>
+    const body = renderConfiguredMarkup(
+      <Image src="/hero.png" alt="Hero" width={800} format="webp" crossOrigin nonce="nonce-value" />
     );
 
     expect(body).toContain('src="/hero.png?width=800&amp;format=webp"');
@@ -118,47 +86,24 @@ describe('React Image component behavior', () => {
   });
 
   it('emits an error when placeholder decode rejects', async () => {
-    const originalImage = globalThis.Image;
-    const preloaders: Array<{
-      src: string;
-      srcset: string;
-      sizes: string;
-      complete: boolean;
-      naturalWidth: number;
-      onload: (() => void) | null;
-      onerror: ((event: Event | string) => void) | null;
-      decode: () => Promise<void>;
-    }> = [];
-    class MockImage {
-      src = '';
-      srcset = '';
-      sizes = '';
-      complete = false;
-      naturalWidth = 0;
-      onload: (() => void) | null = null;
-      onerror: ((event: Event | string) => void) | null = null;
-      decode = vi.fn(async () => {
+    const mockedImage = installMockImage({
+      async decode() {
         throw new Error('decode failed');
-      });
-
-      constructor() {
-        preloaders.push(this);
       }
-    }
-    globalThis.Image = MockImage as unknown as typeof globalThis.Image;
+    });
     const { target, root } = createReactRoot();
     const onError = vi.fn();
 
     try {
       await renderReact(root, <Image src="/decode.jpg" alt="Decode" width={320} placeholder onError={onError} />);
       await flushReact();
-      preloaders[0]!.onload?.();
+      mockedImage.images[0]!.onload?.(new Event('load'));
       await flushReact();
 
       expect(onError).toHaveBeenCalledOnce();
       expect(requireElement<HTMLImageElement>(target, 'img').getAttribute('src')).toContain('width=10');
     } finally {
-      globalThis.Image = originalImage;
+      mockedImage.restore();
       await act(async () => root.unmount());
       target.remove();
     }

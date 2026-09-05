@@ -1,6 +1,8 @@
-import { describe, expect, it } from 'vitest';
-import { resolveImageConfig } from '@src/index';
+import { describe, expect, it, vi } from 'vitest';
+import { createImage, resolveImageConfig } from '@src/index';
 import {
+  createImageConfigCache,
+  createImageVitePlugin,
   escapeCssSelectorValue,
   isPathUnderBasePath,
   isResolvedImageConfig,
@@ -8,6 +10,7 @@ import {
   normalizeBasePath,
   normalizeCrossorigin,
   parseRequestPath,
+  pickImageInput,
   stringifyModifierValue,
   stripLeadingSlashes,
   stripTrailingSlashes,
@@ -44,6 +47,64 @@ describe('framework kit utilities', () => {
     ]);
     expect(normalizeCrossorigin('use-credentials')).toBe('use-credentials');
     expect(normalizeCrossorigin(false)).toBeUndefined();
+  });
+
+  it('caches resolved configurations and image helpers by object identity', () => {
+    const cache = createImageConfigCache({ resolveConfig: resolveImageConfig, createImage });
+    const input = { provider: 'none' };
+    const resolved = cache.resolve(input);
+
+    expect(cache.resolve()).toBe(cache.defaultConfig);
+    expect(cache.resolve(input)).toBe(resolved);
+    expect(cache.resolve(resolved)).toBe(resolved);
+    expect(cache.image(resolved)).toBe(cache.image(resolved));
+  });
+
+  it('projects framework options onto the framework-independent image input', () => {
+    expect(
+      pickImageInput({
+        src: '/image.jpg',
+        alt: 'Image',
+        width: 320,
+        format: 'webp',
+        loading: undefined
+      })
+    ).toEqual({ src: '/image.jpg', alt: 'Image', width: 320, format: 'webp' });
+  });
+
+  it('shares provider definition, resolved root and middleware across Vite server modes', () => {
+    const middleware = vi.fn(async () => undefined);
+    const createMiddleware = vi.fn(() => middleware);
+    const createPlugin = createImageVitePlugin({
+      name: 'image-plugin',
+      createMiddleware
+    });
+    const plugin = createPlugin({ provider: 'vercel' });
+    const use = vi.fn();
+
+    expect(plugin.config()).toEqual({ define: { __DESOURCE_IMAGE_PROVIDER__: '"vercel"' } });
+    plugin.configResolved({ root: '/project-root' });
+    plugin.configureServer({ middlewares: { use } });
+    plugin.configurePreviewServer({ middlewares: { use } });
+
+    expect(createMiddleware).toHaveBeenCalledOnce();
+    expect(createMiddleware).toHaveBeenCalledWith({ provider: 'vercel', root: '/project-root' });
+    expect(use).toHaveBeenCalledTimes(2);
+
+    const next = vi.fn();
+    use.mock.calls[0]![0]({ url: '/image.jpg' }, {}, next);
+    use.mock.calls[1]![0]({ url: '/image.jpg' }, {}, next);
+    expect(middleware).toHaveBeenCalledTimes(2);
+
+    const explicitMiddleware = vi.fn(async () => undefined);
+    const createExplicitMiddleware = vi.fn(() => explicitMiddleware);
+    const explicitPlugin = createImageVitePlugin({
+      name: 'explicit-root-plugin',
+      createMiddleware: createExplicitMiddleware
+    })({ root: '/configured-root' });
+    explicitPlugin.configResolved({ root: '/ignored-root' });
+    explicitPlugin.configureServer({ middlewares: { use: vi.fn() } });
+    expect(createExplicitMiddleware).toHaveBeenCalledWith({ root: '/configured-root' });
   });
 
   it('merges nested class values and placeholder styles deterministically', () => {

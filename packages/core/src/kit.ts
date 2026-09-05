@@ -1,4 +1,35 @@
-import type { ImageConfig, ResolvedImageConfig } from './types.js';
+import { detectImageProvider } from './config.js';
+import type { DsImageNodeMiddleware, DsImageNodeRequest, DsImageServerOptions } from './server.js';
+import type { DesourceImage, ImageConfig, ImageInput, ResolvedImageConfig } from './types.js';
+
+export interface ImageConfigCache {
+  defaultConfig: ResolvedImageConfig;
+  resolve(config?: ImageConfig | ResolvedImageConfig): ResolvedImageConfig;
+  image(config: ResolvedImageConfig): DesourceImage;
+}
+
+export interface ImageVitePluginOptions extends DsImageServerOptions {
+  provider?: string;
+}
+
+interface ImageViteMiddlewareServer<NodeRequest extends DsImageNodeRequest, NodeResponse> {
+  middlewares: {
+    use(middleware: (request: NodeRequest, response: NodeResponse, next: (error?: unknown) => void) => void): void;
+  };
+}
+
+interface ImageVitePlugin<NodeRequest extends DsImageNodeRequest, NodeResponse> {
+  name: string;
+  config(): { define: { __DESOURCE_IMAGE_PROVIDER__: string } };
+  configResolved(config: { root: string }): void;
+  configureServer(server: ImageViteMiddlewareServer<NodeRequest, NodeResponse>): void;
+  configurePreviewServer(server: ImageViteMiddlewareServer<NodeRequest, NodeResponse>): void;
+}
+
+interface ImageVitePluginRuntime<NodeRequest extends DsImageNodeRequest, NodeResponse> {
+  name: string;
+  createMiddleware(options: ImageVitePluginOptions): DsImageNodeMiddleware<NodeRequest, NodeResponse>;
+}
 
 export {
   escapeCssSelectorValue,
@@ -45,8 +76,107 @@ export function isResolvedImageConfig(config: ImageConfig | ResolvedImageConfig)
   );
 }
 
+export function createImageConfigCache(runtime: {
+  resolveConfig(config?: ImageConfig): ResolvedImageConfig;
+  createImage(config: ResolvedImageConfig): DesourceImage;
+}): ImageConfigCache {
+  const defaultConfig = runtime.resolveConfig();
+  const images = new WeakMap<ResolvedImageConfig, DesourceImage>();
+  const resolvedConfigs = new WeakMap<object, ResolvedImageConfig>();
+
+  return {
+    defaultConfig,
+    resolve(config) {
+      if (!config) return defaultConfig;
+      if (isResolvedImageConfig(config)) return config;
+
+      const cached = resolvedConfigs.get(config);
+      if (cached) return cached;
+      const resolved = runtime.resolveConfig(config);
+      resolvedConfigs.set(config, resolved);
+      return resolved;
+    },
+    image(config) {
+      let image = images.get(config);
+      if (!image) {
+        image = runtime.createImage(config);
+        images.set(config, image);
+      }
+      return image;
+    }
+  };
+}
+
+export function createImageVitePlugin<NodeRequest extends DsImageNodeRequest, NodeResponse>(
+  runtime: ImageVitePluginRuntime<NodeRequest, NodeResponse>
+): (options?: ImageVitePluginOptions) => ImageVitePlugin<NodeRequest, NodeResponse> {
+  return function desourceImage(options: ImageVitePluginOptions = {}) {
+    let root = globalThis.process.cwd();
+    let middleware: DsImageNodeMiddleware<NodeRequest, NodeResponse> | undefined;
+
+    const getMiddleware = (): DsImageNodeMiddleware<NodeRequest, NodeResponse> => {
+      middleware ??= runtime.createMiddleware({
+        ...options,
+        root: options.root ?? root
+      });
+      return middleware;
+    };
+    const installMiddleware = (server: ImageViteMiddlewareServer<NodeRequest, NodeResponse>): void => {
+      const installedMiddleware = getMiddleware();
+      server.middlewares.use((request, response, next) => {
+        void installedMiddleware(request, response, next);
+      });
+    };
+
+    return {
+      name: runtime.name,
+      config() {
+        return {
+          define: {
+            __DESOURCE_IMAGE_PROVIDER__: JSON.stringify(options.provider ?? detectImageProvider())
+          }
+        };
+      },
+      configResolved(config: { root: string }) {
+        root = config.root;
+      },
+      configureServer: installMiddleware,
+      configurePreviewServer: installMiddleware
+    };
+  };
+}
+
 export function stripUndefined<T extends Record<string, unknown>>(value: T): T {
   return Object.fromEntries(Object.entries(value).filter(([, entry]) => entry !== undefined)) as T;
+}
+
+export function pickImageInput(options: ImageInput): ImageInput {
+  return stripUndefined({
+    src: options.src,
+    alt: options.alt,
+    width: options.width,
+    height: options.height,
+    sizes: options.sizes,
+    quality: options.quality,
+    format: options.format,
+    formats: options.formats,
+    fallbackFormat: options.fallbackFormat,
+    legacyFormat: options.legacyFormat,
+    fit: options.fit,
+    position: options.position,
+    background: options.background,
+    modifiers: options.modifiers,
+    provider: options.provider,
+    preset: options.preset,
+    densities: options.densities,
+    loading: options.loading,
+    decoding: options.decoding,
+    fetchpriority: options.fetchpriority,
+    priority: options.priority,
+    preload: options.preload,
+    placeholder: options.placeholder,
+    placeholderClass: options.placeholderClass
+  });
 }
 
 export function normalizeCrossorigin(value: unknown): 'anonymous' | 'use-credentials' | undefined {

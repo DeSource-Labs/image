@@ -18,9 +18,10 @@ export interface MockImageController {
   restore(): void;
 }
 
-export function installMockImage(): MockImageController {
+export function installMockImage(options: { decode?: () => Promise<void> } = {}): MockImageController {
   const originalImage = globalThis.Image;
   const images: MockImageInstance[] = [];
+  const decodeImage = options.decode ?? (async () => undefined);
 
   class MockImage {
     src = '';
@@ -31,7 +32,7 @@ export function installMockImage(): MockImageController {
     naturalWidth = 0;
     onload: ((event: Event) => void) | null = null;
     onerror: ((event: Event | string) => void) | null = null;
-    decode = vi.fn(async () => undefined);
+    decode = vi.fn(decodeImage);
 
     constructor() {
       images.push(this);

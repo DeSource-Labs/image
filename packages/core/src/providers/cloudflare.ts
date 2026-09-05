@@ -43,11 +43,10 @@ const providerSetup = defineProvider<CloudflareOptions>({
     const operations = operationsGenerator(mergeModifiers as Parameters<typeof operationsGenerator>[0]);
 
     // https://<ZONE>/cdn-cgi/image/<OPTIONS>/<SOURCE-IMAGE>
-    const url = operations
-      ? joinURL(baseURL, 'cdn-cgi/image', operations, src)
-      : hasProtocol(src)
-        ? src
-        : joinURL(baseURL, src);
+    let url = hasProtocol(src) ? src : joinURL(baseURL, src);
+    if (operations) {
+      url = joinURL(baseURL, 'cdn-cgi/image', operations, src);
+    }
 
     return {
       url

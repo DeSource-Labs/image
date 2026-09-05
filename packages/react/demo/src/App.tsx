@@ -79,7 +79,9 @@ export default function App() {
   );
 }
 
-function NativeImage({ width }: { width: number }) {
+type NativeMediaProps = Readonly<{ width: number }>;
+
+function NativeImage({ width }: NativeMediaProps) {
   const imgProps = useImageProps({
     src: '/hero.jpg',
     alt: 'Aurora reflected in a lake',
@@ -94,12 +96,12 @@ function NativeImage({ width }: { width: number }) {
   return (
     <article>
       <span>useImageProps hook</span>
-      <img {...imgProps} data-testid="image-hook" />
+      <img {...imgProps} alt={imgProps.alt} data-testid="image-hook" />
     </article>
   );
 }
 
-function NativePicture({ width }: { width: number }) {
+function NativePicture({ width }: NativeMediaProps) {
   const picture = usePictureProps({
     src: '/hero.jpg',
     alt: 'Mountain landscape rendered by a hook',
@@ -118,7 +120,7 @@ function NativePicture({ width }: { width: number }) {
         {picture.sources.map(({ key, ...source }) => (
           <source key={key} {...source} />
         ))}
-        <img {...picture.imgProps} />
+        <img {...picture.imgProps} alt={picture.imgProps.alt} />
       </picture>
     </article>
   );

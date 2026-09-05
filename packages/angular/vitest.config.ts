@@ -1,36 +1,26 @@
 import { fileURLToPath } from 'node:url';
 import angular from '@analogjs/vite-plugin-angular';
-import { defineConfig } from 'vitest/config';
+import { defineFrameworkVitestConfig } from '../../common/test/config/vitest.js';
 
-export default defineConfig({
-  plugins: [
-    angular({ tsconfig: fileURLToPath(new URL('../../packages/angular/tsconfig.spec.json', import.meta.url)) })
-  ],
-  resolve: {
-    alias: {
-      '@desource/image': fileURLToPath(new URL('../../packages/core/src', import.meta.url)),
-      '@common': fileURLToPath(new URL('../../common', import.meta.url)),
-      '@src': fileURLToPath(new URL('./src/lib', import.meta.url)),
-      '@lib': fileURLToPath(new URL('./src/public-api', import.meta.url)),
-      '@server': fileURLToPath(new URL('./server/src/public-api', import.meta.url))
-    }
+export default defineFrameworkVitestConfig({
+  configUrl: import.meta.url,
+  plugins: [...angular({ tsconfig: fileURLToPath(new URL('./tsconfig.spec.json', import.meta.url)) })],
+  aliases: {
+    '@src': './src/lib',
+    '@lib': './src/public-api',
+    '@server': './server/src/public-api'
   },
-  test: {
-    environment: 'jsdom',
-    setupFiles: ['./test/setup.ts'],
-    include: ['./test/unit/**/*.test.ts', './test/server/**/*.test.ts'],
-    restoreMocks: true,
-    coverage: {
-      provider: 'v8',
-      include: ['src/**/*.ts', 'server/src/**/*.ts'],
-      exclude: ['src/public-api.ts'],
-      reporter: ['text', 'lcov'],
-      thresholds: {
-        statements: 95,
-        branches: 80,
-        functions: 95,
-        lines: 95
-      }
+  environment: 'jsdom',
+  setupFiles: ['./test/setup.ts'],
+  include: ['./test/unit/**/*.test.ts', './test/server/**/*.test.ts'],
+  coverage: {
+    include: ['src/**/*.ts', 'server/src/**/*.ts'],
+    exclude: ['src/public-api.ts'],
+    thresholds: {
+      statements: 95,
+      branches: 80,
+      functions: 95,
+      lines: 95
     }
   }
 });

@@ -1,7 +1,7 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "rootDir": ".",
+    "rootDir": "../..",
     "types": ["vitest/globals", "node"],
     "paths": {
       "@desource/image-angular": ["./src/public-api.ts"],

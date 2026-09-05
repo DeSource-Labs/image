@@ -29,6 +29,13 @@ export function providerSourceFor(name: string): string {
 }
 
 export function providerOptionsFor(name: string): Record<string, unknown> {
+  let baseURL = 'https://images.example.com/base';
+  if (name === 'hygraph') {
+    baseURL = 'https://eu-central-1.graphassets.com/base';
+  } else if (name === 'cloudinary') {
+    baseURL = 'https://res.cloudinary.com/demo/image/upload';
+  }
+
   return {
     modifiers: {
       width: 320,
@@ -40,12 +47,7 @@ export function providerOptionsFor(name: string): Record<string, unknown> {
       background: '#fff',
       blur: 3
     },
-    baseURL:
-      name === 'hygraph'
-        ? 'https://eu-central-1.graphassets.com/base'
-        : name === 'cloudinary'
-          ? 'https://res.cloudinary.com/demo/image/upload'
-          : 'https://images.example.com/base',
+    baseURL,
     accountHash: 'account',
     apiVersion: 'v7',
     cdnURL: 'https://cdn.example.com',

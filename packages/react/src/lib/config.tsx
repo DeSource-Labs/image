@@ -8,15 +8,13 @@ import {
   type ImageConfig,
   type ResolvedImageConfig
 } from '@desource/image';
-import { isResolvedImageConfig } from '@desource/image/kit';
+import { createImageConfigCache } from '@desource/image/kit';
 import type { ImageProviderProps } from './types.js';
 
 const ImageConfigContext = createContext<ResolvedImageConfig | undefined>(undefined);
-const defaultConfig = resolveImageConfig();
-const images = new WeakMap<ResolvedImageConfig, DesourceImage>();
-const resolvedConfigs = new WeakMap<object, ResolvedImageConfig>();
+const configCache = createImageConfigCache({ resolveConfig: resolveImageConfig, createImage });
 
-export function ImageProvider({ config = defaultConfig, children }: ImageProviderProps) {
+export function ImageProvider({ config = configCache.defaultConfig, children }: Readonly<ImageProviderProps>) {
   const resolved = useMemo(() => resolveCachedConfig(config), [config]);
   return <ImageConfigContext.Provider value={resolved}>{children}</ImageConfigContext.Provider>;
 }
@@ -26,12 +24,12 @@ export function createImageConfig(config: ImageConfig = {}): ResolvedImageConfig
 }
 
 export function getDefaultImageConfig(): ResolvedImageConfig {
-  return defaultConfig;
+  return configCache.defaultConfig;
 }
 
 export function useImageConfig(config?: ImageConfig | ResolvedImageConfig): ResolvedImageConfig {
   const contextConfig = useContext(ImageConfigContext);
-  return config ? resolveCachedConfig(config) : (contextConfig ?? defaultConfig);
+  return config ? resolveCachedConfig(config) : (contextConfig ?? configCache.defaultConfig);
 }
 
 export function useImage(config?: ImageConfig | ResolvedImageConfig): DesourceImage {
@@ -39,21 +37,9 @@ export function useImage(config?: ImageConfig | ResolvedImageConfig): DesourceIm
 }
 
 export function resolveCachedConfig(config: ImageConfig | ResolvedImageConfig | undefined): ResolvedImageConfig {
-  if (!config) return defaultConfig;
-  if (isResolvedImageConfig(config)) return config;
-
-  const cached = resolvedConfigs.get(config);
-  if (cached) return cached;
-  const resolved = resolveImageConfig(config);
-  resolvedConfigs.set(config, resolved);
-  return resolved;
+  return configCache.resolve(config);
 }
 
 export function imageForConfig(config: ResolvedImageConfig): DesourceImage {
-  let image = images.get(config);
-  if (!image) {
-    image = createImage(config);
-    images.set(config, image);
-  }
-  return image;
+  return configCache.image(config);
 }

@@ -120,13 +120,13 @@ const providerSetup = defineProvider<CloudinaryOptions>({
     const operations = operationsGenerator(mergeModifiers as Parameters<typeof operationsGenerator>[0]);
 
     // Check if the src is a Cloudinary URL
-    const srcMapping = src.match(REMOTE_MAPPING_RE)?.[1];
+    const srcMapping = REMOTE_MAPPING_RE.exec(src)?.[1];
     if (srcMapping) {
       baseURL = src.replace(srcMapping, '');
       src = srcMapping;
     }
 
-    const remoteFolderMapping = baseURL.match(REMOTE_MAPPING_RE);
+    const remoteFolderMapping = REMOTE_MAPPING_RE.exec(baseURL);
     // Handle delivery remote media file URLs
     // see: https://cloudinary.com/documentation/fetch_remote_images
     // Note: Non-remote images will pass into this function if the baseURL is not using a sub directory

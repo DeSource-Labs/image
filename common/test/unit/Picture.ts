@@ -12,8 +12,10 @@ import type {
   SizesInput
 } from '@desource/image';
 import type { NativeAttributeValue, TestContainer } from './Image';
+import { expectPriorityImageAndPreload } from './setup/assertions';
 import { installMockImage } from './setup/mock-image';
 import { defaultTestTools, type TestTools } from './setup/tools';
+import { pathname, searchParam } from './setup/url';
 
 export interface PictureComponentSetupOptions {
   src?: string;
@@ -196,20 +198,10 @@ export function testPictureComponent(setup: PictureComponentSetup, { act }: Test
       });
 
       try {
-        await rendered.flush();
-
-        const image = rendered.image();
-        expect(image.getAttribute('loading')).toBe('eager');
-        expect(image.getAttribute('fetchpriority')).toBe('high');
-
-        const links = rendered.preloadLinks();
-        expect(links).toHaveLength(1);
-        expect(links[0]!.getAttribute('rel')).toBe('preload');
-        expect(links[0]!.getAttribute('as')).toBe('image');
-        expect(pathname(links[0]!.getAttribute('href'))).toBe('/picture-preload.jpg');
-        expect(links[0]!.getAttribute('fetchpriority')).toBe('high');
-        expect(links[0]!.getAttribute('crossorigin')).toBe('use-credentials');
-        expect(links[0]!.getAttribute('nonce')).toBe('picture-head-nonce');
+        await expectPriorityImageAndPreload(rendered, {
+          pathname: '/picture-preload.jpg',
+          nonce: 'picture-head-nonce'
+        });
       } finally {
         await rendered.unmount();
       }
@@ -271,12 +263,4 @@ export function testPictureComponent(setup: PictureComponentSetup, { act }: Test
       }
     });
   });
-}
-
-function pathname(value: string | null): string {
-  return new URL(value ?? '', 'https://image.test').pathname;
-}
-
-function searchParam(value: string | null, key: string): string | null {
-  return new URL(value ?? '', 'https://image.test').searchParams.get(key);
 }

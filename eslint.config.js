@@ -70,8 +70,6 @@ export default [
       '**/*.min.js',
       '**/*.min.css',
       'pnpm-lock.yaml',
-      '**/.nuxt/**',
-      '**/nuxt_image/**',
       'examples/**'
     ]
   },

@@ -59,8 +59,22 @@ function extractChangelogEntry(changelog: string, targetVersion: string): string
   return entry;
 }
 
+const semverCorePattern = /^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)$/;
+const semverIdentifiersPattern = /^[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*$/;
+
 function isSemver(value: string): boolean {
-  return /^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/.test(
-    value
-  );
+  const versionParts = value.split('+');
+  const versionWithPrerelease = versionParts[0]!;
+  const buildParts = versionParts.slice(1);
+  const buildMetadata = buildParts[0];
+  if (buildParts.length > 1 || (buildMetadata !== undefined && !semverIdentifiersPattern.test(buildMetadata))) {
+    return false;
+  }
+
+  const prereleaseSeparator = versionWithPrerelease.indexOf('-');
+  const coreVersion =
+    prereleaseSeparator === -1 ? versionWithPrerelease : versionWithPrerelease.slice(0, prereleaseSeparator);
+  const prerelease = prereleaseSeparator === -1 ? undefined : versionWithPrerelease.slice(prereleaseSeparator + 1);
+
+  return semverCorePattern.test(coreVersion) && (prerelease === undefined || semverIdentifiersPattern.test(prerelease));
 }
