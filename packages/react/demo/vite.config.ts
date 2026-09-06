@@ -1,11 +1,11 @@
 import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
-import { desourceImage } from '../src/lib/vite.js';
+import { dsImage } from '../src/lib/vite.js';
 
 export default defineConfig({
   root: import.meta.dirname,
   plugins: [
-    desourceImage({
+    dsImage({
       provider: 'ipx',
       dirs: ['../../svelte/demo/public'],
       allowAllDomains: false

@@ -1,1 +1,1 @@
-export { desourceImage, type DesourceImagePluginOptions } from './lib/vite.js';
+export { dsImage, type DsImagePluginOptions } from './lib/vite.js';

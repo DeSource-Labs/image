@@ -3,7 +3,7 @@ import { createImageContext, detectImageProvider, resolveImageConfig } from '@sr
 
 describe('resolveImageConfig', () => {
   it('resolves defaults, aliases and provider detection without package-specific env variables', () => {
-    vi.stubEnv('DESOURCE_IMAGE_PROVIDER', 'cloudinary');
+    vi.stubEnv('DS_IMAGE_PROVIDER', 'cloudinary');
     const config = resolveImageConfig({ alias: { cdn: 'https://cdn.example.com' } });
 
     expect(detectImageProvider()).toBe('ipx');

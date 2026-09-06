@@ -6,9 +6,9 @@ import { vi, type Mock } from 'vitest';
 import { imageComponentTestConfig } from '@common/test/unit/setup/image-test-provider';
 import type { TestTools } from '@common/test/unit/setup/tools';
 import { pickImageInput } from '@desource/image/kit';
-import { ImageProvider, type ImageComponentProps, type PictureComponentProps } from '@lib';
-import type { ImageComponentSetupOptions } from '@common/test/unit/Image';
-import type { PictureComponentSetupOptions } from '@common/test/unit/Picture';
+import { DsImageProvider, type DsImageComponentProps, type DsPictureComponentProps } from '@lib';
+import type { DsImageComponentSetupOptions } from '@common/test/unit/DsImage';
+import type { DsPictureComponentSetupOptions } from '@common/test/unit/DsPicture';
 
 export const testTools: TestTools = {
   async act(callback) {
@@ -42,12 +42,12 @@ export function createReactRoot() {
 
 export async function renderReact(root: Root, element: ReactElement): Promise<void> {
   await reactAct(async () => {
-    root.render(createElement(ImageProvider, { config: imageComponentTestConfig }, element));
+    root.render(createElement(DsImageProvider, { config: imageComponentTestConfig }, element));
   });
 }
 
 export function renderConfiguredMarkup(element: ReactElement): string {
-  return renderToStaticMarkup(createElement(ImageProvider, { config: imageComponentTestConfig }, element));
+  return renderToStaticMarkup(createElement(DsImageProvider, { config: imageComponentTestConfig }, element));
 }
 
 export async function createReactHarness<TOptions extends object>(
@@ -102,16 +102,16 @@ export function cleanupDocument(): void {
   document.head.querySelectorAll('link[rel="preload"][as="image"]').forEach((node) => node.remove());
 }
 
-export function imagePropsFromOptions(options: ImageComponentSetupOptions): ImageComponentProps {
+export function dsImagePropsFromOptions(options: DsImageComponentSetupOptions): DsImageComponentProps {
   const { nativeAttrs = {}, ...rest } = options;
   return {
     ...sharedPropsFromOptions(rest, '/image.jpg', 'Image'),
     'aria-describedby': rest.ariaDescribedby,
     ...nativeAttrs
-  } as ImageComponentProps;
+  } as DsImageComponentProps;
 }
 
-export function picturePropsFromOptions(options: PictureComponentSetupOptions): PictureComponentProps {
+export function dsPicturePropsFromOptions(options: DsPictureComponentSetupOptions): DsPictureComponentProps {
   const { imgAttrs = {}, ...rest } = options;
   return {
     ...sharedPropsFromOptions(rest, '/picture.jpg', 'Picture'),
@@ -123,7 +123,7 @@ export function picturePropsFromOptions(options: PictureComponentSetupOptions): 
     imgAttrs: {
       ...imgAttrs
     }
-  } as PictureComponentProps;
+  } as DsPictureComponentProps;
 }
 
 export function createEventMocks(): { onLoad: Mock; onError: Mock } {
@@ -134,7 +134,7 @@ export function createEventMocks(): { onLoad: Mock; onError: Mock } {
 }
 
 function sharedPropsFromOptions(
-  options: ImageComponentSetupOptions | PictureComponentSetupOptions,
+  options: DsImageComponentSetupOptions | DsPictureComponentSetupOptions,
   defaultSrc: string,
   defaultAlt: string
 ): Record<string, unknown> & { src: string; alt: string } {

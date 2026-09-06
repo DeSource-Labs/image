@@ -1,4 +1,4 @@
-# Contributing to Desource Image
+# Contributing to DeSource Image
 
 Thanks for helping make high-quality image optimization for Angular, React, and Svelte.
 

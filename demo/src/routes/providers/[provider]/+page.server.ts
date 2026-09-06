@@ -21,8 +21,8 @@ export const load: PageServerLoad = ({ params, url }) => {
   const jsxHeight = height ? ` height={${height}}` : '';
   const dimensions = jsxWidth + jsxHeight;
   const modifierProp = Object.keys(modifiers).length ? `\n  modifiers={${JSON.stringify(modifiers, null, 2)}}` : '';
-  const svelte = `<script lang="ts">\n  import { Image, setImageConfig } from '@desource/image-svelte';\n  import { imageConfig } from './image.config';\n\n  setImageConfig(imageConfig);\n</script>\n\n<Image\n  src="${doc.src}"\n  alt="Sample image"${dimensions}${modifierProp}\n/>`;
-  const react = `import { Image, ImageProvider } from '@desource/image-react';\nimport { imageConfig } from './image.config';\n\nexport function Example() {\n  return (\n    <ImageProvider config={imageConfig}>\n      <Image\n        src="${doc.src}"\n        alt="Sample image"${dimensions}${modifierProp.replaceAll('\n', '\n      ')}\n      />\n    </ImageProvider>\n  );\n}`;
+  const svelte = `<script lang="ts">\n  import { DsImage, setDsImageConfig } from '@desource/image-svelte';\n  import { imageConfig } from './image.config';\n\n  setDsImageConfig(imageConfig);\n</script>\n\n<DsImage\n  src="${doc.src}"\n  alt="Sample image"${dimensions}${modifierProp}\n/>`;
+  const react = `import { DsImage, DsImageProvider } from '@desource/image-react';\nimport { imageConfig } from './image.config';\n\nexport function Example() {\n  return (\n    <DsImageProvider config={imageConfig}>\n      <DsImage\n        src="${doc.src}"\n        alt="Sample image"${dimensions}${modifierProp.replaceAll('\n', '\n      ')}\n      />\n    </DsImageProvider>\n  );\n}`;
   const angularWidth = width ? `\n      [width]="${width}"` : '';
   const angularHeight = height ? `\n      [height]="${height}"` : '';
   const angularDimensions = angularWidth + angularHeight;

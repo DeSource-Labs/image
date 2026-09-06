@@ -1,11 +1,11 @@
 import { detectImageProvider } from './config.js';
 import type { DsImageNodeMiddleware, DsImageNodeRequest, DsImageServerOptions } from './server.js';
-import type { DesourceImage, ImageConfig, ImageInput, ResolvedImageConfig } from './types.js';
+import type { DsImage, ImageConfig, ImageInput, ResolvedImageConfig } from './types.js';
 
 export interface ImageConfigCache {
   defaultConfig: ResolvedImageConfig;
   resolve(config?: ImageConfig | ResolvedImageConfig): ResolvedImageConfig;
-  image(config: ResolvedImageConfig): DesourceImage;
+  image(config: ResolvedImageConfig): DsImage;
 }
 
 export interface ImageVitePluginOptions extends DsImageServerOptions {
@@ -20,7 +20,7 @@ interface ImageViteMiddlewareServer<NodeRequest extends DsImageNodeRequest, Node
 
 interface ImageVitePlugin<NodeRequest extends DsImageNodeRequest, NodeResponse> {
   name: string;
-  config(): { define: { __DESOURCE_IMAGE_PROVIDER__: string } };
+  config(): { define: { __DS_IMAGE_PROVIDER__: string } };
   configResolved(config: { root: string }): void;
   configureServer(server: ImageViteMiddlewareServer<NodeRequest, NodeResponse>): void;
   configurePreviewServer(server: ImageViteMiddlewareServer<NodeRequest, NodeResponse>): void;
@@ -78,10 +78,10 @@ export function isResolvedImageConfig(config: ImageConfig | ResolvedImageConfig)
 
 export function createImageConfigCache(runtime: {
   resolveConfig(config?: ImageConfig): ResolvedImageConfig;
-  createImage(config: ResolvedImageConfig): DesourceImage;
+  createImage(config: ResolvedImageConfig): DsImage;
 }): ImageConfigCache {
   const defaultConfig = runtime.resolveConfig();
-  const images = new WeakMap<ResolvedImageConfig, DesourceImage>();
+  const images = new WeakMap<ResolvedImageConfig, DsImage>();
   const resolvedConfigs = new WeakMap<object, ResolvedImageConfig>();
 
   return {
@@ -110,7 +110,7 @@ export function createImageConfigCache(runtime: {
 export function createImageVitePlugin<NodeRequest extends DsImageNodeRequest, NodeResponse>(
   runtime: ImageVitePluginRuntime<NodeRequest, NodeResponse>
 ): (options?: ImageVitePluginOptions) => ImageVitePlugin<NodeRequest, NodeResponse> {
-  return function desourceImage(options: ImageVitePluginOptions = {}) {
+  return function dsImage(options: ImageVitePluginOptions = {}) {
     let root = globalThis.process.cwd();
     let middleware: DsImageNodeMiddleware<NodeRequest, NodeResponse> | undefined;
 
@@ -133,7 +133,7 @@ export function createImageVitePlugin<NodeRequest extends DsImageNodeRequest, No
       config() {
         return {
           define: {
-            __DESOURCE_IMAGE_PROVIDER__: JSON.stringify(options.provider ?? detectImageProvider())
+            __DS_IMAGE_PROVIDER__: JSON.stringify(options.provider ?? detectImageProvider())
           }
         };
       },

@@ -2,7 +2,7 @@ import { createServer } from 'node:http';
 import { resolve } from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
 import { createDsImageHandle, createDsImageNodeMiddleware, createDsImageWebHandler } from '@src/server';
-import { desourceImage } from '@src/vite';
+import { dsImage } from '@src/vite';
 
 describe('SvelteKit and Vite server integrations', () => {
   it('passes unrelated Node and Web requests through without loading IPX', async () => {
@@ -73,12 +73,12 @@ describe('SvelteKit and Vite server integrations', () => {
   });
 
   it('configures provider detection and both Vite middleware modes', async () => {
-    const plugin = desourceImage({ provider: 'vercel', allowAllDomains: false });
-    expect(plugin.name).toBe('desource-image');
+    const plugin = dsImage({ provider: 'vercel', allowAllDomains: false });
+    expect(plugin.name).toBe('ds-image');
     const config =
       typeof plugin.config === 'function' ? plugin.config.call({} as never, {} as never, {} as never) : undefined;
     expect(config).toMatchObject({
-      define: { __DESOURCE_IMAGE_PROVIDER__: '"vercel"' }
+      define: { __DS_IMAGE_PROVIDER__: '"vercel"' }
     });
     expect(plugin.configureServer).toBeTypeOf('function');
     expect(plugin.configurePreviewServer).toBeTypeOf('function');

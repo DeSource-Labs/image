@@ -1,37 +1,37 @@
 'use client';
 
-export { Image } from './lib/Image.js';
-export { Picture } from './lib/Picture.js';
+export { DsImage } from './lib/DsImage.js';
+export { DsPicture } from './lib/DsPicture.js';
 export {
-  ImageProvider,
-  createImageConfig,
-  getDefaultImageConfig,
-  imageForConfig,
-  resolveCachedConfig,
-  useImage,
-  useImageConfig
-} from './lib/config.js';
+  DsImageProvider,
+  createDsImageConfig,
+  getDefaultDsImageConfig,
+  dsImageForConfig,
+  resolveCachedDsImageConfig,
+  useDsImage,
+  useDsImageConfig
+} from './lib/DsImageProvider.js';
 export {
-  createImageBindings,
-  getImageProps,
-  getPictureProps,
-  splitPictureAttributes,
-  toImageInput,
-  useImageProps,
-  usePictureProps
+  createDsImageBindings,
+  getDsImageProps,
+  getDsPictureProps,
+  splitDsPictureAttributes,
+  toDsImageInput,
+  useDsImageProps,
+  useDsPictureProps
 } from './lib/hooks.js';
-export { addImagePreloadLink } from './lib/head.js';
+export { addDsImagePreloadLink } from './lib/head.js';
 export type {
-  BaseImageProps,
-  ImageBindingOptions,
-  ImageComponentProps,
-  ImageProviderProps,
-  ImageRenderProps,
-  NativeImageAttrs,
-  PictureBindingOptions,
-  PictureComponentProps,
-  PictureElementProps,
-  ReactImageAttrs,
-  ReactPictureAttrs,
-  ReactSourceAttrs
+  DsBaseImageProps,
+  DsImageBindingOptions,
+  DsImageComponentProps,
+  DsImageProviderProps,
+  DsImageRenderProps,
+  DsNativeImageAttrs,
+  DsPictureBindingOptions,
+  DsPictureComponentProps,
+  DsPictureElementProps,
+  DsReactImageAttrs,
+  DsReactPictureAttrs,
+  DsReactSourceAttrs
 } from './lib/types.js';

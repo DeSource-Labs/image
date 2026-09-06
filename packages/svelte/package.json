@@ -36,11 +36,11 @@
   "svelte": "./dist/index.js",
   "typesVersions": {
     "*": {
-      "Image.svelte": [
-        "dist/Image.svelte.d.ts"
+      "DsImage.svelte": [
+        "dist/DsImage.svelte.d.ts"
       ],
-      "Picture.svelte": [
-        "dist/Picture.svelte.d.ts"
+      "DsPicture.svelte": [
+        "dist/DsPicture.svelte.d.ts"
       ],
       "vite": [
         "dist/vite.d.ts"
@@ -62,15 +62,15 @@
       "svelte": "./dist/index.js",
       "import": "./dist/index.js"
     },
-    "./Image.svelte": {
-      "types": "./dist/Image.svelte.d.ts",
-      "svelte": "./dist/Image.svelte",
-      "import": "./dist/Image.svelte"
+    "./DsImage.svelte": {
+      "types": "./dist/DsImage.svelte.d.ts",
+      "svelte": "./dist/DsImage.svelte",
+      "import": "./dist/DsImage.svelte"
     },
-    "./Picture.svelte": {
-      "types": "./dist/Picture.svelte.d.ts",
-      "svelte": "./dist/Picture.svelte",
-      "import": "./dist/Picture.svelte"
+    "./DsPicture.svelte": {
+      "types": "./dist/DsPicture.svelte.d.ts",
+      "svelte": "./dist/DsPicture.svelte",
+      "import": "./dist/DsPicture.svelte"
     },
     "./vite": {
       "types": "./dist/vite.d.ts",

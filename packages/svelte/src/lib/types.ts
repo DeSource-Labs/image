@@ -2,7 +2,7 @@ import type { Snippet } from 'svelte';
 import type { ClassValue, HTMLAttributes, HTMLImgAttributes } from 'svelte/elements';
 import type { ImageConfig, ImageFormat, ImageInput, PictureSource, ResolvedImageConfig } from '@desource/image';
 
-export type NativeImageAttrs = Omit<
+export type DsNativeImageAttrs = Omit<
   HTMLImgAttributes,
   | 'src'
   | 'srcset'
@@ -21,7 +21,7 @@ export type NativeImageAttrs = Omit<
   | 'children'
 >;
 
-export interface BaseImageProps extends Omit<ImageInput, 'alt' | 'formats' | 'fallbackFormat' | 'legacyFormat'> {
+export interface DsBaseImageProps extends Omit<ImageInput, 'alt' | 'formats' | 'fallbackFormat' | 'legacyFormat'> {
   alt: string;
   crossorigin?: boolean | '' | 'true' | 'anonymous' | 'use-credentials' | null;
   nonce?: string;
@@ -29,34 +29,34 @@ export interface BaseImageProps extends Omit<ImageInput, 'alt' | 'formats' | 'fa
   onerror?: (event: Event) => void;
 }
 
-export interface ImageComponentProps extends BaseImageProps, NativeImageAttrs {
+export interface DsImageComponentProps extends DsBaseImageProps, DsNativeImageAttrs {
   custom?: boolean;
-  children?: Snippet<[ImageSlotProps]>;
+  children?: Snippet<[DsImageSlotProps]>;
 }
 
-type PictureForwardedImageAttrs = Pick<NativeImageAttrs, 'referrerpolicy' | 'usemap' | 'ismap'>;
+type PictureForwardedImageAttrs = Pick<DsNativeImageAttrs, 'referrerpolicy' | 'usemap' | 'ismap'>;
 
-export interface PictureComponentProps
+export interface DsPictureComponentProps
   extends
-    BaseImageProps,
+    DsBaseImageProps,
     PictureForwardedImageAttrs,
     Omit<HTMLAttributes<HTMLPictureElement>, 'children' | 'onload' | 'onerror' | 'placeholder'> {
   formats?: readonly ImageFormat[];
   fallbackFormat?: ImageFormat;
   legacyFormat?: ImageFormat;
-  imgAttrs?: NativeImageAttrs;
+  imgAttrs?: DsNativeImageAttrs;
 }
 
-export interface ImageSlotProps {
+export interface DsImageSlotProps {
   imgAttrs: HTMLImgAttributes & { nonce?: string };
   isLoaded: boolean;
   src?: string;
 }
 
-export interface ImageBindingOptions extends ImageInput {
+export interface DsImageBindingOptions extends ImageInput {
   alt: string;
   config?: ImageConfig | ResolvedImageConfig;
-  attrs?: NativeImageAttrs;
+  attrs?: DsNativeImageAttrs;
   class?: ClassValue | null;
   style?: string | null;
   crossorigin?: boolean | '' | 'true' | 'anonymous' | 'use-credentials' | null;
@@ -67,20 +67,20 @@ export interface ImageBindingOptions extends ImageInput {
   onStateChange?: (loaded: boolean) => void;
 }
 
-export interface PictureBindingOptions extends ImageBindingOptions {
+export interface DsPictureBindingOptions extends DsImageBindingOptions {
   pictureAttrs?: Omit<HTMLAttributes<HTMLPictureElement>, 'children'>;
-  imgAttrs?: NativeImageAttrs;
+  imgAttrs?: DsNativeImageAttrs;
 }
 
-export interface PictureElementProps {
+export interface DsPictureElementProps {
   pictureAttrs: HTMLAttributes<HTMLPictureElement>;
   sources: PictureSource[];
   imgAttrs: HTMLImgAttributes & { nonce?: string };
 }
 
-export interface ImageActionReturn<TOptions> {
+export interface DsImageActionReturn<TOptions> {
   update(options: TOptions): void;
   destroy(): void;
 }
 
-export type ImageAttachment<T extends EventTarget = Element> = (element: T) => void | (() => void);
+export type DsImageAttachment<T extends EventTarget = Element> = (element: T) => void | (() => void);

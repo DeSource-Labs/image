@@ -1,6 +1,6 @@
 export type {
   DensityInput,
-  DesourceImage,
+  DsImage,
   GeneratedDensity,
   GeneratedSizes,
   GeneratedSrcset,

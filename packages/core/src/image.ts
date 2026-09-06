@@ -1,6 +1,6 @@
 import type {
   DensityInput,
-  DesourceImage,
+  DsImage,
   GeneratedSrcset,
   ImageAttrs,
   ImageConfig,
@@ -70,7 +70,7 @@ const standardModifierKeys = new Set([
   'background',
   'b'
 ]);
-const providerImages = new WeakMap<ResolvedImageConfig, DesourceImage>();
+const providerImages = new WeakMap<ResolvedImageConfig, DsImage>();
 
 export function resolvePreset(
   name: string | undefined,
@@ -475,10 +475,10 @@ function createProviderContext(config: ResolvedImageConfig): ImageProviderContex
   return { options: config, $img: image };
 }
 
-function createProviderImage(config: ResolvedImageConfig): DesourceImage {
+function createProviderImage(config: ResolvedImageConfig): DsImage {
   const image = ((source: string, modifiers?: ImageModifiers, options?: ImageOptions) =>
     getImage(toFunctionalInput(source, { ...options, modifiers: { ...options?.modifiers, ...modifiers } }), config)
-      .url) as DesourceImage;
+      .url) as DsImage;
   image.options = config;
   image.getImage = (source, options = {}) => getImage(toFunctionalInput(source, options), config);
   image.getSizes = (source, options = {}) => getImageSizes(toFunctionalInput(source, options), config);

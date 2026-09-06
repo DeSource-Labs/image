@@ -1,14 +1,14 @@
 <script lang="ts">
   import { ipxProvider } from '@desource/image';
-  import { Image, Picture, setImageConfig } from '@src/index';
+  import { DsImage, DsPicture, setDsImageConfig } from '@src/index';
 
-  setImageConfig({
+  setDsImageConfig({
     provider: 'ipx',
     providers: { ipx: ipxProvider() }
   });
 </script>
 
-<Image
+<DsImage
   src="/hero.png"
   alt="Preloaded hero"
   width={720}
@@ -19,7 +19,7 @@
   nonce="head-nonce"
 />
 
-<Picture
+<DsPicture
   src="/hero.png"
   alt="Distributed picture"
   width={720}

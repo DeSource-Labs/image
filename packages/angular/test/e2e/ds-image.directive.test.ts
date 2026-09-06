@@ -1,6 +1,6 @@
-import { testImageBinding } from '@common/test/e2e/Image';
+import { testDsImageBinding } from '@common/test/e2e/DsImage';
 
-testImageBinding({
+testDsImageBinding({
   name: 'DsImageDirective',
   heading: 'Optimized images across four Angular surfaces.',
   imageSelector: '[data-testid="image-directive"]',

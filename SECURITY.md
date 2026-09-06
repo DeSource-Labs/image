@@ -17,4 +17,4 @@ Security reports are welcome for `@desource/image`, `@desource/image-angular`, `
 
 When enabling remote image optimization, restrict `domains` or `remotePatterns`. An unrestricted optimizer can become a server-side request forgery or bandwidth-abuse surface. Keep framework, `ipx`, and image-processing dependencies current, and do not expose private network hosts through custom providers.
 
-Third-party CDN incidents and vulnerabilities in dependencies should also be reported to the relevant upstream project. We still welcome a private heads-up when Desource Image users need a mitigation.
+Third-party CDN incidents and vulnerabilities in dependencies should also be reported to the relevant upstream project. We still welcome a private heads-up when DeSource Image users need a mitigation.
