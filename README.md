@@ -3,12 +3,12 @@
   <p><strong>High-quality image optimization with responsive, provider-first and SSR-friendly workflow for React/Next.js, Angular, and Svelte/SvelteKit.</strong></p>
 
   <p>
-    <a href="https://github.com/DeSource-Labs/image/actions/workflows/ci.yml"><img src="https://github.com/DeSource-Labs/image/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-    <a href="https://codecov.io/gh/DeSource-Labs/image"><img src="https://codecov.io/gh/DeSource-Labs/image/branch/main/graph/badge.svg" alt="Coverage"></a>
     <a href="https://www.npmjs.com/package/@desource/image"><img src="https://img.shields.io/npm/v/@desource/image?logo=npm" alt="@desource/image"></a>
     <a href="https://www.npmjs.com/package/@desource/image-angular"><img src="https://img.shields.io/npm/v/@desource/image-angular?logo=angular&logoColor=white" alt="@desource/image-angular"></a>
     <a href="https://www.npmjs.com/package/@desource/image-react"><img src="https://img.shields.io/npm/v/@desource/image-react?logo=react" alt="@desource/image-react"></a>
     <a href="https://www.npmjs.com/package/@desource/image-svelte"><img src="https://img.shields.io/npm/v/@desource/image-svelte?logo=svelte" alt="@desource/image-svelte"></a>
+    <a href="https://codecov.io/gh/DeSource-Labs/image"><img src="https://codecov.io/gh/DeSource-Labs/image/branch/main/graph/badge.svg" alt="Coverage"></a>
+    <a href="https://sonarcloud.io/summary/new_code?id=DeSource-Labs_image"><img src="https://sonarcloud.io/api/project_badges/measure?project=DeSource-Labs_image&metric=alert_status" alt="SonarCloud"></a>
     <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license"></a>
   </p>
 
@@ -83,21 +83,9 @@ Install only the framework package your app uses. Install `@desource/image` dire
 
 One source file: `/public/img/hero.jpg`
 
-One component:
+One component: `<DsImage src="/img/hero.jpg" />`
 
-```tsx
-<DsImage
-  src="/img/hero.jpg"
-  alt="Product preview"
-  width={1600}
-  height={900}
-  sizes="100vw md:760px"
-  format="webp"
-  quality={76}
-/>
-```
-
-Need smaller files? Change `quality`. Need different breakpoints? Change `sizes`. No image re-export or filename update.
+Need smaller files? Use `quality` prop. Need different breakpoints? Change `sizes` prop. No image re-export or filename update.
 
 ### React
 
