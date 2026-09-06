@@ -4,8 +4,8 @@
 
   <p>
     <a href="https://www.npmjs.com/package/@desource/image-angular"><img src="https://img.shields.io/npm/v/@desource/image-angular?logo=angular&logoColor=white" alt="npm version"></a>
-    <a href="https://github.com/DeSource-Labs/image/actions/workflows/ci.yml"><img src="https://github.com/DeSource-Labs/image/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
     <a href="https://codecov.io/gh/DeSource-Labs/image"><img src="https://codecov.io/gh/DeSource-Labs/image/branch/main/graph/badge.svg" alt="Coverage"></a>
+    <a href="https://sonarcloud.io/summary/new_code?id=DeSource-Labs_image"><img src="https://sonarcloud.io/api/project_badges/measure?project=DeSource-Labs_image&metric=alert_status" alt="SonarCloud"></a>
     <a href="https://github.com/DeSource-Labs/image/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license"></a>
   </p>
 </div>
@@ -343,16 +343,6 @@ Keep the Sharp-based optimizer out of the Angular server bundle:
 The middleware loads `ipx` lazily and only handles requests under `/_ipx`. Local directories resolve from the server process. Remote optimization is denied by default; add trusted `domains`, or set `allowAllDomains: true` only for an intentionally public optimizer.
 
 Hosted providers generate platform URLs and should be paired with that platform's image configuration. For example, use the Vercel provider with Vercel image settings, not with the IPX middleware.
-
-## Package checks
-
-```sh
-pnpm --filter @desource/image-angular build
-pnpm --filter @desource/image-angular typecheck
-pnpm --filter @desource/image-angular test:unit:coverage
-pnpm --filter @desource/image-angular test:e2e
-pnpm --filter @desource/image-angular publish:check
-```
 
 ## Links
 
