@@ -16,7 +16,7 @@
   </div>
   <div class="cta-copy">
     <p class="cta-label">Source · transform · deliver</p>
-    <h2>Make image quality a code change.</h2>
+    <h2>Better images for every screen.</h2>
     <p>
       Install the framework package. Keep auto-detection, or select any built-in provider when the application needs
       control.
