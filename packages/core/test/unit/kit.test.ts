@@ -82,7 +82,7 @@ describe('framework kit utilities', () => {
     const plugin = createPlugin({ provider: 'vercel' });
     const use = vi.fn();
 
-    expect(plugin.config()).toEqual({ define: { __DESOURCE_IMAGE_PROVIDER__: '"vercel"' } });
+    expect(plugin.config()).toEqual({ define: { __DS_IMAGE_PROVIDER__: '"vercel"' } });
     plugin.configResolved({ root: '/project-root' });
     plugin.configureServer({ middlewares: { use } });
     plugin.configurePreviewServer({ middlewares: { use } });

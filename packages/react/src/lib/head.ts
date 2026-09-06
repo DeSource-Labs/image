@@ -10,7 +10,7 @@ interface PreloadOptions {
 
 const preloadEntries = new Map<string, { link: HTMLLinkElement; references: number }>();
 
-export function addImagePreloadLink(attrs: ImagePreloadLink, options: PreloadOptions = {}): () => void {
+export function addDsImagePreloadLink(attrs: ImagePreloadLink, options: PreloadOptions = {}): () => void {
   if (typeof document === 'undefined') return () => undefined;
 
   const key = preloadKey(attrs, options);
@@ -61,7 +61,7 @@ export function useHeadPreload(
 
   useEffect(() => {
     if (!attrs || !enabled) return undefined;
-    return addImagePreloadLink(attrs, { crossorigin, nonce });
+    return addDsImagePreloadLink(attrs, { crossorigin, nonce });
   }, [attrs, crossorigin, enabled, key, nonce]);
 }
 

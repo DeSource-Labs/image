@@ -1,7 +1,7 @@
 <script lang="ts">
   /* eslint-disable svelte/no-navigation-without-resolve -- This reusable gallery receives resolved application paths or external URLs from its caller. */
   import { mount, onMount, unmount } from 'svelte';
-  import { Image } from '@desource/image-svelte';
+  import { DsImage } from '@desource/image-svelte';
   import { SvelteMap } from 'svelte/reactivity';
 
   interface ImageItem {
@@ -62,7 +62,7 @@
   function mountImage(target: HTMLElement, src: string, alt: string) {
     mountedImages.set(
       target,
-      mount(Image, {
+      mount(DsImage, {
         target,
         props: {
           src,
@@ -541,7 +541,7 @@
     removeOverlay(overlay);
     rootRef?.removeAttribute('data-enlarging');
     isEnlarging = false;
-    // The closing overlay is an independently mounted Image, removed after its transition.
+    // The closing overlay is an independently mounted DsImage, removed after its transition.
     // eslint-disable-next-line svelte/no-dom-manipulating
     rootRef?.appendChild(animOverlay);
     void animOverlay.getBoundingClientRect();
@@ -724,7 +724,7 @@
                   if (event.currentTarget.matches(':focus-visible')) focusTile(event.currentTarget, item);
                 }}
               >
-                <Image
+                <DsImage
                   src={item.src}
                   alt={item.alt}
                   draggable={false}
@@ -747,7 +747,7 @@
                   if (event.currentTarget.matches(':focus-visible')) focusTile(event.currentTarget, item);
                 }}
               >
-                <Image
+                <DsImage
                   src={item.src}
                   alt={item.alt}
                   draggable={false}

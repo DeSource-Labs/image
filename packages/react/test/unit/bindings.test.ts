@@ -1,20 +1,26 @@
 import { describe, expect, it, vi } from 'vitest';
 import { imageComponentTestConfig } from '@common/test/unit/setup/image-test-provider';
-import { createImageBindings, getImageProps, getPictureProps, splitPictureAttributes, toImageInput } from '@src/hooks';
-import type { NativeImageAttrs } from '@src/types';
+import {
+  createDsImageBindings,
+  getDsImageProps,
+  getDsPictureProps,
+  splitDsPictureAttributes,
+  toDsImageInput
+} from '@src/hooks';
+import type { DsNativeImageAttrs } from '@src/types';
 
 describe('React binding helpers', () => {
   it('creates generated image and picture props from one explicit config', () => {
-    const bindings = createImageBindings(imageComponentTestConfig);
-    const image = bindings.getImageProps({
+    const bindings = createDsImageBindings(imageComponentTestConfig);
+    const image = bindings.getDsImageProps({
       src: '/avatar.jpg',
       alt: 'Avatar',
       width: 96,
       format: 'webp',
       className: 'avatar',
-      attrs: { className: 'rounded', src: '/ignored.jpg', title: 'Ada' } as unknown as NativeImageAttrs
+      attrs: { className: 'rounded', src: '/ignored.jpg', title: 'Ada' } as unknown as DsNativeImageAttrs
     });
-    const picture = bindings.getPictureProps({
+    const picture = bindings.getDsPictureProps({
       src: '/card.jpg',
       alt: 'Card',
       width: 320,
@@ -35,7 +41,7 @@ describe('React binding helpers', () => {
   });
 
   it('keeps generated attrs authoritative over native attrs', () => {
-    const image = getImageProps({
+    const image = getDsImageProps({
       src: '/authoritative.jpg',
       alt: 'Authoritative',
       width: 640,
@@ -48,7 +54,7 @@ describe('React binding helpers', () => {
         width: 1,
         height: 1,
         fetchPriority: 'low'
-      } as unknown as NativeImageAttrs
+      } as unknown as DsNativeImageAttrs
     });
 
     expect(image.src).toContain('/authoritative.jpg');
@@ -58,13 +64,13 @@ describe('React binding helpers', () => {
   });
 
   it('splits picture convenience attrs and normalizes input aliases', () => {
-    const distributed = splitPictureAttributes({
+    const distributed = splitDsPictureAttributes({
       id: 'picture',
       referrerPolicy: 'no-referrer',
       useMap: '#map',
       role: 'group'
     });
-    const input = toImageInput({
+    const input = toDsImageInput({
       src: '/image.jpg',
       alt: 'Image',
       width: '320',
@@ -78,7 +84,7 @@ describe('React binding helpers', () => {
   });
 
   it('hides picture sources while a placeholder is rendered', () => {
-    const picture = getPictureProps(
+    const picture = getDsPictureProps(
       {
         src: '/placeholder.jpg',
         alt: 'Placeholder',

@@ -271,7 +271,7 @@ export interface ImageInfo {
 
 export interface ImageProviderContext {
   options: ResolvedImageConfig;
-  $img: DesourceImage;
+  $img: DsImage;
 }
 
 export interface ImageOptions {
@@ -289,7 +289,7 @@ export interface ImageSizes {
   widths: number[];
 }
 
-export interface DesourceImage {
+export interface DsImage {
   (source: string, modifiers?: ImageModifiers, options?: ImageOptions): string;
   options: ResolvedImageConfig;
   getImage(source: string, options?: ImageOptions): ImageProviderResult;

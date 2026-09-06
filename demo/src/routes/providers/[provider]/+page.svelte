@@ -1,7 +1,7 @@
 <script lang="ts">
   /* eslint-disable svelte/no-navigation-without-resolve -- Service documentation links are external URLs supplied by the server catalog. Internal links use resolve(). */
   import { resolve } from '$app/paths';
-  import { Image } from '@desource/image-svelte';
+  import { DsImage } from '@desource/image-svelte';
   import { providers } from '$lib/providers';
   import type { PageData } from './$types';
 
@@ -10,10 +10,10 @@
 </script>
 
 <svelte:head>
-  <title>{data.provider.name} provider · Desource Image</title>
+  <title>{data.provider.name} provider · DeSource Image</title>
   <meta name="description" content={data.doc.description} />
   <link rel="canonical" href={`${data.origin}/providers/${data.provider.slug}`} />
-  <meta property="og:title" content={`${data.provider.name} provider · Desource Image`} />
+  <meta property="og:title" content={`${data.provider.name} provider · DeSource Image`} />
   <meta property="og:description" content={data.doc.description} />
   <meta property="og:url" content={`${data.origin}/providers/${data.provider.slug}`} />
   <meta property="og:type" content="article" />
@@ -22,8 +22,8 @@
 <header class="docs-header">
   <div class="shell">
     <a class="brand" href={resolve('/')}>
-      <Image src="/logo.png" format="avif" width="31" height="31" alt="DeSource Labs" />
-      Desource Image
+      <DsImage src="/logo.png" format="avif" width="31" height="31" alt="DeSource Labs" />
+      DeSource Image
     </a>
     <a class="back-link" href={resolve('/#providers')}>← All providers</a>
   </div>
@@ -61,7 +61,7 @@
   <article>
     <div class="doc-title">
       <div class="provider-icon">
-        <Image src={data.provider.icon} alt={data.provider.name} width={60} height={60} quality={100} />
+        <DsImage src={data.provider.icon} alt={data.provider.name} width={60} height={60} quality={100} />
       </div>
       <div>
         <p class="eyebrow">Provider documentation</p>

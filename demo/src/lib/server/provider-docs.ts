@@ -47,7 +47,7 @@ export const providerDocs: Record<ProviderId, ProviderDoc> = {
       {
         title: 'SvelteKit development',
         language: 'ts',
-        code: "// vite.config.ts\nimport { defineConfig } from 'vite';\nimport { sveltekit } from '@sveltejs/kit/vite';\nimport { desourceImage } from '@desource/image-svelte/vite';\n\nexport default defineConfig({\n  plugins: [desourceImage({ dirs: ['static'] }), sveltekit()]\n});"
+        code: "// vite.config.ts\nimport { defineConfig } from 'vite';\nimport { sveltekit } from '@sveltejs/kit/vite';\nimport { dsImage } from '@desource/image-svelte/vite';\n\nexport default defineConfig({\n  plugins: [dsImage({ dirs: ['static'] }), sveltekit()]\n});"
       }
     ]
   },

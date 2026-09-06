@@ -1,15 +1,15 @@
 import { describe, expect, it, vi } from 'vitest';
-import { desourceImage } from '@src/vite';
+import { dsImage } from '@src/vite';
 import type { Plugin } from 'vite';
 
 describe('React Vite plugin', () => {
   it('defines a deterministic provider and installs dev middleware', () => {
-    const plugin = desourceImage({ provider: 'ipx', dirs: ['public'] });
+    const plugin = dsImage({ provider: 'ipx', dirs: ['public'] });
     const config = callHook(plugin.config, {}, { command: 'serve', mode: 'development' });
     const use = vi.fn();
 
-    expect(plugin.name).toBe('desource-image-react');
-    expect(config).toEqual({ define: { __DESOURCE_IMAGE_PROVIDER__: '"ipx"' } });
+    expect(plugin.name).toBe('ds-image-react');
+    expect(config).toEqual({ define: { __DS_IMAGE_PROVIDER__: '"ipx"' } });
 
     callHook(plugin.configResolved, { root: '/fixture' });
     callHook(plugin.configureServer, { middlewares: { use } });
@@ -25,7 +25,7 @@ describe('React Vite plugin', () => {
   });
 
   it('keeps an explicit optimizer root when one is configured', () => {
-    const plugin = desourceImage({ root: '/configured-root' });
+    const plugin = dsImage({ root: '/configured-root' });
     const use = vi.fn();
 
     callHook(plugin.config, {}, { command: 'serve', mode: 'development' });

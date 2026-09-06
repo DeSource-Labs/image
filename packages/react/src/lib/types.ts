@@ -15,10 +15,10 @@ import type {
   ResolvedImageConfig
 } from '@desource/image';
 
-export type CrossOriginInput = boolean | '' | 'true' | 'anonymous' | 'use-credentials' | null;
-export type ImageEvent = Event | SyntheticEvent<HTMLImageElement>;
+export type DsCrossOriginInput = boolean | '' | 'true' | 'anonymous' | 'use-credentials' | null;
+export type DsImageEvent = Event | SyntheticEvent<HTMLImageElement>;
 
-export type NativeImageAttrs = Omit<
+export type DsNativeImageAttrs = Omit<
   ImgHTMLAttributes<HTMLImageElement>,
   | 'src'
   | 'srcSet'
@@ -40,34 +40,36 @@ export type NativeImageAttrs = Omit<
   | 'children'
 >;
 
-export interface BaseImageProps extends Omit<ImageInput, 'alt' | 'formats' | 'fallbackFormat' | 'legacyFormat'> {
+export interface DsBaseImageProps extends Omit<ImageInput, 'alt' | 'formats' | 'fallbackFormat' | 'legacyFormat'> {
   alt: string;
   fetchPriority?: ImageFetchPriority;
-  crossOrigin?: CrossOriginInput;
-  crossorigin?: CrossOriginInput;
+  crossOrigin?: DsCrossOriginInput;
+  crossorigin?: DsCrossOriginInput;
   nonce?: string;
-  onLoad?: (event: ImageEvent) => void;
-  onError?: (event: ImageEvent) => void;
+  onLoad?: (event: DsImageEvent) => void;
+  onError?: (event: DsImageEvent) => void;
 }
 
-export interface ImageRenderProps {
-  imgProps: ReactImageAttrs;
+export interface DsImageRenderProps {
+  imgProps: DsReactImageAttrs;
   isLoaded: boolean;
   src?: string;
 }
 
-export interface ImageComponentProps extends BaseImageProps, NativeImageAttrs {
+export interface DsImageComponentProps extends DsBaseImageProps, DsNativeImageAttrs {
   custom?: boolean;
-  children?: ReactNode | ((props: ImageRenderProps) => ReactNode);
+  children?: ReactNode | ((props: DsImageRenderProps) => ReactNode);
 }
 
-export interface PictureComponentProps
-  extends BaseImageProps, Omit<HTMLAttributes<HTMLPictureElement>, 'children' | 'onLoad' | 'onError' | 'placeholder'> {
+export interface DsPictureComponentProps
+  extends
+    DsBaseImageProps,
+    Omit<HTMLAttributes<HTMLPictureElement>, 'children' | 'onLoad' | 'onError' | 'placeholder'> {
   formats?: readonly ImageFormat[];
   fallbackFormat?: ImageFormat;
   legacyFormat?: ImageFormat;
   children?: never;
-  imgAttrs?: NativeImageAttrs;
+  imgAttrs?: DsNativeImageAttrs;
   imgClassName?: string;
   imgStyle?: CSSProperties;
   referrerPolicy?: ImgHTMLAttributes<HTMLImageElement>['referrerPolicy'];
@@ -78,54 +80,54 @@ export interface PictureComponentProps
   ismap?: boolean;
 }
 
-export interface ImageProviderProps {
+export interface DsImageProviderProps {
   config?: ImageConfig | ResolvedImageConfig;
   children?: ReactNode;
 }
 
-export interface ImageBindingOptions extends ImageInput {
+export interface DsImageBindingOptions extends ImageInput {
   alt: string;
   config?: ImageConfig | ResolvedImageConfig;
-  attrs?: NativeImageAttrs;
+  attrs?: DsNativeImageAttrs;
   className?: string;
   style?: CSSProperties;
-  crossOrigin?: CrossOriginInput;
-  crossorigin?: CrossOriginInput;
+  crossOrigin?: DsCrossOriginInput;
+  crossorigin?: DsCrossOriginInput;
   fetchPriority?: ImageFetchPriority;
   nonce?: string;
-  onLoad?: (event: ImageEvent) => void;
-  onError?: (event: ImageEvent) => void;
+  onLoad?: (event: DsImageEvent) => void;
+  onError?: (event: DsImageEvent) => void;
 }
 
-export interface PictureBindingOptions extends ImageBindingOptions {
-  pictureAttrs?: ReactPictureAttrs;
-  imgAttrs?: NativeImageAttrs;
+export interface DsPictureBindingOptions extends DsImageBindingOptions {
+  pictureAttrs?: DsReactPictureAttrs;
+  imgAttrs?: DsNativeImageAttrs;
   imgClassName?: string;
   imgStyle?: CSSProperties;
 }
 
-export type ReactImageAttrs = ImgHTMLAttributes<HTMLImageElement> & {
+export type DsReactImageAttrs = ImgHTMLAttributes<HTMLImageElement> & {
   'data-ds-image'?: string;
   nonce?: string;
 };
 
-export type ReactPictureAttrs = HTMLAttributes<HTMLPictureElement> & {
+export type DsReactPictureAttrs = HTMLAttributes<HTMLPictureElement> & {
   'data-ds-picture'?: string;
 };
 
-export type ReactSourceAttrs = SourceHTMLAttributes<HTMLSourceElement> & {
+export type DsReactSourceAttrs = SourceHTMLAttributes<HTMLSourceElement> & {
   key: string;
   srcSet: string;
   type: string;
   'data-ds-image-source'?: string;
 };
 
-export interface PictureElementProps {
-  pictureProps: ReactPictureAttrs;
-  sources: ReactSourceAttrs[];
-  imgProps: ReactImageAttrs & { 'data-ds-picture-img'?: string };
+export interface DsPictureElementProps {
+  pictureProps: DsReactPictureAttrs;
+  sources: DsReactSourceAttrs[];
+  imgProps: DsReactImageAttrs & { 'data-ds-picture-img'?: string };
 }
 
-export interface PictureSourceWithKey extends PictureSource {
+export interface DsPictureSourceWithKey extends PictureSource {
   key: string;
 }

@@ -1,15 +1,15 @@
 import type { ImageAttrs, ImageInput } from '@desource/image';
 import { getImageAttrs, getPictureAttrs } from '@desource/image';
 import { mergeClassNames, normalizeCrossorigin, pickImageInput, stripUndefined } from '@desource/image/kit';
-import { resolveCachedConfig } from './config.js';
+import { resolveCachedDsImageConfig } from './DsImageProvider.js';
 import type {
-  ImageBindingOptions,
-  NativeImageAttrs,
-  PictureBindingOptions,
-  PictureElementProps,
-  ReactImageAttrs,
-  ReactPictureAttrs,
-  ReactSourceAttrs
+  DsImageBindingOptions,
+  DsNativeImageAttrs,
+  DsPictureBindingOptions,
+  DsPictureElementProps,
+  DsReactImageAttrs,
+  DsReactPictureAttrs,
+  DsReactSourceAttrs
 } from './types.js';
 
 const generatedImageAttributeNames = new Set([
@@ -35,8 +35,8 @@ const generatedImageAttributeNames = new Set([
 
 const pictureImageAttributeNames = new Set(['referrerpolicy', 'referrerPolicy', 'usemap', 'useMap', 'ismap', 'isMap']);
 
-export function getImageProps(options: ImageBindingOptions, loaded = false): ReactImageAttrs {
-  const attrs = getImageAttrs(toImageInput(options), resolveCachedConfig(options.config));
+export function getDsImageProps(options: DsImageBindingOptions, loaded = false): DsReactImageAttrs {
+  const attrs = getImageAttrs(toDsImageInput(options), resolveCachedDsImageConfig(options.config));
   const nativeAttrs = filterNativeImageAttrs(options.attrs);
 
   return createImageElementProps(
@@ -50,13 +50,13 @@ export function getImageProps(options: ImageBindingOptions, loaded = false): Rea
   );
 }
 
-export function getPictureProps(options: PictureBindingOptions, loaded = false): PictureElementProps {
-  const picture = getPictureAttrs(toImageInput(options), resolveCachedConfig(options.config));
+export function getDsPictureProps(options: DsPictureBindingOptions, loaded = false): DsPictureElementProps {
+  const picture = getPictureAttrs(toDsImageInput(options), resolveCachedDsImageConfig(options.config));
   const placeholder = Boolean(picture.img.placeholderSrc && !loaded);
   const pictureAttrs = filterPictureAttrs(options.pictureAttrs);
   const sharedImgAttrs = filterNativeImageAttrs(options.attrs);
   const explicitImgAttrs = filterNativeImageAttrs(options.imgAttrs);
-  const nativeImgAttrs = { ...sharedImgAttrs, ...explicitImgAttrs } as NativeImageAttrs;
+  const nativeImgAttrs = { ...sharedImgAttrs, ...explicitImgAttrs } as DsNativeImageAttrs;
 
   return {
     pictureProps: stripUndefined({
@@ -64,10 +64,10 @@ export function getPictureProps(options: PictureBindingOptions, loaded = false):
       className: mergeClassNames(pictureAttrs.className, options.className),
       style: options.style ?? pictureAttrs.style,
       'data-ds-picture': ''
-    }) as ReactPictureAttrs,
+    }) as DsReactPictureAttrs,
     sources: placeholder
       ? []
-      : picture.sources.map<ReactSourceAttrs>((source) => ({
+      : picture.sources.map<DsReactSourceAttrs>((source) => ({
           key: `${source.type}:${source.srcset}`,
           type: source.type,
           srcSet: source.srcset,
@@ -82,13 +82,13 @@ export function getPictureProps(options: PictureBindingOptions, loaded = false):
       [sharedImgAttrs.className, explicitImgAttrs.className, options.imgClassName],
       options.imgStyle ?? explicitImgAttrs.style ?? sharedImgAttrs.style,
       'data-ds-picture-img'
-    ) as PictureElementProps['imgProps']
+    ) as DsPictureElementProps['imgProps']
   };
 }
 
-export function splitPictureAttributes(attributes: Record<string, unknown>): {
+export function splitDsPictureAttributes(attributes: Record<string, unknown>): {
   pictureAttrs: Record<string, unknown>;
-  imgAttrs: NativeImageAttrs;
+  imgAttrs: DsNativeImageAttrs;
 } {
   const pictureAttrs: Record<string, unknown> = {};
   const imgAttrs: Record<string, unknown> = {};
@@ -98,19 +98,19 @@ export function splitPictureAttributes(attributes: Record<string, unknown>): {
     else pictureAttrs[name] = value;
   }
 
-  return { pictureAttrs, imgAttrs: imgAttrs as NativeImageAttrs };
+  return { pictureAttrs, imgAttrs: imgAttrs as DsNativeImageAttrs };
 }
 
-export function createImageBindings(config: ImageBindingOptions['config']) {
+export function createDsImageBindings(config: DsImageBindingOptions['config']) {
   return {
-    getImageProps: (options: Omit<ImageBindingOptions, 'config'>, loaded = false) =>
-      getImageProps({ ...options, config }, loaded),
-    getPictureProps: (options: Omit<PictureBindingOptions, 'config'>, loaded = false) =>
-      getPictureProps({ ...options, config }, loaded)
+    getDsImageProps: (options: Omit<DsImageBindingOptions, 'config'>, loaded = false) =>
+      getDsImageProps({ ...options, config }, loaded),
+    getDsPictureProps: (options: Omit<DsPictureBindingOptions, 'config'>, loaded = false) =>
+      getDsPictureProps({ ...options, config }, loaded)
   };
 }
 
-export function toImageInput(options: ImageBindingOptions): ImageInput {
+export function toDsImageInput(options: DsImageBindingOptions): ImageInput {
   return pickImageInput({
     ...options,
     fetchpriority: options.fetchpriority ?? options.fetchPriority
@@ -123,13 +123,13 @@ export function imageSourceKey(attrs: ImageAttrs): string {
 
 function createImageElementProps(
   attrs: ImageAttrs,
-  options: ImageBindingOptions,
+  options: DsImageBindingOptions,
   loaded: boolean,
-  nativeAttrs: NativeImageAttrs,
+  nativeAttrs: DsNativeImageAttrs,
   classNames: Array<string | undefined>,
-  style: ReactImageAttrs['style'],
+  style: DsReactImageAttrs['style'],
   dataAttribute: 'data-ds-image' | 'data-ds-picture-img'
-): ReactImageAttrs {
+): DsReactImageAttrs {
   const placeholder = Boolean(attrs.placeholderSrc && !loaded);
 
   return stripUndefined({
@@ -148,23 +148,23 @@ function createImageElementProps(
     className: mergeClassNames(...classNames, placeholder ? attrs.placeholderClass : undefined),
     style,
     [dataAttribute]: ''
-  }) as ReactImageAttrs;
+  }) as DsReactImageAttrs;
 }
 
-function filterNativeImageAttrs(attrs: NativeImageAttrs | undefined): NativeImageAttrs {
+function filterNativeImageAttrs(attrs: DsNativeImageAttrs | undefined): DsNativeImageAttrs {
   if (!attrs) return {};
   const filtered: Record<string, unknown> = {};
   for (const [name, value] of Object.entries(attrs)) {
     if (!generatedImageAttributeNames.has(name)) filtered[name] = value;
   }
-  return filtered as NativeImageAttrs;
+  return filtered as DsNativeImageAttrs;
 }
 
-function filterPictureAttrs(attrs: ReactPictureAttrs | undefined): ReactPictureAttrs {
+function filterPictureAttrs(attrs: DsReactPictureAttrs | undefined): DsReactPictureAttrs {
   if (!attrs) return {};
   const filtered: Record<string, unknown> = {};
   for (const [name, value] of Object.entries(attrs)) {
     if (name !== 'children') filtered[name] = value;
   }
-  return filtered as ReactPictureAttrs;
+  return filtered as DsReactPictureAttrs;
 }

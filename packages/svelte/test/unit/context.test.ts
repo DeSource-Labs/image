@@ -1,15 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import { render } from 'svelte/server';
 import ContextFixture from './setup/ContextFixture.svelte';
-import { createImageConfig, imageForConfig, resolveCachedConfig } from '@src/context';
+import { createDsImageConfig, dsImageForConfig, resolveCachedDsImageConfig } from '@src/context';
 
 describe('Svelte image context', () => {
   it('memoizes unresolved configs and callable image helpers', () => {
     const input = { provider: 'ipx' };
-    const resolved = createImageConfig(input);
-    expect(createImageConfig(input)).toBe(resolved);
-    expect(resolveCachedConfig(resolved)).toBe(resolved);
-    expect(imageForConfig(resolved)).toBe(imageForConfig(resolved));
+    const resolved = createDsImageConfig(input);
+    expect(createDsImageConfig(input)).toBe(resolved);
+    expect(resolveCachedDsImageConfig(resolved)).toBe(resolved);
+    expect(dsImageForConfig(resolved)).toBe(dsImageForConfig(resolved));
   });
 
   it('sets and consumes image config during component initialization', () => {

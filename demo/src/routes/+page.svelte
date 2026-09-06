@@ -1,6 +1,6 @@
 <script lang="ts">
   import { resolve } from '$app/paths';
-  import { Picture, Image } from '@desource/image-svelte';
+  import { DsPicture, DsImage } from '@desource/image-svelte';
   import Playground from '$lib/Playground.svelte';
   import Gallery from '$lib/Gallery.svelte';
   import { providers } from '$lib/providers';
@@ -24,11 +24,11 @@
   const examples = {
     svelte: [
       '<script lang="ts">',
-      "  import { Picture } from '@desource/image-svelte';",
+      "  import { DsPicture } from '@desource/image-svelte';",
       // eslint-disable-next-line no-useless-escape
       '<\/script>',
       '',
-      '<Picture',
+      '<DsPicture',
       '  src="/hero.jpg"',
       '  alt="Desert landscape"',
       '  width={1600}',
@@ -60,10 +60,10 @@
       '/>'
     ].join('\n'),
     react: [
-      "import { Picture, useImageProps } from '@desource/image-react';",
+      "import { DsPicture, useDsImageProps } from '@desource/image-react';",
       '',
       'export function Hero() {',
-      '  const img = useImageProps({',
+      '  const img = useDsImageProps({',
       '    src: "/hero.jpg",',
       '    alt: "Desert landscape",',
       '    width: 1600,',
@@ -76,7 +76,7 @@
       '  return (',
       '    <>',
       '      <img {...img} />',
-      '      <Picture',
+      '      <DsPicture',
       '        src="/hero.jpg"',
       '        alt="Desert landscape"',
       '        width={1600}',
@@ -102,39 +102,39 @@
 </script>
 
 <svelte:head>
-  <title>Desource Image - Optimized images for React, Angular, and Svelte</title>
+  <title>DeSource Image - Optimized images for React, Angular, and Svelte</title>
   <meta
     name="description"
     content="High-quality image optimization with responsive, provider-first and SSR-friendly workflow for React/Next.js, Angular, and Svelte/SvelteKit."
   />
   <link rel="canonical" href={`${data.origin}/`} />
-  <meta property="og:title" content="Desource Image - Optimized images for React, Angular, and Svelte" />
+  <meta property="og:title" content="DeSource Image - Optimized images for React, Angular, and Svelte" />
   <meta
     property="og:description"
-    content="Change image quality, format, crop, or responsive sizes in code. Desource Image selects the image optimizer from the deployment environment."
+    content="Change image quality, format, crop, or responsive sizes in code. DeSource Image selects the image optimizer from the deployment environment."
   />
   <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="Desource Image" />
+  <meta property="og:site_name" content="DeSource Image" />
   <meta property="og:url" content={`${data.origin}/`} />
   <meta property="og:image" content={`${data.origin}/og.jpg`} />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
-  <meta property="og:image:alt" content="Desource Image optimization for React, Angular, and Svelte" />
+  <meta property="og:image:alt" content="DeSource Image optimization for React, Angular, and Svelte" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Desource Image - Optimized images for React, Angular, and Svelte" />
+  <meta name="twitter:title" content="DeSource Image - Optimized images for React, Angular, and Svelte" />
   <meta
     name="twitter:description"
     content="Responsive images, modern formats, deployment-aware provider selection, 46 providers, and local IPX."
   />
   <meta name="twitter:image" content={`${data.origin}/og.jpg`} />
-  <meta name="twitter:image:alt" content="Desource Image optimization for React, Angular, and Svelte" />
+  <meta name="twitter:image:alt" content="DeSource Image optimization for React, Angular, and Svelte" />
 </svelte:head>
 
 <header class="site-header">
   <div class="shell nav">
-    <a class="brand" href="#top" aria-label="Desource Image home">
-      <Image src="/logo.png" format="avif" width="31" height="31" alt="DeSource Labs" />
-      Desource Image
+    <a class="brand" href="#top" aria-label="DeSource Image home">
+      <DsImage src="/logo.png" format="avif" width="31" height="31" alt="DeSource Labs" />
+      DeSource Image
     </a>
     <nav aria-label="Primary navigation">
       <a href="#autodetect">Auto detect</a>
@@ -163,7 +163,7 @@
         <span class="hero-title-accent">Every time.</span>
       </h1>
       <p class="hero-lede">
-        AI-assisted development moves ideas into working products quickly. Desource Image keeps image preparation inside
+        AI-assisted development moves ideas into working products quickly. DeSource Image keeps image preparation inside
         that development loop. Add one suitable local or remote source, then control quality, format, crop, and
         responsive sizes with component props.
       </p>
@@ -193,7 +193,7 @@
       <span class="crop-target crop-target--bottom-right" aria-hidden="true"></span>
       <div class="image-frame">
         <div class="image-crop">
-          <Picture
+          <DsPicture
             src="/img/hero.jpg"
             alt="Joshua tree at sunset in the desert"
             width={768}
@@ -235,7 +235,7 @@
   <section class="feature-grid shell" aria-label="Library benefits">
     <article>
       <h3>Deployment-aware provider selection</h3>
-      <p>Leave provider on auto. Desource Image detects Vercel, Netlify, or AWS Amplify and uses IPX elsewhere.</p>
+      <p>Leave provider on auto. DeSource Image detects Vercel, Netlify, or AWS Amplify and uses IPX elsewhere.</p>
     </article>
     <article>
       <h3>46 provider modules</h3>
@@ -254,7 +254,7 @@
   <section class="autodetect shell" id="autodetect">
     <div class="autodetect-copy">
       <p class="eyebrow">Provider: auto</p>
-      <h2>With Desource Image, the optimizer follows the deployment.</h2>
+      <h2>With DeSource Image, the optimizer follows the deployment.</h2>
       <p class="section-copy">
         The same source can use Vercel Image Optimization on Vercel, Netlify Image CDN on Netlify, AWS Amplify Image
         Optimization on Amplify, and IPX during local development or on other hosts. An explicit provider always wins.
@@ -292,7 +292,7 @@
   <section class="playground-section" id="playground">
     <div class="shell section-intro">
       <div>
-        <p class="eyebrow">Powered by Desource Image</p>
+        <p class="eyebrow">Powered by DeSource Image</p>
         <h2>Change image settings. Inspect every generated candidate.</h2>
       </div>
       <p class="section-copy">
@@ -364,7 +364,7 @@
           </li>
           <li>
             <span class="step-number" aria-hidden="true">2</span>
-            <div>Render <code>Image</code>, <code>Picture</code>, or a native-element integration</div>
+            <div>Render <code>DsImage</code>, <code>DsPicture</code>, or a native-element integration</div>
           </li>
           <li>
             <span class="step-number" aria-hidden="true">3</span>
@@ -386,7 +386,7 @@
         <h2>Use the CDN, CMS, or image service already in your stack.</h2>
       </div>
       <p class="section-copy">
-        Desource Image handles provider selection, modifier translation, and URL generation. Provider subpath imports
+        DeSource Image handles provider selection, modifier translation, and URL generation. Provider subpath imports
         remain tree-shakable. Set a default provider or override it per image.
       </p>
     </div>
@@ -418,7 +418,7 @@
           <h2>Framework defaults solve images inside one framework.</h2>
         </div>
         <p class="section-copy">
-          Desource Image handles image rules that must work across runtimes, providers, and deployment targets.
+          DeSource Image handles image rules that must work across runtimes, providers, and deployment targets.
         </p>
       </div>
       <div class="comparison-table">
@@ -428,7 +428,7 @@
               <th>Option</th>
               <th>Best fit</th>
               <th>Provider choice</th>
-              <th>Use Desource Image when</th>
+              <th>Use DeSource Image when</th>
             </tr>
           </thead>
           <tbody>
@@ -439,7 +439,7 @@
                 The browser requests <code>src</code> unchanged; deploying to Vercel, Netlify, or Amplify does not rewrite
                 it
               </td>
-              <td data-label="Use Desource Image when">
+              <td data-label="Use DeSource Image when">
                 You want responsive sizes, format, and quality controlled in component code, plus picture output,
                 placeholders, preloads, and an optimizer that follows the deployment.
               </td>
@@ -451,7 +451,7 @@
                 Next.js optimizer by default. Vercel, Netlify, and AWS Amplify integrate <code>next/image</code> with their
                 hosting pipelines. Other image services use a custom loader.
               </td>
-              <td data-label="Use Desource Image when">
+              <td data-label="Use DeSource Image when">
                 You want broader built-in provider support without replacing the component, or provider policy, presets,
                 aliases, and source rules must remain stable across frameworks and hosts.
               </td>
@@ -462,7 +462,7 @@
               <td data-label="Provider choice">
                 A generic, built-in, or custom <code>IMAGE_LOADER</code> selected in Angular configuration
               </td>
-              <td data-label="Use Desource Image when">
+              <td data-label="Use DeSource Image when">
                 You want deployment auto-detection, local IPX, native picture output, per-image providers, or a broader
                 provider catalog.
               </td>
@@ -473,7 +473,7 @@
               <td data-label="Provider choice"
                 >Images are processed at build time; the deployment does not switch them to its image service</td
               >
-              <td data-label="Use Desource Image when">
+              <td data-label="Use DeSource Image when">
                 You want local images transformed on demand, images from a CMS or API, or the deployment platform's
                 optimizer in production.
               </td>
@@ -486,7 +486,7 @@
               <td data-label="Provider choice">
                 Detects the provider from each source URL; local or unknown sources need a fallback
               </td>
-              <td data-label="Use Desource Image when">
+              <td data-label="Use DeSource Image when">
                 Vercel, Netlify, or AWS Amplify should choose the optimizer for every source, including relative paths,
                 with presets, aliases, source rules, picture output, or server adapters.
               </td>
@@ -504,17 +504,17 @@
     </div>
     <div class="api-list">
       <article>
-        <code>Image / DsImage</code>
+        <code>DsImage</code>
         <h3>Responsive image components</h3>
         <p>Generate provider URLs, responsive candidates, placeholders, preloads, native attributes, and events.</p>
       </article>
       <article>
-        <code>Picture / DsPicture</code>
+        <code>DsPicture</code>
         <h3>Ordered modern formats</h3>
         <p>Render AVIF and WebP sources with a controlled, transparent-safe fallback image.</p>
       </article>
       <article>
-        <code>useImage / DsImageService</code>
+        <code>useDsImage / DsImageService</code>
         <h3>Callable URL helper</h3>
         <p>Generate provider URLs for CSS, canvas, metadata, headless UI, email, or custom rendering.</p>
       </article>
@@ -543,7 +543,7 @@
       control.
     </p>
     <div>
-      <a class="primary-action" href="#quickstart">Start with Desource Image <span>→</span></a>
+      <a class="primary-action" href="#quickstart">Start with DeSource Image <span>→</span></a>
       <a class="secondary-action" href="https://github.com/DeSource-Labs/image">Read the source</a>
     </div>
   </section>
@@ -552,8 +552,8 @@
 <footer>
   <div class="shell">
     <a class="brand" href="#top">
-      <Image src="/logo.png" format="avif" width="31" height="31" alt="DeSource Labs" />
-      Desource Image
+      <DsImage src="/logo.png" format="avif" width="31" height="31" alt="DeSource Labs" />
+      DeSource Image
     </a>
     <p>High-quality image optimization for React, Angular, and Svelte. MIT licensed.</p>
     <div>

@@ -2,7 +2,7 @@
 
 import { afterEach, describe, expect, it } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { addImagePreloadLink, preloadImageResource, useHeadPreload } from '@src/head';
+import { addDsImagePreloadLink, preloadImageResource, useHeadPreload } from '@src/head';
 
 afterEach(() => {
   document.head.querySelectorAll('link[rel="preload"][as="image"]').forEach((node) => node.remove());
@@ -18,8 +18,8 @@ describe('React image head helpers', () => {
       imagesizes: '100vw',
       fetchpriority: 'high' as const
     };
-    const first = addImagePreloadLink(attrs, { crossorigin: 'anonymous', nonce: 'nonce' });
-    const second = addImagePreloadLink(attrs, { crossorigin: 'anonymous', nonce: 'nonce' });
+    const first = addDsImagePreloadLink(attrs, { crossorigin: 'anonymous', nonce: 'nonce' });
+    const second = addDsImagePreloadLink(attrs, { crossorigin: 'anonymous', nonce: 'nonce' });
 
     const links = document.head.querySelectorAll('link[rel="preload"][as="image"]');
     expect(links).toHaveLength(1);
@@ -39,7 +39,7 @@ describe('React image head helpers', () => {
     existing.setAttribute('href', '/existing.jpg');
     document.head.append(existing);
 
-    const cleanup = addImagePreloadLink({ rel: 'preload', as: 'image', href: '/existing.jpg' });
+    const cleanup = addDsImagePreloadLink({ rel: 'preload', as: 'image', href: '/existing.jpg' });
     expect(document.head.querySelectorAll('link[rel="preload"][as="image"]')).toHaveLength(1);
     cleanup();
   });
@@ -53,7 +53,7 @@ describe('React image head helpers', () => {
     Object.defineProperty(globalThis, 'document', { configurable: true, value: undefined });
 
     try {
-      const cleanup = addImagePreloadLink({ rel: 'preload', as: 'image', href: '/server.jpg' });
+      const cleanup = addDsImagePreloadLink({ rel: 'preload', as: 'image', href: '/server.jpg' });
       expect(() => cleanup()).not.toThrow();
     } finally {
       Object.defineProperty(globalThis, 'document', { configurable: true, value: originalDocument });
@@ -77,7 +77,7 @@ describe('React image head helpers', () => {
   });
 
   it('allows cleanup after a preload entry was already removed', () => {
-    const cleanup = addImagePreloadLink({ rel: 'preload', as: 'image', href: '/double-cleanup.jpg' });
+    const cleanup = addDsImagePreloadLink({ rel: 'preload', as: 'image', href: '/double-cleanup.jpg' });
     cleanup();
     expect(() => cleanup()).not.toThrow();
   });

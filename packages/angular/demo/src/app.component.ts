@@ -9,9 +9,9 @@ import { DsImageComponent, DsImageDirective, DsPictureComponent, DsPictureDirect
   template: `
     <main>
       <header>
-        <span class="eyebrow">Desource Image for Angular</span>
+        <span class="eyebrow">DeSource Image for Angular</span>
         <h1>Optimized images across four Angular surfaces.</h1>
-        <p>Image and picture components and directives share one provider and responsive-output model.</p>
+        <p>DsImage and DsPicture components and directives share one provider and responsive-output model.</p>
       </header>
 
       <label class="control">
@@ -29,7 +29,7 @@ import { DsImageComponent, DsImageDirective, DsPictureComponent, DsPictureDirect
 
       <section class="grid">
         <article>
-          <span>Component</span>
+          <span>DsImage component</span>
           <ds-image
             data-testid="image-component"
             src="/hero.jpg"
@@ -44,7 +44,7 @@ import { DsImageComponent, DsImageDirective, DsPictureComponent, DsPictureDirect
         </article>
 
         <article>
-          <span>Directive</span>
+          <span>DsImage directive</span>
           <img
             data-testid="image-directive"
             dsImage="/hero.jpg"
@@ -57,7 +57,7 @@ import { DsImageComponent, DsImageDirective, DsPictureComponent, DsPictureDirect
         </article>
 
         <article>
-          <span>Picture component</span>
+          <span>DsPicture component</span>
           <ds-picture
             data-testid="picture-component"
             src="/hero.jpg"
@@ -71,7 +71,7 @@ import { DsImageComponent, DsImageDirective, DsPictureComponent, DsPictureDirect
         </article>
 
         <article>
-          <span>Picture directive</span>
+          <span>DsPicture directive</span>
           <picture
             data-testid="picture-directive"
             dsPicture="/hero.jpg"

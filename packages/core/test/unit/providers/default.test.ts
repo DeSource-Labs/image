@@ -28,7 +28,7 @@ describe('providers', () => {
   });
 
   it('ignores package-specific environment variables', () => {
-    vi.stubEnv('DESOURCE_IMAGE_PROVIDER', 'cloudinary');
+    vi.stubEnv('DS_IMAGE_PROVIDER', 'cloudinary');
     expect(detectImageProvider()).toBe('ipx');
     vi.unstubAllEnvs();
   });

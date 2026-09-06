@@ -12,7 +12,7 @@ import { createDefaultProviders } from './providers/default.js';
 import { getImage, getImageAttrs, getImageMeta, getImagePreloadLink, getPictureAttrs } from './image.js';
 import { resolveProviderRegistration } from './provider-utils.js';
 
-declare const __DESOURCE_IMAGE_PROVIDER__: string | undefined;
+declare const __DS_IMAGE_PROVIDER__: string | undefined;
 
 export const DEFAULT_SCREENS: Record<string, number> = {
   sm: 640,
@@ -80,7 +80,7 @@ function normalizeStdEnvProvider(value: string | undefined): string | undefined 
 
 function compiledProvider(): string | undefined {
   try {
-    return typeof __DESOURCE_IMAGE_PROVIDER__ === 'string' ? __DESOURCE_IMAGE_PROVIDER__ : undefined;
+    return typeof __DS_IMAGE_PROVIDER__ === 'string' ? __DS_IMAGE_PROVIDER__ : undefined;
   } catch {
     return undefined;
   }

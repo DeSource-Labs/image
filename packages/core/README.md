@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>Desource Image Core - Framework-independent image optimization</h1>
+  <h1>DeSource Image Core - Framework-independent image optimization</h1>
   <p><strong><code>@desource/image</code> provides URL generation, responsive attributes, picture sources, configuration, presets, aliases, and provider tools for any JavaScript runtime.</strong></p>
 
   <p>
@@ -10,7 +10,7 @@
   </p>
 </div>
 
-AI-assisted development moves ideas into working products quickly. Desource Image keeps image preparation inside that development loop. Add one suitable local or remote source, then control its output with typed image options.
+AI-assisted development moves ideas into working products quickly. DeSource Image keeps image preparation inside that development loop. Add one suitable local or remote source, then control its output with typed image options.
 
 Keep `/img/hero.jpg` instead of exporting `hero-480.webp`, `hero-960.webp`, and `hero-1600.webp`. The core engine generates provider URLs, responsive `srcset` data, `<picture>` sources, placeholders, and preload metadata, then applies presets, aliases, and source validation.
 
@@ -18,7 +18,7 @@ For MVPs and everyday product development, image quality becomes a code edit. Ch
 
 `@desource/image` powers the Angular, React, and Svelte packages, but it does not depend on a DOM or framework renderer. Use it anywhere that needs the same image URL and responsive-output rules: server templates, workers, metadata pipelines, emails, design systems, or custom components.
 
-Provider configuration is optional. On Vercel, Netlify, or AWS Amplify, Desource Image selects the platform image service from the deployment environment. Everywhere else, it falls back to the built-in IPX path. An explicit provider always wins.
+Provider configuration is optional. On Vercel, Netlify, or AWS Amplify, DeSource Image selects the platform image service from the deployment environment. Everywhere else, it falls back to the built-in IPX path. An explicit provider always wins.
 
 ## Why use the core package directly?
 
@@ -171,7 +171,7 @@ export const config: ImageConfig = {
 
 ### Provider detection
 
-`provider: 'auto'` is the default. Desource Image detects the deployment environment once and selects its image backend:
+`provider: 'auto'` is the default. DeSource Image detects the deployment environment once and selects its image backend:
 
 | Runtime             | Provider            |
 | ------------------- | ------------------- |
@@ -183,7 +183,7 @@ export const config: ImageConfig = {
 
 An explicit provider bypasses detection. React and Svelte Vite integrations can compile the result into client and SSR bundles, preventing provider drift during hydration.
 
-Detection is based on the deployment, not the source URL. This lets the same local path use the platform optimizer in production and IPX during local development. The package does not read environment variables specific to Desource Image or infer providers from browser hostnames.
+Detection is based on the deployment, not the source URL. This lets the same local path use the platform optimizer in production and IPX during local development. The package does not read environment variables specific to DeSource Image or infer providers from browser hostnames.
 
 ### Source validation
 
@@ -276,7 +276,7 @@ Provider behavior is parity-tested against a pinned Nuxt Image package where com
 
 ## Custom providers
 
-The provider contract is Desource Image's own shape. It is intentionally small: a provider receives a normalized source, merged options, and an image context, then returns a URL.
+The provider contract is DeSource Image's own shape. It is intentionally small: a provider receives a normalized source, merged options, and an image context, then returns a URL.
 
 ```ts
 import { configureProvider, defineProvider } from '@desource/image';

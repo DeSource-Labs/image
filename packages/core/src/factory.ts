@@ -2,7 +2,7 @@ import { resolveImageConfig } from './config.js';
 import { getImage, getImageAttrs, getImageMeta, getImagePreloadLink, getImageSizes, getPictureAttrs } from './image.js';
 import { isResolvedImageConfig } from './kit.js';
 import type {
-  DesourceImage,
+  DsImage,
   ImageConfig,
   ImageInput,
   ImageModifiers,
@@ -12,12 +12,12 @@ import type {
   ResolvedImageConfig
 } from './types.js';
 
-export function createImage(config: ImageConfig | ResolvedImageConfig = {}): DesourceImage {
+export function createImage(config: ImageConfig | ResolvedImageConfig = {}): DsImage {
   const resolved = isResolvedImageConfig(config) ? config : resolveImageConfig(config);
 
   const image = ((source: string, modifiers?: ImageModifiers, options?: ImageOptions) => {
     return image.getImage(source, { ...options, modifiers: { ...options?.modifiers, ...modifiers } }).url;
-  }) as DesourceImage;
+  }) as DsImage;
 
   image.options = resolved;
   image.getImage = (source: string, options: ImageOptions = {}): ImageProviderResult => {

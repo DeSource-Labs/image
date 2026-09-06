@@ -1,14 +1,14 @@
 import { getImageAttrs, getPictureAttrs, type ImageAttrs, type ImageInput } from '@desource/image';
 import { mergeClassNames, normalizeCrossorigin, pickImageInput, stripUndefined } from '@desource/image/kit';
 import type { HTMLImgAttributes } from 'svelte/elements';
-import { resolveCachedConfig } from './context.js';
+import { resolveCachedDsImageConfig } from './context.js';
 import type {
-  ImageActionReturn,
-  ImageAttachment,
-  ImageBindingOptions,
-  NativeImageAttrs,
-  PictureBindingOptions,
-  PictureElementProps
+  DsImageActionReturn,
+  DsImageAttachment,
+  DsImageBindingOptions,
+  DsNativeImageAttrs,
+  DsPictureBindingOptions,
+  DsPictureElementProps
 } from './types.js';
 
 const pictureImageAttributeNames = new Set([
@@ -22,8 +22,11 @@ const pictureImageAttributeNames = new Set([
   'nonce'
 ]);
 
-export function getImageProps(options: ImageBindingOptions, loaded = false): HTMLImgAttributes & { nonce?: string } {
-  const attrs = getImageAttrs(toImageInput(options), resolveCachedConfig(options.config));
+export function getDsImageProps(
+  options: DsImageBindingOptions,
+  loaded = false
+): HTMLImgAttributes & { nonce?: string } {
+  const attrs = getImageAttrs(toDsImageInput(options), resolveCachedDsImageConfig(options.config));
   const placeholder = Boolean(attrs.placeholderSrc && !loaded);
   return stripUndefined({
     ...options.attrs,
@@ -47,8 +50,8 @@ export function getImageProps(options: ImageBindingOptions, loaded = false): HTM
   }) as HTMLImgAttributes & { nonce?: string };
 }
 
-export function getPictureProps(options: PictureBindingOptions, loaded = false): PictureElementProps {
-  const picture = getPictureAttrs(toImageInput(options), resolveCachedConfig(options.config));
+export function getDsPictureProps(options: DsPictureBindingOptions, loaded = false): DsPictureElementProps {
+  const picture = getPictureAttrs(toDsImageInput(options), resolveCachedDsImageConfig(options.config));
   const placeholder = Boolean(picture.img.placeholderSrc && !loaded);
   return {
     pictureAttrs: stripUndefined({
@@ -80,9 +83,9 @@ export function getPictureProps(options: PictureBindingOptions, loaded = false):
   };
 }
 
-export function splitPictureAttributes(attributes: Record<string, unknown>): {
+export function splitDsPictureAttributes(attributes: Record<string, unknown>): {
   pictureAttrs: Record<string, unknown>;
-  imgAttrs: NativeImageAttrs;
+  imgAttrs: DsNativeImageAttrs;
 } {
   const pictureAttrs: Record<string, unknown> = {};
   const imgAttrs: Record<string, unknown> = {};
@@ -92,43 +95,44 @@ export function splitPictureAttributes(attributes: Record<string, unknown>): {
     else pictureAttrs[name] = value;
   }
 
-  return { pictureAttrs, imgAttrs: imgAttrs as NativeImageAttrs };
+  return { pictureAttrs, imgAttrs: imgAttrs as DsNativeImageAttrs };
 }
 
-export function imageAction(
+export function dsImageAction(
   element: HTMLImageElement,
-  options: ImageBindingOptions
-): ImageActionReturn<ImageBindingOptions> {
+  options: DsImageBindingOptions
+): DsImageActionReturn<DsImageBindingOptions> {
   return bindImage(element, options);
 }
 
-export function pictureAction(
+export function dsPictureAction(
   element: HTMLPictureElement,
-  options: PictureBindingOptions
-): ImageActionReturn<PictureBindingOptions> {
+  options: DsPictureBindingOptions
+): DsImageActionReturn<DsPictureBindingOptions> {
   return bindPicture(element, options);
 }
 
-export function imageAttachment(options: ImageBindingOptions): ImageAttachment<HTMLImageElement> {
+export function dsImageAttachment(options: DsImageBindingOptions): DsImageAttachment<HTMLImageElement> {
   return (element) => bindImage(element, options).destroy;
 }
 
-export function pictureAttachment(options: PictureBindingOptions): ImageAttachment<HTMLPictureElement> {
+export function dsPictureAttachment(options: DsPictureBindingOptions): DsImageAttachment<HTMLPictureElement> {
   return (element) => bindPicture(element, options).destroy;
 }
 
-export function createImageBindings(config: ImageBindingOptions['config']) {
+export function createDsImageBindings(config: DsImageBindingOptions['config']) {
   return {
-    imageAction: (element: HTMLImageElement, options: Omit<ImageBindingOptions, 'config'>) =>
-      imageAction(element, { ...options, config }),
-    pictureAction: (element: HTMLPictureElement, options: Omit<PictureBindingOptions, 'config'>) =>
-      pictureAction(element, { ...options, config }),
-    imageAttachment: (options: Omit<ImageBindingOptions, 'config'>) => imageAttachment({ ...options, config }),
-    pictureAttachment: (options: Omit<PictureBindingOptions, 'config'>) => pictureAttachment({ ...options, config }),
-    getImageProps: (options: Omit<ImageBindingOptions, 'config'>, loaded = false) =>
-      getImageProps({ ...options, config }, loaded),
-    getPictureProps: (options: Omit<PictureBindingOptions, 'config'>, loaded = false) =>
-      getPictureProps({ ...options, config }, loaded)
+    dsImageAction: (element: HTMLImageElement, options: Omit<DsImageBindingOptions, 'config'>) =>
+      dsImageAction(element, { ...options, config }),
+    dsPictureAction: (element: HTMLPictureElement, options: Omit<DsPictureBindingOptions, 'config'>) =>
+      dsPictureAction(element, { ...options, config }),
+    dsImageAttachment: (options: Omit<DsImageBindingOptions, 'config'>) => dsImageAttachment({ ...options, config }),
+    dsPictureAttachment: (options: Omit<DsPictureBindingOptions, 'config'>) =>
+      dsPictureAttachment({ ...options, config }),
+    getDsImageProps: (options: Omit<DsImageBindingOptions, 'config'>, loaded = false) =>
+      getDsImageProps({ ...options, config }, loaded),
+    getDsPictureProps: (options: Omit<DsPictureBindingOptions, 'config'>, loaded = false) =>
+      getDsPictureProps({ ...options, config }, loaded)
   };
 }
 
@@ -178,8 +182,8 @@ export function preloadImage(
 
 function bindImage(
   element: HTMLImageElement,
-  initialOptions: ImageBindingOptions
-): ImageActionReturn<ImageBindingOptions> {
+  initialOptions: DsImageBindingOptions
+): DsImageActionReturn<DsImageBindingOptions> {
   let options = initialOptions;
   let attrs: ImageAttrs;
   let loaded = false;
@@ -189,7 +193,7 @@ function bindImage(
   let placeholderClasses = new Map<string, boolean>();
 
   const apply = () => {
-    attrs = getImageAttrs(toImageInput(options), resolveCachedConfig(options.config));
+    attrs = getImageAttrs(toDsImageInput(options), resolveCachedDsImageConfig(options.config));
     const nextKey = imageSourceKey(attrs);
     if (nextKey !== sourceKey) {
       sourceKey = nextKey;
@@ -258,8 +262,8 @@ function bindImage(
 
 function bindPicture(
   element: HTMLPictureElement,
-  initialOptions: PictureBindingOptions
-): ImageActionReturn<PictureBindingOptions> {
+  initialOptions: DsPictureBindingOptions
+): DsImageActionReturn<DsPictureBindingOptions> {
   let options = initialOptions;
   let image = requirePictureImage(element);
   let loaded = false;
@@ -269,7 +273,7 @@ function bindPicture(
   let placeholderClasses = new Map<string, boolean>();
 
   const handleLoad = (event: Event) => {
-    const picture = getPictureAttrs(toImageInput(options), resolveCachedConfig(options.config));
+    const picture = getPictureAttrs(toDsImageInput(options), resolveCachedDsImageConfig(options.config));
     if (picture.img.placeholderSrc && !loaded) return;
     loaded = true;
     options.onStateChange?.(true);
@@ -289,8 +293,8 @@ function bindPicture(
   const apply = () => {
     const currentImage = requirePictureImage(element);
     if (currentImage !== image) listen(currentImage);
-    const config = resolveCachedConfig(options.config);
-    const picture = getPictureAttrs(toImageInput(options), config);
+    const config = resolveCachedDsImageConfig(options.config);
+    const picture = getPictureAttrs(toDsImageInput(options), config);
     const nextKey = imageSourceKey(picture.img);
     if (nextKey !== sourceKey) {
       sourceKey = nextKey;
@@ -355,7 +359,7 @@ function bindPicture(
 function applyImageAttributes(
   element: HTMLImageElement,
   attrs: ImageAttrs,
-  options: ImageBindingOptions,
+  options: DsImageBindingOptions,
   loaded: boolean
 ): void {
   const placeholder = Boolean(attrs.placeholderSrc && !loaded);
@@ -417,7 +421,7 @@ function applyPlaceholderClasses(
 function requirePictureImage(element: HTMLPictureElement): HTMLImageElement {
   const image = element.querySelector<HTMLImageElement>(':scope > img');
   if (!image) {
-    throw new Error('[desource/image-svelte] pictureAction requires a child <img> element.');
+    throw new Error('[desource/image-svelte] dsPictureAction requires a child <img> element.');
   }
   return image;
 }
@@ -431,6 +435,6 @@ function imageSourceKey(attrs: ImageAttrs): string {
   return `${attrs.src}\n${attrs.srcset ?? ''}\n${attrs.sizes ?? ''}\n${attrs.placeholderSrc ?? ''}`;
 }
 
-export function toImageInput(options: ImageBindingOptions): ImageInput {
+export function toDsImageInput(options: DsImageBindingOptions): ImageInput {
   return pickImageInput(options);
 }

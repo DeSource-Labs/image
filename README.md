@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>Desource Image - Optimized images for React, Angular, and Svelte</h1>
+  <h1>DeSource Image<br/>Optimized images for React, Angular, and Svelte</h1>
   <p><strong>High-quality image optimization with responsive, provider-first and SSR-friendly workflow for React/Next.js, Angular, and Svelte/SvelteKit.</strong></p>
 
   <p>
@@ -14,7 +14,7 @@
 
   <p>
     <a href="#quick-start">Quick start</a> ·
-    <a href="#why-desource-image">Why Desource Image</a> ·
+    <a href="#why-desource-image">Why DeSource Image</a> ·
     <a href="#how-it-compares">Compare</a> ·
     <a href="#provider-detection">Provider detection</a> ·
     <a href="#providers">Providers</a> ·
@@ -25,22 +25,22 @@
 
 ---
 
-AI-assisted development moves ideas into working products quickly. Desource Image keeps image preparation inside that development loop. Add one suitable local or remote source, then control its output with component props.
+AI-assisted development moves ideas into working products quickly. DeSource Image keeps image preparation inside that development loop. Add one suitable local or remote source, then control its output with component props.
 
-Keep `/img/hero.jpg` instead of exporting `hero-480.webp`, `hero-960.webp`, and `hero-1600.webp`. Desource Image turns one image input into provider URLs, responsive `srcset`, `<picture>` sources, placeholders, preload metadata, presets, aliases, source validation, and local IPX routes.
+Keep `/img/hero.jpg` instead of exporting `hero-480.webp`, `hero-960.webp`, and `hero-1600.webp`. DeSource Image turns one image input into provider URLs, responsive `srcset`, `<picture>` sources, placeholders, preload metadata, presets, aliases, source validation, and local IPX routes.
 
 For MVPs and everyday product development, image quality becomes a code edit. Change `quality={80}` to `quality={65}` and keep the same source file, component, and URL.
 
-Provider configuration is optional. On Vercel, Netlify, or AWS Amplify, Desource Image selects the platform image service from the deployment environment. Everywhere else, it falls back to the built-in IPX path. An explicit provider always wins.
+Provider configuration is optional. On Vercel, Netlify, or AWS Amplify, DeSource Image selects the platform image service from the deployment environment. Everywhere else, it falls back to the built-in IPX path. An explicit provider always wins.
 
-## Why Desource Image
+## Why DeSource Image
 
-Framework defaults solve images inside one framework. Desource Image handles image rules that must work across runtimes, providers, and deployment targets.
+Framework defaults solve images inside one framework. DeSource Image handles image rules that must work across runtimes, providers, and deployment targets.
 
 - **Built for fast product iterations.** Change image quality, format, crop, or responsive sizes in code. Source files and filenames stay unchanged.
 - **One source instead of exported variants.** Start with one suitable image and generate the widths and formats each screen needs.
-- **Deployment-aware provider selection.** Leave `provider` on `auto`. Desource Image detects Vercel, Netlify, or AWS Amplify and uses IPX for local or other environments.
-- **Simplest way to deal with image providers.** CMS URLs need aliases, validation, and provider-specific modifiers. Desource Image handles provider selection, modifier translation, and URL generation for 46 built-in providers.
+- **Deployment-aware provider selection.** Leave `provider` on `auto`. DeSource Image detects Vercel, Netlify, or AWS Amplify and uses IPX for local or other environments.
+- **Simplest way to deal with image providers.** CMS URLs need aliases, validation, and provider-specific modifiers. DeSource Image handles provider selection, modifier translation, and URL generation for 46 built-in providers.
 - **Native framework APIs.** Use Angular components and directives, React components and hooks, or Svelte components, actions, and attachments. Output remains native `<img>` and `<picture>` markup.
 - **Built-in local optimizer.** React/Vite, Next.js, Angular SSR, and SvelteKit adapters can serve IPX transformations without a separate image service.
 - **46 provider modules.** Use Cloudinary, Imgix, ImageKit, Sanity, Contentful, Shopify, Vercel, Netlify, or another built-in provider. Provider subpath imports remain **tree-shakable**.
@@ -51,13 +51,13 @@ Framework defaults solve images inside one framework. Desource Image handles ima
 
 ## How it compares
 
-With Desource Image, the optimizer follows the deployment.
+With DeSource Image, the optimizer follows the deployment.
 
 Leave `provider` unset or set it to `auto`. The same source can use Vercel Image Optimization on Vercel, Netlify Image CDN on Netlify, AWS Amplify Image Optimization on Amplify, and IPX during local development or on other hosts. An explicit provider always wins.
 
-After adopting the package for your framework, image components need no host-specific provider code. Desource Image detects the deployment, not a CDN signature in `src`, so relative paths such as `/images/hero.jpg` can use the image service available on the host.
+After adopting the package for your framework, image components need no host-specific provider code. DeSource Image detects the deployment, not a CDN signature in `src`, so relative paths such as `/images/hero.jpg` can use the image service available on the host.
 
-| Option                                                                     | Best fit                                                                         | How optimization is selected                                                                                                                                                                                       | Choose Desource Image when                                                                                                                                                                                                                                         |
+| Option                                                                     | Best fit                                                                         | How optimization is selected                                                                                                                                                                                       | Choose DeSource Image when                                                                                                                                                                                                                                         |
 | -------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | React `<img>`                                                              | Native browser images when the application owns its markup and URLs              | No optimizer is selected. The browser requests `src` unchanged; deploying to Vercel, Netlify, or Amplify does not rewrite it.                                                                                      | You want to keep one source image and control responsive sizes, format, and quality in component code instead of exporting variants or maintaining `srcset` and `<picture>` markup. You want placeholders, preloads, and an optimizer that follows the deployment. |
 | [`next/image`](https://nextjs.org/docs/app/api-reference/components/image) | Next-only applications using the Next.js image pipeline                          | Next.js optimizer by default. Vercel, Netlify, and AWS Amplify integrate `next/image` with their hosting pipelines. For other image services, Next.js provides a custom-loader API rather than a provider catalog. | You want broader built-in provider support without replacing the component, or when provider policy, presets, aliases, and source rules must remain stable across frameworks, hosts, and image services.                                                           |
@@ -65,7 +65,7 @@ After adopting the package for your framework, image components need no host-spe
 | [`@sveltejs/enhanced-img`](https://svelte.dev/docs/kit/images)             | Static local assets transformed during the Vite build                            | Images are processed at build time. The deployment target does not switch them to its runtime image service.                                                                                                       | You want local images transformed on demand to save your time. Your images arrive from a CMS, database, API, object store, or CDN, or the same source should use IPX locally and the deployment platform’s optimizer in production.                                |
 | [Unpic](https://unpic.pics/)                                               | Cross-framework responsive images already hosted on recognizable CDN or CMS URLs | Detects the provider from each `src` URL. Local or unknown sources need a fallback or explicit provider; the deployment itself is not the selection signal.                                                        | Vercel, Netlify, or AWS Amplify should choose the optimizer for every source, including relative paths, and you also need presets, aliases, source rules, `<picture>`, or server adapters.                                                                         |
 
-Desource Image combines deployment-aware selection and 46 provider modules under one configuration for React/Next.js, Angular, and Svelte/SvelteKit. Nuxt applications should continue to use [`@nuxt/image`](https://image.nuxt.com/).
+DeSource Image combines deployment-aware selection and 46 provider modules under one configuration for React/Next.js, Angular, and Svelte/SvelteKit. Nuxt applications should continue to use [`@nuxt/image`](https://image.nuxt.com/).
 
 ## Packages
 
@@ -86,7 +86,7 @@ One source file: `/public/img/hero.jpg`
 One component:
 
 ```tsx
-<Image
+<DsImage
   src="/img/hero.jpg"
   alt="Product preview"
   width={1600}
@@ -106,12 +106,12 @@ npm install @desource/image-react
 ```
 
 ```tsx
-import { Image, Picture } from '@desource/image-react';
+import { DsImage, DsPicture } from '@desource/image-react';
 
 export function Gallery() {
   return (
     <>
-      <Image
+      <DsImage
         src="/img/hero.jpg"
         alt="Mountain lake at sunrise"
         width={1600}
@@ -123,7 +123,7 @@ export function Gallery() {
         preload={{ fetchPriority: 'high' }}
       />
 
-      <Picture
+      <DsPicture
         src="/img/card.jpg"
         alt="Cabin under the stars"
         width={960}
@@ -191,10 +191,10 @@ npm install @desource/image-svelte
 
 ```svelte
 <script lang="ts">
-  import { Image, Picture } from '@desource/image-svelte';
+  import { DsImage, DsPicture } from '@desource/image-svelte';
 </script>
 
-<Image
+<DsImage
   src="/img/hero.jpg"
   alt="Mountain lake at sunrise"
   width={1600}
@@ -206,7 +206,7 @@ npm install @desource/image-svelte
   preload={{ fetchPriority: 'high' }}
 />
 
-<Picture
+<DsPicture
   src="/img/card.jpg"
   alt="Cabin under the stars"
   width={960}
@@ -331,7 +331,7 @@ Provider setup is memoized. Framework packages resolve config once per Angular i
 
 ### Provider detection
 
-When `provider` is omitted or set to `auto`, Desource Image selects the optimizer available on the deployment:
+When `provider` is omitted or set to `auto`, DeSource Image selects the optimizer available on the deployment:
 
 | Runtime             | Provider            |
 | ------------------- | ------------------- |
@@ -343,7 +343,7 @@ When `provider` is omitted or set to `auto`, Desource Image selects the optimize
 
 An explicit `provider` always wins. React and Svelte Vite integrations bake the detected value into client and SSR bundles, so both sides generate the same URLs during hydration.
 
-This is deployment detection, not source-URL detection. A local source such as `/img/hero.jpg` can use Vercel Images on Vercel, Netlify Image CDN on Netlify, AWS Amplify on Amplify, and IPX during local development without changing component code. There are no DesourceImage-specific environment-variable overrides or browser hostname heuristics.
+This is deployment detection, not source-URL detection. A local source such as `/img/hero.jpg` can use Vercel Images on Vercel, Netlify Image CDN on Netlify, AWS Amplify on Amplify, and IPX during local development without changing component code. There are no DsImage-specific environment-variable overrides or browser hostname heuristics.
 
 ## Providers
 
@@ -389,9 +389,9 @@ URL generation does not transform bytes. The application must expose an optimize
 | Stack                        | Integration                                                             |
 | ---------------------------- | ----------------------------------------------------------------------- |
 | Angular SSR                  | `createDsImageMiddleware()` from `@desource/image-angular/server`       |
-| React + Vite                 | `desourceImage()` from `@desource/image-react/vite`                     |
+| React + Vite                 | `dsImage()` from `@desource/image-react/vite`                           |
 | Next.js App Router           | `createNextImageRouteHandler()` from `@desource/image-react/next`       |
-| SvelteKit dev/preview        | `desourceImage()` from `@desource/image-svelte/vite`                    |
+| SvelteKit dev/preview        | `dsImage()` from `@desource/image-svelte/vite`                          |
 | SvelteKit production         | `createDsImageHandle()` from `@desource/image-svelte/server`            |
 | Fetch API server             | `createDsImageWebHandler()` from the React or Svelte server subpath     |
 | Connect/Express-style server | `createDsImageNodeMiddleware()` from the React or Svelte server subpath |
@@ -423,7 +423,7 @@ Hosted providers such as Vercel, Netlify, Cloudinary, Imgix, Sanity, or ImageKit
 
 - Components render native image markup without wrapper elements.
 - Actions and Svelte 5.29+ attachments support native `<img>` and `<picture>` elements.
-- `getImageProps()` and `getPictureProps()` support SSR and custom rendering.
+- `getDsImageProps()` and `getDsPictureProps()` support SSR and custom rendering.
 - SvelteKit can use native platform image endpoints or the package IPX handle.
 
 ## Compatibility

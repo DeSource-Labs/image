@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { useImage } from '@desource/image-svelte';
+  import { useDsImage } from '@desource/image-svelte';
   import type { ImageFit, ImageFormat } from '@desource/image';
 
-  const image = useImage();
+  const image = useDsImage();
   let width = $state(960);
   let quality = $state(76);
   let format = $state<ImageFormat>('webp');

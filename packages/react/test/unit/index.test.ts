@@ -3,13 +3,13 @@ import * as reactImage from '@lib';
 
 describe('React public exports', () => {
   it('exports components, hooks, config and binding helpers', () => {
-    expect(reactImage.Image).toHaveProperty('render');
-    expect(reactImage.Picture).toHaveProperty('render');
-    expect(reactImage.ImageProvider).toBeTypeOf('function');
-    expect(reactImage.useImage).toBeTypeOf('function');
-    expect(reactImage.useImageProps).toBeTypeOf('function');
-    expect(reactImage.usePictureProps).toBeTypeOf('function');
-    expect(reactImage.getImageProps).toBeTypeOf('function');
-    expect(reactImage.addImagePreloadLink).toBeTypeOf('function');
+    expect(reactImage.DsImage).toHaveProperty('render');
+    expect(reactImage.DsPicture).toHaveProperty('render');
+    expect(reactImage.DsImageProvider).toBeTypeOf('function');
+    expect(reactImage.useDsImage).toBeTypeOf('function');
+    expect(reactImage.useDsImageProps).toBeTypeOf('function');
+    expect(reactImage.useDsPictureProps).toBeTypeOf('function');
+    expect(reactImage.getDsImageProps).toBeTypeOf('function');
+    expect(reactImage.addDsImagePreloadLink).toBeTypeOf('function');
   });
 });

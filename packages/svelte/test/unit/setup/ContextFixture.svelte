@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { setImageConfig, useImage } from '@src/context';
+  import { setDsImageConfig, useDsImage } from '@src/context';
 
-  setImageConfig({ provider: 'ipx' });
-  const image = useImage();
+  setDsImageConfig({ provider: 'ipx' });
+  const image = useDsImage();
   const url = image('/context.jpg', { width: 320 });
 </script>
 

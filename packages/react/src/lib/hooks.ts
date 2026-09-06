@@ -3,32 +3,32 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { getImageAttrs, getImagePreloadLink, getPictureAttrs } from '@desource/image';
 import { normalizeCrossorigin } from '@desource/image/kit';
-import { getImageProps, getPictureProps, imageSourceKey, toImageInput } from './bindings.js';
-import { useImageConfig } from './config.js';
+import { getDsImageProps, getDsPictureProps, imageSourceKey, toDsImageInput } from './bindings.js';
+import { useDsImageConfig } from './DsImageProvider.js';
 import { useHeadPreload } from './head.js';
 import type {
-  ImageBindingOptions,
-  ImageEvent,
-  PictureBindingOptions,
-  PictureElementProps,
-  ReactImageAttrs
+  DsImageBindingOptions,
+  DsImageEvent,
+  DsPictureBindingOptions,
+  DsPictureElementProps,
+  DsReactImageAttrs
 } from './types.js';
 
 export {
-  createImageBindings,
-  getImageProps,
-  getPictureProps,
-  splitPictureAttributes,
-  toImageInput
+  createDsImageBindings,
+  getDsImageProps,
+  getDsPictureProps,
+  splitDsPictureAttributes,
+  toDsImageInput
 } from './bindings.js';
 
-export function useImageProps(options: ImageBindingOptions): ReactImageAttrs {
-  const config = useImageConfig(options.config);
-  const imageInput = useMemo(() => toImageInput(options), [options]);
+export function useDsImageProps(options: DsImageBindingOptions): DsReactImageAttrs {
+  const config = useDsImageConfig(options.config);
+  const imageInput = useMemo(() => toDsImageInput(options), [options]);
   const attrs = useMemo(() => getImageAttrs(imageInput, config), [config, imageInput]);
   const crossOrigin = normalizeCrossorigin(options.crossOrigin ?? options.crossorigin);
   const loaded = useDecodedImage(attrs, crossOrigin, options.onError);
-  const props = useMemo(() => getImageProps({ ...options, config }, loaded), [config, loaded, options]);
+  const props = useMemo(() => getDsImageProps({ ...options, config }, loaded), [config, loaded, options]);
 
   useHeadPreload(
     options.preload ? getImagePreloadLink(imageInput, config) : undefined,
@@ -41,7 +41,7 @@ export function useImageProps(options: ImageBindingOptions): ReactImageAttrs {
   const placeholderActive = Boolean(attrs.placeholderSrc && !loaded);
 
   const handleLoad = useCallback(
-    (event: ImageEvent) => {
+    (event: DsImageEvent) => {
       if (placeholderActive) return;
       onLoad?.(event);
     },
@@ -49,7 +49,7 @@ export function useImageProps(options: ImageBindingOptions): ReactImageAttrs {
   );
 
   const handleError = useCallback(
-    (event: ImageEvent) => {
+    (event: DsImageEvent) => {
       if (!placeholderActive) onError?.(event);
     },
     [onError, placeholderActive]
@@ -62,13 +62,13 @@ export function useImageProps(options: ImageBindingOptions): ReactImageAttrs {
   };
 }
 
-export function usePictureProps(options: PictureBindingOptions): PictureElementProps {
-  const config = useImageConfig(options.config);
-  const imageInput = useMemo(() => toImageInput(options), [options]);
+export function useDsPictureProps(options: DsPictureBindingOptions): DsPictureElementProps {
+  const config = useDsImageConfig(options.config);
+  const imageInput = useMemo(() => toDsImageInput(options), [options]);
   const picture = useMemo(() => getPictureAttrs(imageInput, config), [config, imageInput]);
   const crossOrigin = normalizeCrossorigin(options.crossOrigin ?? options.crossorigin);
   const loaded = useDecodedImage(picture.img, crossOrigin, options.onError);
-  const props = useMemo(() => getPictureProps({ ...options, config }, loaded), [config, loaded, options]);
+  const props = useMemo(() => getDsPictureProps({ ...options, config }, loaded), [config, loaded, options]);
   const basePreload = options.preload ? getImagePreloadLink(imageInput, config) : undefined;
   const preloadSource = picture.sources[0];
 
@@ -89,7 +89,7 @@ export function usePictureProps(options: PictureBindingOptions): PictureElementP
   const placeholderActive = Boolean(picture.img.placeholderSrc && !loaded);
 
   const handleLoad = useCallback(
-    (event: ImageEvent) => {
+    (event: DsImageEvent) => {
       if (placeholderActive) return;
       onLoad?.(event);
     },
@@ -97,7 +97,7 @@ export function usePictureProps(options: PictureBindingOptions): PictureElementP
   );
 
   const handleError = useCallback(
-    (event: ImageEvent) => {
+    (event: DsImageEvent) => {
       if (!placeholderActive) onError?.(event);
     },
     [onError, placeholderActive]
@@ -116,7 +116,7 @@ export function usePictureProps(options: PictureBindingOptions): PictureElementP
 function useDecodedImage(
   attrs: Parameters<typeof imageSourceKey>[0],
   crossOrigin: string | undefined,
-  onError: ((event: ImageEvent) => void) | undefined
+  onError: ((event: DsImageEvent) => void) | undefined
 ): boolean {
   const sourceKey = imageSourceKey(attrs);
   const [state, setState] = useState({ key: sourceKey, loaded: false });

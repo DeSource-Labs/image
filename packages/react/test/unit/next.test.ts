@@ -16,7 +16,7 @@ vi.mock('ipx', () => ({
 }));
 
 describe('Next.js helpers', () => {
-  it('creates a next/image compatible loader from Desource Image config', () => {
+  it('creates a next/image compatible loader from DeSource Image config', () => {
     const loader = createNextImageLoader(imageComponentTestConfig);
     const url = loader({ src: '/hero.jpg', width: 828, quality: 74 });
 

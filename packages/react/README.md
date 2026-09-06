@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>Desource Image - Optimized images for React and Next.js</h1>
+  <h1>DeSource Image - Optimized images for React and Next.js</h1>
   <p><strong>High-quality image optimization with responsive, provider-first and SSR-friendly workflow for React and Next.js.</strong></p>
 
   <p>
@@ -10,38 +10,38 @@
   </p>
 </div>
 
-AI-assisted development moves ideas into working products quickly. Desource Image keeps image preparation inside that development loop. Add one suitable local or remote source, then control its output with component props.
+AI-assisted development moves ideas into working products quickly. DeSource Image keeps image preparation inside that development loop. Add one suitable local or remote source, then control its output with component props.
 
-Keep `/img/hero.jpg` instead of exporting `hero-480.webp`, `hero-960.webp`, and `hero-1600.webp`. Desource Image turns one image input into provider URLs, responsive `srcset`, `<picture>` sources, placeholders, preload metadata, presets, aliases, source validation, and local IPX routes.
+Keep `/img/hero.jpg` instead of exporting `hero-480.webp`, `hero-960.webp`, and `hero-1600.webp`. DeSource Image turns one image input into provider URLs, responsive `srcset`, `<picture>` sources, placeholders, preload metadata, presets, aliases, source validation, and local IPX routes.
 
 For MVPs and everyday product development, image quality becomes a code edit. Change `quality={80}` to `quality={65}` and keep the same source file, component, and URL.
 
 `@desource/image-react` provides components for common cases, hooks for application-owned markup, a loader for `next/image`, and server helpers for Vite and the Next.js App Router. Every API renders or supplies native `<img>` and `<picture>` markup.
 
-Provider configuration is optional. On Vercel, Netlify, or AWS Amplify, Desource Image selects the platform image service from the deployment environment. Everywhere else, it falls back to the built-in IPX path. An explicit provider always wins.
+Provider configuration is optional. On Vercel, Netlify, or AWS Amplify, DeSource Image selects the platform image service from the deployment environment. Everywhere else, it falls back to the built-in IPX path. An explicit provider always wins.
 
-## Why Desource Image for React?
+## Why DeSource Image for React?
 
-React has no built-in image optimization layer. Next.js has a strong image pipeline for Next-only applications. Desource Image adds deployment-aware provider selection, 46 provider modules, local IPX, and image rules that can also work outside Next.js.
+React has no built-in image optimization layer. Next.js has a strong image pipeline for Next-only applications. DeSource Image adds deployment-aware provider selection, 46 provider modules, local IPX, and image rules that can also work outside Next.js.
 
 - **Built for fast product iterations.** Change image quality, format, crop, or responsive sizes in JSX. Source files and filenames stay unchanged.
 - **One source instead of exported variants.** Start with one suitable image and generate the widths and formats each screen needs.
-- **Deployment-aware provider selection.** Leave `provider` on `auto`. Desource Image detects Vercel, Netlify, or AWS Amplify and uses IPX for local or other environments.
+- **Deployment-aware provider selection.** Leave `provider` on `auto`. DeSource Image detects Vercel, Netlify, or AWS Amplify and uses IPX for local or other environments.
 - **Vite and Next.js use the same image model.** Keep the same inputs, presets, aliases, and providers across applications.
-- **Native framework APIs.** Use `Image` and `Picture`, or spread hook results onto elements owned by a design system. Output remains native `<img>` and `<picture>` markup.
+- **Native framework APIs.** Use `DsImage` and `DsPicture`, or spread hook results onto elements owned by a design system. Output remains native `<img>` and `<picture>` markup.
 - **46 built-in provider modules.** Import one provider subpath, use the complete registry, or register a typed custom provider.
 - **Built-in local optimizer.** Vite middleware and a Next.js App Router route handler serve IPX transformations without a separate image service.
-- **`next/image` remains available.** `createNextImageLoader()` lets Next own rendering while Desource Image owns provider URLs.
+- **`next/image` remains available.** `createNextImageLoader()` lets Next own rendering while DeSource Image owns provider URLs.
 
 ### How it compares
 
-| Option                                                                     | Best fit                                                                         | How optimization is selected                                                                                                                                                                                       | Choose Desource Image when                                                                                                                                                                                                                    |
+| Option                                                                     | Best fit                                                                         | How optimization is selected                                                                                                                                                                                       | Choose DeSource Image when                                                                                                                                                                                                                    |
 | -------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | React `<img>`                                                              | Native browser images when the application owns its markup and URLs              | No optimizer is selected. The browser requests `src` unchanged; deploying to Vercel, Netlify, or Amplify does not rewrite it.                                                                                      | You want to control responsive sizes, format, and quality in component code instead of exporting variants or maintaining `srcset` and `<picture>` markup. You also want placeholders, preloads, and an optimizer that follows the deployment. |
 | [`next/image`](https://nextjs.org/docs/app/api-reference/components/image) | Next-only applications using the Next.js image pipeline                          | Next.js optimizer by default. Vercel, Netlify, and AWS Amplify integrate `next/image` with their hosting pipelines. For other image services, Next.js provides a custom-loader API rather than a provider catalog. | You want broader built-in provider support without replacing the component, or provider policy, presets, aliases, and source rules must remain stable across frameworks, hosts, and image services.                                           |
 | [Unpic React](https://unpic.pics/img/react/)                               | Cross-framework responsive images already hosted on recognizable CDN or CMS URLs | Detects the provider from each `src` URL. Local or unknown sources need a fallback or explicit provider; the deployment itself is not the selection signal.                                                        | Vercel, Netlify, or AWS Amplify should choose the optimizer for every source, including relative paths, and you also need presets, aliases, source rules, `<picture>`, or server adapters.                                                    |
 
-For a Next-only application, `next/image` remains the good candidate. Desource Image is the stronger choice when that hosting-native workflow must extend beyond Next.js, or when provider policy, presets, aliases, and source rules must remain stable across frameworks, hosts, and image services.
+For a Next-only application, `next/image` remains the good candidate. DeSource Image is the stronger choice when that hosting-native workflow must extend beyond Next.js, or when provider policy, presets, aliases, and source rules must remain stable across frameworks, hosts, and image services.
 
 ## Install
 
@@ -60,12 +60,12 @@ npm install ipx
 ## Quick start
 
 ```tsx
-import { Image, Picture } from '@desource/image-react';
+import { DsImage, DsPicture } from '@desource/image-react';
 
 export function Gallery() {
   return (
     <>
-      <Image
+      <DsImage
         src="/img/hero.jpg"
         alt="Mountain lake at sunrise"
         width={1600}
@@ -78,7 +78,7 @@ export function Gallery() {
         className="hero"
       />
 
-      <Picture
+      <DsPicture
         src="/img/card.jpg"
         alt="Cabin under the stars"
         width={960}
@@ -92,17 +92,17 @@ export function Gallery() {
 }
 ```
 
-Both components render native elements. `Image` forwards refs to the `<img>`; `Picture` forwards refs to the `<picture>`.
+Both components render native elements. `DsImage` forwards refs to the `<img>`; `DsPicture` forwards refs to the `<picture>`.
 
 ## Configure once
 
 ```tsx
-import { ImageProvider } from '@desource/image-react';
+import { DsImageProvider } from '@desource/image-react';
 import { cloudinaryProvider } from '@desource/image/providers/cloudinary';
 
 export function App() {
   return (
-    <ImageProvider
+    <DsImageProvider
       config={{
         provider: 'cloudinary',
         quality: 80,
@@ -117,21 +117,21 @@ export function App() {
       }}
     >
       <Gallery />
-    </ImageProvider>
+    </DsImageProvider>
   );
 }
 ```
 
 Configuration is optional. With no explicit provider, the shared runtime detects Vercel, Netlify, or AWS Amplify from the build environment and falls back to IPX.
 
-## Image component
+## DsImage component
 
 ```tsx
-import { Image } from '@desource/image-react';
+import { DsImage } from '@desource/image-react';
 
 export function Hero() {
   return (
-    <Image
+    <DsImage
       src="/img/hero.jpg"
       alt="Aurora above a mountain lake"
       width={1600}
@@ -150,14 +150,14 @@ export function Hero() {
 
 `alt` is required. React-native props such as `className`, `style`, `crossOrigin`, `fetchPriority`, `referrerPolicy`, `onLoad`, and `onError` are supported. Lowercase `fetchpriority` and `crossorigin` aliases are also accepted when sharing options across frameworks.
 
-## Picture component
+## DsPicture component
 
 ```tsx
-import { Picture } from '@desource/image-react';
+import { DsPicture } from '@desource/image-react';
 
 export function ResponsiveHero() {
   return (
-    <Picture
+    <DsPicture
       src="/img/hero.jpg"
       alt="Responsive mountain landscape"
       width={1600}
@@ -179,10 +179,10 @@ The component renders a native `<picture>` with ordered `<source>` elements and 
 Use hooks when a design-system component or application template must own the final DOM:
 
 ```tsx
-import { useImageProps, usePictureProps } from '@desource/image-react';
+import { useDsImageProps, useDsPictureProps } from '@desource/image-react';
 
 function NativeImage() {
-  const img = useImageProps({
+  const img = useDsImageProps({
     src: '/img/card.jpg',
     alt: 'A coastal village',
     width: 720,
@@ -195,7 +195,7 @@ function NativeImage() {
 }
 
 function NativePicture() {
-  const picture = usePictureProps({
+  const picture = useDsPictureProps({
     src: '/img/card.jpg',
     alt: 'A coastal village at sunset',
     width: 720,
@@ -223,18 +223,18 @@ The hooks handle placeholder preload/decode state, load/error forwarding, and he
 Use `custom` when generated image props should be rendered inside custom markup:
 
 ```tsx
-import { Image } from '@desource/image-react';
+import { DsImage } from '@desource/image-react';
 
 export function Figure() {
   return (
-    <Image src="/img/hero.jpg" alt="Mountain lake" width={1200} placeholder custom>
+    <DsImage src="/img/hero.jpg" alt="Mountain lake" width={1200} placeholder custom>
       {({ imgProps, src, isLoaded }) => (
         <figure data-src={src} data-loaded={isLoaded}>
           <img {...imgProps} />
           <figcaption>Mountain lake</figcaption>
         </figure>
       )}
-    </Image>
+    </DsImage>
   );
 }
 ```
@@ -242,10 +242,10 @@ export function Figure() {
 ## Callable helper
 
 ```tsx
-import { useImage } from '@desource/image-react';
+import { useDsImage } from '@desource/image-react';
 
 function Avatar({ src }: { src: string }) {
-  const image = useImage();
+  const image = useDsImage();
   return <img src={image(src, { width: 96, height: 96, fit: 'cover' })} alt="" />;
 }
 ```
@@ -254,43 +254,43 @@ The callable helper exposes `getImage`, `getSizes`, `getMeta`, `getAttrs`, `getP
 
 ## Next.js
 
-### Use Desource Image components directly
+### Use DeSource Image components directly
 
 The main package entry is a client entry because placeholders and head preloads use browser lifecycle APIs.
 
 ```tsx
 'use client';
 
-import { Image } from '@desource/image-react';
+import { DsImage } from '@desource/image-react';
 
 export function ProductImage() {
-  return <Image src="/products/chair.jpg" alt="Oak chair" width={1200} height={900} format="webp" />;
+  return <DsImage src="/products/chair.jpg" alt="Oak chair" width={1200} height={900} format="webp" />;
 }
 ```
 
 For hosted providers, configure the provider as usual. For local IPX URLs, add an App Router route handler.
 
-### Use Desource Image with `next/image`
+### Use DeSource Image with `next/image`
 
 ```ts
-// desource-loader.ts
+// ds-loader.ts
 import { createNextImageLoader } from '@desource/image-react/next';
 
-export const desourceLoader = createNextImageLoader({
+export const dsLoader = createNextImageLoader({
   provider: 'vercel'
 });
 ```
 
 ```tsx
 import NextImage from 'next/image';
-import { desourceLoader } from './desource-loader';
+import { dsLoader } from './ds-loader';
 
 export function Hero() {
-  return <NextImage loader={desourceLoader} src="/img/hero.jpg" alt="Hero" width={1200} height={800} />;
+  return <NextImage loader={dsLoader} src="/img/hero.jpg" alt="Hero" width={1200} height={800} />;
 }
 ```
 
-This lets `next/image` keep its rendering behavior while Desource Image owns the provider URL rules.
+This lets `next/image` keep its rendering behavior while DeSource Image owns the provider URL rules.
 
 ### App Router IPX route
 
@@ -311,11 +311,11 @@ Remote optimization is denied by default. Add trusted `domains`, or set `allowAl
 
 ```ts
 // vite.config.ts
-import { desourceImage } from '@desource/image-react/vite';
+import { dsImage } from '@desource/image-react/vite';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  plugins: [desourceImage({ dirs: ['public'] })]
+  plugins: [dsImage({ dirs: ['public'] })]
 });
 ```
 
@@ -326,12 +326,12 @@ The plugin serves `/_ipx` during Vite development and preview. It also bakes a d
 Register built-in or custom providers from the core package:
 
 ```tsx
-import { ImageProvider } from '@desource/image-react';
+import { DsImageProvider } from '@desource/image-react';
 import { imagekitProvider } from '@desource/image/providers/imagekit';
 
 export function App() {
   return (
-    <ImageProvider
+    <DsImageProvider
       config={{
         provider: 'imagekit',
         providers: {
@@ -342,8 +342,8 @@ export function App() {
         }
       }}
     >
-      <Image preset="card" src="/products/chair.jpg" alt="Oak chair" />
-    </ImageProvider>
+      <DsImage preset="card" src="/products/chair.jpg" alt="Oak chair" />
+    </DsImageProvider>
   );
 }
 ```

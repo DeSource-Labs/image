@@ -3,15 +3,15 @@
 import { describe, expect, it, vi } from 'vitest';
 import { defineProvider, type ImageConfig } from '@desource/image';
 import {
-  createImageBindings,
-  getImageProps,
-  getPictureProps,
-  imageAction,
-  imageAttachment,
-  pictureAction,
-  pictureAttachment,
+  createDsImageBindings,
+  getDsImageProps,
+  getDsPictureProps,
+  dsImageAction,
+  dsImageAttachment,
+  dsPictureAction,
+  dsPictureAttachment,
   preloadImage,
-  splitPictureAttributes
+  splitDsPictureAttributes
 } from '@src/bindings';
 
 function createConfig(setup = vi.fn()) {
@@ -37,7 +37,7 @@ function createConfig(setup = vi.fn()) {
 describe('Svelte image bindings', () => {
   it('creates SSR-safe image and picture props with required accessibility attrs', () => {
     const config = createConfig();
-    const image = getImageProps({
+    const image = getDsImageProps({
       src: '/photo.jpg',
       alt: 'Product photograph',
       width: 640,
@@ -53,7 +53,7 @@ describe('Svelte image bindings', () => {
     expect(image.class).toBe('media selected');
     expect(image.crossorigin).toBe('anonymous');
 
-    const picture = getPictureProps({
+    const picture = getDsPictureProps({
       src: '/photo.jpg',
       alt: 'Responsive product photograph',
       width: 640,
@@ -95,7 +95,7 @@ describe('Svelte image bindings', () => {
       const onload = vi.fn();
       const onerror = vi.fn();
       const onStateChange = vi.fn();
-      const binding = imageAction(image, {
+      const binding = dsImageAction(image, {
         src: '/photo.jpg',
         alt: 'Photo',
         width: 600,
@@ -155,7 +155,7 @@ describe('Svelte image bindings', () => {
     picture.append(image);
     const load = vi.fn();
     const config = createConfig();
-    const binding = pictureAction(picture, {
+    const binding = dsPictureAction(picture, {
       src: '/landscape.jpg',
       alt: 'Landscape',
       width: 720,
@@ -215,7 +215,7 @@ describe('Svelte image bindings', () => {
       const onerror = vi.fn();
       const onStateChange = vi.fn();
       const config = createConfig();
-      const binding = pictureAction(picture, {
+      const binding = dsPictureAction(picture, {
         src: '/landscape.jpg',
         alt: 'Landscape',
         width: 720,
@@ -325,14 +325,16 @@ describe('Svelte image bindings', () => {
   it('supports attachment factories and validates picture markup', () => {
     const config = createConfig();
     const image = document.createElement('img');
-    const cleanup = imageAttachment({ src: '/image.jpg', alt: 'Image', width: 320, config })(image);
+    const cleanup = dsImageAttachment({ src: '/image.jpg', alt: 'Image', width: 320, config })(image);
     expect(image.src).toContain('width=320');
     cleanup?.();
 
     const picture = document.createElement('picture');
-    expect(() => pictureAction(picture, { src: '/image.jpg', alt: 'Image', config })).toThrow(/requires a child <img>/);
+    expect(() => dsPictureAction(picture, { src: '/image.jpg', alt: 'Image', config })).toThrow(
+      /requires a child <img>/
+    );
     picture.append(document.createElement('img'));
-    const cleanupPicture = pictureAttachment({
+    const cleanupPicture = dsPictureAttachment({
       src: '/image.jpg',
       alt: 'Image',
       formats: ['webp'],
@@ -344,27 +346,27 @@ describe('Svelte image bindings', () => {
 
   it('binds configuration once and distributes picture/image attributes', () => {
     const setup = vi.fn();
-    const bindings = createImageBindings(createConfig(setup));
-    expect(bindings.getImageProps({ src: '/one.jpg', alt: 'One' }).src).toContain('/one.jpg');
-    expect(bindings.getImageProps({ src: '/two.jpg', alt: 'Two' }).src).toContain('/two.jpg');
-    expect(bindings.getPictureProps({ src: '/picture.jpg', alt: 'Picture', formats: ['webp'] }).sources).toHaveLength(
+    const bindings = createDsImageBindings(createConfig(setup));
+    expect(bindings.getDsImageProps({ src: '/one.jpg', alt: 'One' }).src).toContain('/one.jpg');
+    expect(bindings.getDsImageProps({ src: '/two.jpg', alt: 'Two' }).src).toContain('/two.jpg');
+    expect(bindings.getDsPictureProps({ src: '/picture.jpg', alt: 'Picture', formats: ['webp'] }).sources).toHaveLength(
       1
     );
 
     const actionImage = document.createElement('img');
-    bindings.imageAction(actionImage, { src: '/action.jpg', alt: 'Action' }).destroy();
+    bindings.dsImageAction(actionImage, { src: '/action.jpg', alt: 'Action' }).destroy();
     const attachedImage = document.createElement('img');
-    bindings.imageAttachment({ src: '/attachment.jpg', alt: 'Attachment' })(attachedImage)?.();
+    bindings.dsImageAttachment({ src: '/attachment.jpg', alt: 'Attachment' })(attachedImage)?.();
     const actionPicture = document.createElement('picture');
     actionPicture.append(document.createElement('img'));
-    bindings.pictureAction(actionPicture, { src: '/action-picture.jpg', alt: 'Action picture' }).destroy();
+    bindings.dsPictureAction(actionPicture, { src: '/action-picture.jpg', alt: 'Action picture' }).destroy();
     const attachedPicture = document.createElement('picture');
     attachedPicture.append(document.createElement('img'));
-    bindings.pictureAttachment({ src: '/attached-picture.jpg', alt: 'Attached picture' })(attachedPicture)?.();
+    bindings.dsPictureAttachment({ src: '/attached-picture.jpg', alt: 'Attached picture' })(attachedPicture)?.();
     expect(setup).toHaveBeenCalledOnce();
 
     expect(
-      splitPictureAttributes({
+      splitDsPictureAttributes({
         id: 'shell',
         class: 'picture',
         referrerpolicy: 'no-referrer',

@@ -1,6 +1,6 @@
 import { TestBed, type ComponentFixture } from '@angular/core/testing';
 import { afterEach, vi } from 'vitest';
-import { testPictureComponent, type PictureComponentSetupOptions } from '@common/test/unit/Picture';
+import { testDsPictureComponent, type DsPictureComponentSetupOptions } from '@common/test/unit/DsPicture';
 import { imageComponentTestConfig } from '@common/test/unit/setup/image-test-provider';
 import { DsPictureComponent, provideDsImage } from '@lib';
 
@@ -42,14 +42,14 @@ const pictureInputNames = {
   referrerpolicy: 'referrerpolicy',
   usemap: 'usemap',
   imgAttrs: 'imgAttrs'
-} satisfies Record<keyof PictureComponentSetupOptions, string>;
+} satisfies Record<keyof DsPictureComponentSetupOptions, string>;
 
 afterEach(() => {
   TestBed.resetTestingModule();
   document.head.querySelectorAll('[data-ds-image-preload]').forEach((node) => node.remove());
 });
 
-testPictureComponent(async (options = {}) => {
+testDsPictureComponent(async (options = {}) => {
   TestBed.configureTestingModule({
     imports: [DsPictureComponent],
     providers: [provideDsImage(imageComponentTestConfig)]
@@ -90,9 +90,9 @@ testPictureComponent(async (options = {}) => {
 
 function setInputs(
   fixture: ComponentFixture<DsPictureComponent>,
-  options: Partial<PictureComponentSetupOptions>
+  options: Partial<DsPictureComponentSetupOptions>
 ): void {
-  for (const key of Object.keys(options) as (keyof PictureComponentSetupOptions)[]) {
+  for (const key of Object.keys(options) as (keyof DsPictureComponentSetupOptions)[]) {
     fixture.componentRef.setInput(pictureInputNames[key], options[key]);
   }
 }
