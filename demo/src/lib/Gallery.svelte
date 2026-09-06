@@ -70,9 +70,9 @@
           draggable: false,
           loading: 'lazy',
           fetchpriority: 'low',
+          format: 'webp',
           width: 60,
           height: 60,
-          quality: 100,
           style: `display:block;width:100%;height:100%;object-fit:${imageFit}`
         }
       })
@@ -730,9 +730,9 @@
                   draggable={false}
                   loading="lazy"
                   fetchpriority="low"
+                  format="webp"
                   width={60}
                   height={60}
-                  quality={100}
                 />
               </a>
             {:else}
@@ -753,9 +753,9 @@
                   draggable={false}
                   loading="lazy"
                   fetchpriority="low"
+                  format="webp"
                   width={60}
                   height={60}
-                  quality={100}
                 />
               </button>
             {/if}
@@ -782,7 +782,7 @@
   </div>
 </div>
 
-<style>
+<style lang="scss">
   .gallery {
     --radius: 600px;
     --circ: calc(var(--radius) * 3.14);
@@ -854,6 +854,17 @@
     pointer-events: auto;
     text-decoration: none;
   }
+  .gallery-tile:hover {
+    transform: translateZ(8px) scale(1.015);
+  }
+  .gallery-tile:focus-visible {
+    outline: 0;
+    box-shadow:
+      0 0 0 3px var(--lime),
+      0 0 0 7px rgba(7, 17, 31, 0.8),
+      0 0 28px rgba(191, 244, 139, 0.38);
+    transform: translateZ(12px) scale(1.02);
+  }
   .gallery-tile :global(img) {
     display: block;
     width: 100%;
@@ -921,6 +932,10 @@
     background: rgba(0, 0, 0, 0.4);
     transition: opacity 500ms linear;
     backdrop-filter: blur(3px);
+  }
+  .gallery-scrim:focus-visible {
+    outline: 0;
+    box-shadow: inset 0 0 0 3px var(--blue);
   }
   .gallery-frame {
     display: flex;

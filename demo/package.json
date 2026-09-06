@@ -15,12 +15,14 @@
   "dependencies": {
     "@desource/image": "workspace:*",
     "@desource/image-svelte": "workspace:*",
-    "ipx": "^3.1.1"
+    "ipx": "^3.1.1",
+    "ogl": "^1.0.11"
   },
   "devDependencies": {
     "@sveltejs/adapter-vercel": "^6.3.4",
     "@sveltejs/kit": "^2.70.2",
     "@sveltejs/vite-plugin-svelte": "^7.3.0",
+    "sass": "^1.102.0",
     "svelte": "^5.56.9",
     "svelte-check": "^4.7.5"
   }

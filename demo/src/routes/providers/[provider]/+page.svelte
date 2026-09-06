@@ -61,7 +61,7 @@
   <article>
     <div class="doc-title">
       <div class="provider-icon">
-        <DsImage src={data.provider.icon} alt={data.provider.name} width={60} height={60} quality={100} />
+        <DsImage src={data.provider.icon} alt={data.provider.name} format="webp" width={60} height={60} />
       </div>
       <div>
         <p class="eyebrow">Provider documentation</p>
@@ -166,7 +166,7 @@
   </article>
 </main>
 
-<style>
+<style lang="scss">
   .docs-header {
     position: sticky;
     top: 0;
@@ -188,14 +188,22 @@
     font-size: 0.95rem;
     font-weight: 750;
     text-decoration: none;
+    transition: color 160ms ease;
   }
   a {
     color: var(--blue);
     text-underline-offset: 4px;
   }
+  .brand:hover,
+  .back-link:hover {
+    color: var(--lime);
+  }
   .back-link {
     font-size: 0.8rem;
+    font-weight: 700;
+    text-decoration: none;
     white-space: nowrap;
+    transition: color 160ms ease;
   }
   .docs-shell {
     display: grid;
@@ -210,9 +218,15 @@
     font-size: 0.85rem;
   }
   summary {
+    width: fit-content;
     cursor: pointer;
     color: var(--lime);
-    padding-block: 12px;
+    padding: 10px 2px;
+    font-weight: 750;
+    transition: color 160ms ease;
+  }
+  summary:hover {
+    color: #dbffba;
   }
   nav ul {
     max-height: 40vh;
@@ -224,18 +238,35 @@
   }
   nav a {
     display: block;
-    padding: 8px 0;
+    padding: 8px 10px;
+    border-left: 2px solid transparent;
+    border-radius: 0 7px 7px 0;
     text-decoration: none;
+    transition:
+      border-color 160ms ease,
+      color 160ms ease,
+      background 160ms ease;
+  }
+  nav a:hover {
+    color: #e8f1fb;
+    background: rgba(143, 184, 255, 0.055);
   }
   nav a[aria-current] {
+    border-left-color: var(--lime);
     color: var(--lime);
+    background: linear-gradient(90deg, rgba(191, 244, 139, 0.11), transparent);
     font-weight: 750;
   }
   .contents {
     margin-top: 24px;
   }
   .contents p {
+    margin: 0 0 8px;
     color: var(--muted);
+    font-size: 0.72rem;
+    font-weight: 750;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
   }
   article {
     min-width: 0;
@@ -278,10 +309,32 @@
   .doc-links {
     display: flex;
     flex-wrap: wrap;
-    gap: 12px 24px;
+    gap: 10px;
     font-size: 0.85rem;
     padding-bottom: 30px;
     border-bottom: 1px solid var(--line);
+  }
+  .doc-links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 38px;
+    padding: 0 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    color: #bdd2ea;
+    background: rgba(143, 184, 255, 0.025);
+    text-decoration: none;
+    transition:
+      border-color 160ms ease,
+      color 160ms ease,
+      background 160ms ease,
+      transform 160ms ease;
+  }
+  .doc-links a:hover {
+    border-color: rgba(143, 184, 255, 0.36);
+    color: #fff;
+    background: rgba(143, 184, 255, 0.07);
+    transform: translateY(-1px);
   }
   section {
     margin-top: 44px;
@@ -318,19 +371,41 @@
   }
   .framework-switch {
     display: flex;
-    gap: 6px;
+    width: fit-content;
+    gap: 5px;
+    padding: 5px;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    background: linear-gradient(180deg, #0d1c2e, #091624);
+    box-shadow: inset 0 1px rgba(255, 255, 255, 0.025);
   }
   .framework-switch button {
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    padding: 10px 16px;
-    color: #cad6e4;
+    min-height: 38px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: 8px 15px;
+    color: #8296ad;
     background: transparent;
+    font-size: 0.8rem;
+    font-weight: 700;
     cursor: pointer;
+    transition:
+      border-color 160ms ease,
+      color 160ms ease,
+      background 160ms ease,
+      box-shadow 160ms ease;
+  }
+  .framework-switch button:hover:not([aria-pressed='true']) {
+    border-color: rgba(143, 184, 255, 0.15);
+    color: #e2edf8;
+    background: rgba(143, 184, 255, 0.055);
   }
   .framework-switch button[aria-pressed='true'] {
     color: #07111f;
-    background: var(--lime);
+    background: linear-gradient(135deg, #d8ffb4, var(--lime));
+    box-shadow:
+      inset 0 1px rgba(255, 255, 255, 0.72),
+      0 8px 20px rgba(191, 244, 139, 0.12);
   }
   .options > div {
     padding: 16px 0;
@@ -356,6 +431,19 @@
     border-radius: 8px;
     text-decoration: none;
     color: var(--lime);
+    background: rgba(191, 244, 139, 0.025);
+    font-weight: 750;
+    transition:
+      border-color 160ms ease,
+      color 160ms ease,
+      background 160ms ease,
+      transform 160ms ease;
+  }
+  .back-button:hover {
+    border-color: rgba(191, 244, 139, 0.36);
+    color: #ddffbd;
+    background: rgba(191, 244, 139, 0.075);
+    transform: translateY(-1px);
   }
   @media (max-width: 900px) {
     .docs-shell {
