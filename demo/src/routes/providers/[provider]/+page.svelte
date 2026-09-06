@@ -22,7 +22,7 @@
 <header class="docs-header">
   <div class="shell">
     <a class="brand" href={resolve('/')}>
-      <DsImage src="/logo.png" format="avif" width="31" height="31" alt="DeSource Labs" />
+      <DsImage src="/logo.png" format="avif" width="31" height="31" alt="" />
       DeSource Image
     </a>
     <a class="back-link" href={resolve('/#providers')}>← All providers</a>

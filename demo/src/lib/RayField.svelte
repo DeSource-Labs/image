@@ -181,6 +181,7 @@
       renderer.render({ scene: mesh });
 
       if (visible && !motion.matches) frame = requestAnimationFrame(draw);
+      else frame = 0;
     };
 
     const start = () => {
@@ -233,6 +234,7 @@
       motion.removeEventListener('change', handleMotionChange);
       geometry.remove();
       program.remove();
+      gl.getExtension('WEBGL_lose_context')?.loseContext();
     };
   });
 </script>

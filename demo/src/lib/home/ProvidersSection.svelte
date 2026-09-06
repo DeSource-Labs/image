@@ -22,13 +22,7 @@
     </p>
   </div>
   <div class="provider-gallery">
-    <Gallery
-      images={providerImages}
-      overlayBlurColor="#07111f"
-      imageFit="contain"
-      imageBorderRadius="18px"
-      minRadius={600}
-    />
+    <Gallery images={providerImages} />
   </div>
   <p class="gallery-hint">Drag to explore. Select a provider for setup, options, and examples.</p>
   <details class="provider-directory animated-details">

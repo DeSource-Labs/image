@@ -5,7 +5,7 @@
 <header class="site-header">
   <div class="shell nav">
     <a class="brand" href="#top" aria-label="DeSource Image home">
-      <DsImage src="/logo.png" format="avif" width="31" height="31" alt="DeSource Labs" />
+      <DsImage src="/logo.png" format="avif" width="31" height="31" alt="" />
       DeSource Image
     </a>
     <nav aria-label="Primary navigation">
