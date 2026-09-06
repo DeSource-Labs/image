@@ -2,7 +2,7 @@
 
 ## Reporting a vulnerability
 
-Please do not open a public issue for a suspected vulnerability. Email [hello@desource-labs.org](mailto:hello@desource-labs.org) with:
+Please do not open a public issue for a suspected vulnerability. Email [hello@desourcelabs.com](mailto:hello@desourcelabs.com) with:
 
 - the affected package and version;
 - impact and realistic attack scenario;

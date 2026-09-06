@@ -1,0 +1,95 @@
+@mixin at-most($width) {
+  @media (max-width: $width) {
+    @content;
+  }
+}
+
+@mixin split-layout($columns: 1.1fr 0.9fr, $gap: 80px) {
+  display: grid;
+  grid-template-columns: $columns;
+  gap: $gap;
+  align-items: end;
+}
+
+@mixin action-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  min-height: 48px;
+  padding: 0 20px;
+  border-radius: var(--radius-small);
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-decoration: none;
+  transition:
+    border-color 180ms ease,
+    color 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+@mixin primary-action {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(225, 255, 196, 0.72);
+  color: #07111f;
+  background: linear-gradient(135deg, #d6ffae, var(--lime));
+  box-shadow:
+    inset 0 1px rgba(255, 255, 255, 0.6),
+    0 12px 32px rgba(191, 244, 139, 0.1);
+
+  &::before {
+    position: absolute;
+    top: -70%;
+    bottom: -70%;
+    left: -24%;
+    width: 18%;
+    pointer-events: none;
+    content: '';
+    background: rgba(255, 255, 255, 0.5);
+    filter: blur(6px);
+    transform: skewX(-20deg) translateX(-220%);
+    transition: transform 420ms ease;
+  }
+
+  &:hover {
+    background: linear-gradient(135deg, #e1ffc4, #c8fb98);
+    box-shadow:
+      inset 0 1px rgba(255, 255, 255, 0.72),
+      0 16px 42px rgba(191, 244, 139, 0.17);
+    transform: translateY(-2px);
+
+    &::before {
+      transform: skewX(-20deg) translateX(800%);
+    }
+  }
+}
+
+@mixin secondary-action {
+  border: 1px solid var(--line);
+  color: #d9e4f0;
+  background: rgba(255, 255, 255, 0.02);
+
+  &:hover {
+    border-color: rgba(143, 184, 255, 0.42);
+    color: #fff;
+    background: rgba(143, 184, 255, 0.07);
+    box-shadow: inset 0 1px rgba(255, 255, 255, 0.06);
+    transform: translateY(-2px);
+  }
+}
+
+@mixin section-heading {
+  @include split-layout;
+  margin-bottom: 48px;
+
+  h2 {
+    margin-bottom: 0;
+  }
+}

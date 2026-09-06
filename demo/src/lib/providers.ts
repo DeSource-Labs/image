@@ -85,7 +85,7 @@ export const providers = providerIds.map((id) => ({
   id,
   name: providerNames[id],
   slug: toProviderSlug(id),
-  icon: `/providers/${toProviderSlug(sharedIconProviders[id] ?? id)}.svg`
+  icon: `/providers/${toProviderSlug(sharedIconProviders[id] ?? id)}.png`
 }));
 
 function toProviderSlug(id: BuiltInProviderName): string {

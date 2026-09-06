@@ -8,7 +8,7 @@
   let format = $state<ImageFormat>('webp');
   let fit = $state<ImageFit>('cover');
   let responsive = $state(true);
-  let copyLabel = $state('Copy URL');
+  let copyLabel = $state('Copy');
 
   const height = $derived(Math.round(width * 0.625));
   const attrs = $derived(
@@ -29,7 +29,7 @@
     try {
       await navigator.clipboard.writeText(new URL(url, window.location.origin).href);
       copyLabel = 'Copied';
-      globalThis.setTimeout(() => (copyLabel = 'Copy URL'), 1400);
+      globalThis.setTimeout(() => (copyLabel = 'Copy'), 1400);
     } catch (error) {
       console.warn('Failed to copy URL:', error);
     }
@@ -109,7 +109,7 @@
   </div>
 </div>
 
-<style>
+<style lang="scss">
   .playground {
     display: grid;
     grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
@@ -231,8 +231,40 @@
     color: var(--lime);
   }
   input[type='range'] {
+    appearance: none;
+    height: 20px;
     width: 100%;
     accent-color: var(--lime);
+    background: transparent;
+    cursor: pointer;
+  }
+  input[type='range']::-webkit-slider-runnable-track {
+    height: 4px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgba(191, 244, 139, 0.72), rgba(143, 184, 255, 0.38));
+  }
+  input[type='range']::-webkit-slider-thumb {
+    width: 16px;
+    height: 16px;
+    margin-top: -6px;
+    border: 2px solid #07111f;
+    border-radius: 50%;
+    appearance: none;
+    background: var(--lime);
+    box-shadow: 0 0 0 1px rgba(191, 244, 139, 0.62);
+  }
+  input[type='range']::-moz-range-track {
+    height: 4px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgba(191, 244, 139, 0.72), rgba(143, 184, 255, 0.38));
+  }
+  input[type='range']::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border: 2px solid #07111f;
+    border-radius: 50%;
+    background: var(--lime);
+    box-shadow: 0 0 0 1px rgba(191, 244, 139, 0.62);
   }
   .control-grid {
     display: grid;
@@ -250,6 +282,9 @@
     border-radius: 10px;
     color: #ecf4ff;
     background: #0a1727;
+    transition:
+      border-color 160ms ease,
+      background 160ms ease;
   }
   input[type='range'],
   input[type='checkbox'],
@@ -259,6 +294,10 @@
   select {
     min-width: 0;
     cursor: pointer;
+  }
+  select:hover {
+    border-color: rgba(143, 184, 255, 0.38);
+    background: #0c1c2e;
   }
   .switch-row {
     display: flex;
@@ -279,9 +318,22 @@
     font-weight: 400;
   }
   .switch-row input {
+    appearance: none;
     width: 42px;
     height: 22px;
-    accent-color: var(--lime);
+    border: 1px solid rgba(143, 184, 255, 0.24);
+    border-radius: 999px;
+    background: radial-gradient(circle at 25% 50%, #8296ad 0 6px, transparent 6.5px), #07111f;
+    cursor: pointer;
+    transition:
+      border-color 180ms ease,
+      background 180ms ease,
+      box-shadow 180ms ease;
+  }
+  .switch-row input:checked {
+    border-color: rgba(191, 244, 139, 0.6);
+    background: radial-gradient(circle at 75% 50%, #07111f 0 6px, transparent 6.5px), var(--lime);
+    box-shadow: 0 0 18px rgba(191, 244, 139, 0.16);
   }
   .url-output {
     display: flex;
@@ -324,6 +376,21 @@
     font-size: 0.72rem;
     font-weight: 800;
     cursor: pointer;
+    box-shadow: inset 0 1px rgba(255, 255, 255, 0.56);
+    transition:
+      background 160ms ease,
+      box-shadow 160ms ease,
+      transform 160ms ease;
+  }
+  button:hover {
+    background: #d5ffad;
+    box-shadow:
+      inset 0 1px rgba(255, 255, 255, 0.68),
+      0 8px 22px rgba(191, 244, 139, 0.13);
+    transform: translateY(-1px);
+  }
+  button:active {
+    transform: translateY(0);
   }
   @media (max-width: 900px) {
     .playground {
