@@ -36,6 +36,7 @@
     const rows = column % 2 === 0 ? [-4, -2, 0, 2, 4] : [-3, -1, 1, 3, 5];
     return rows.map((y) => ({ x, y }));
   });
+  const CENTER_TILE_INDEX = tileCoordinates.findIndex(({ x, y }) => x === -1 && y === 0);
 
   const items = $derived(
     tileCoordinates.map<TileItem>((coordinate, index) => ({
@@ -53,7 +54,7 @@
   let moved = false;
   let motionFrame: number | null = null;
   let lastDragEndAt = 0;
-  let activeTileIndex = $state(0);
+  let activeTileIndex = $state(CENTER_TILE_INDEX);
 
   const rotation = { x: 0, y: 0 };
   const startRotation = { x: 0, y: 0 };
