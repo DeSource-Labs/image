@@ -19,6 +19,8 @@
   const MIN_RADIUS = 600;
   const MAX_VERTICAL_ROTATION = 5;
   const DRAG_SENSITIVITY = 20;
+  const AUTO_ROTATION_SPEED = 0.0024;
+  const KEYBOARD_ROTATION_DURATION = 320;
   const INERTIA_FRICTION = 0.995;
   const INERTIA_STOP_THRESHOLD = 0.005;
   const MAX_INERTIA_FRAMES = 360;
@@ -49,7 +51,7 @@
   let startPosition: { x: number; y: number } | null = null;
   let dragging = false;
   let moved = false;
-  let inertiaFrame: number | null = null;
+  let motionFrame: number | null = null;
   let lastDragEndAt = 0;
   let activeTileIndex = $state(0);
 
@@ -87,10 +89,64 @@
     applyTransform(rotation.x, rotation.y);
   }
 
-  function stopInertia() {
-    if (inertiaFrame === null) return;
-    cancelAnimationFrame(inertiaFrame);
-    inertiaFrame = null;
+  function stopMotion() {
+    if (motionFrame === null) return;
+    cancelAnimationFrame(motionFrame);
+    motionFrame = null;
+  }
+
+  function startAutoRotation() {
+    stopMotion();
+    if (reducedMotion || dragging) return;
+
+    let previousTime = performance.now();
+
+    const step = (time: number) => {
+      const elapsed = Math.min(time - previousTime, 32);
+      previousTime = time;
+      rotation.y = wrapAngle(rotation.y - elapsed * AUTO_ROTATION_SPEED);
+      applyTransform(rotation.x, rotation.y);
+      motionFrame = requestAnimationFrame(step);
+    };
+
+    motionFrame = requestAnimationFrame(step);
+  }
+
+  function animateToRotation(targetX: number, targetY: number) {
+    stopMotion();
+
+    const finalX = clamp(targetX, -MAX_VERTICAL_ROTATION, MAX_VERTICAL_ROTATION);
+    const finalY = wrapAngle(targetY);
+
+    if (reducedMotion) {
+      rotation.x = finalX;
+      rotation.y = finalY;
+      applyTransform(finalX, finalY);
+      return;
+    }
+
+    const initialX = rotation.x;
+    const initialY = rotation.y;
+    const deltaX = finalX - initialX;
+    const deltaY = wrapAngle(finalY - initialY);
+    const startTime = performance.now();
+
+    const step = (time: number) => {
+      const progress = Math.min((time - startTime) / KEYBOARD_ROTATION_DURATION, 1);
+      const easedProgress = progress * progress * (3 - 2 * progress);
+      rotation.x = initialX + deltaX * easedProgress;
+      rotation.y = wrapAngle(initialY + deltaY * easedProgress);
+      applyTransform(rotation.x, rotation.y);
+
+      if (progress < 1) {
+        motionFrame = requestAnimationFrame(step);
+      } else {
+        motionFrame = null;
+        startAutoRotation();
+      }
+    };
+
+    motionFrame = requestAnimationFrame(step);
   }
 
   function startInertia(horizontalVelocity: number, verticalVelocity: number) {
@@ -108,24 +164,25 @@
         (Math.abs(velocityX) < INERTIA_STOP_THRESHOLD && Math.abs(velocityY) < INERTIA_STOP_THRESHOLD) ||
         ++frames > MAX_INERTIA_FRAMES
       ) {
-        inertiaFrame = null;
+        motionFrame = null;
+        startAutoRotation();
         return;
       }
 
       rotation.x = clamp(rotation.x - velocityY / 200, -MAX_VERTICAL_ROTATION, MAX_VERTICAL_ROTATION);
       rotation.y = wrapAngle(rotation.y + velocityX / 200);
       applyTransform(rotation.x, rotation.y);
-      inertiaFrame = requestAnimationFrame(step);
+      motionFrame = requestAnimationFrame(step);
     };
 
-    stopInertia();
-    inertiaFrame = requestAnimationFrame(step);
+    stopMotion();
+    motionFrame = requestAnimationFrame(step);
   }
 
   function onDragStart(event: MouseEvent | TouchEvent) {
     if ('button' in event && event.button !== 0) return;
 
-    stopInertia();
+    stopMotion();
     dragging = true;
     moved = false;
     startRotation.x = rotation.x;
@@ -158,6 +215,7 @@
   function onDragEnd(event: MouseEvent | TouchEvent) {
     if (!dragging) return;
     dragging = false;
+    let inertiaStarted = false;
 
     if (moved && startPosition) {
       const clientX = 'changedTouches' in event ? (event.changedTouches[0]?.clientX ?? 0) : event.clientX;
@@ -165,11 +223,15 @@
       const velocityX = clamp(((clientX - startPosition.x) / DRAG_SENSITIVITY) * 0.02, -1.2, 1.2);
       const velocityY = clamp(((clientY - startPosition.y) / DRAG_SENSITIVITY) * 0.02, -1.2, 1.2);
 
-      if (Math.abs(velocityX) > 0.005 || Math.abs(velocityY) > 0.005) startInertia(velocityX, velocityY);
+      if (Math.abs(velocityX) > 0.005 || Math.abs(velocityY) > 0.005) {
+        startInertia(velocityX, velocityY);
+        inertiaStarted = true;
+      }
       lastDragEndAt = performance.now();
     }
 
     startPosition = null;
+    if (!inertiaStarted) startAutoRotation();
   }
 
   function onTileClick(event: MouseEvent) {
@@ -180,17 +242,14 @@
     const item = items[index];
     if (!item) return;
 
-    stopInertia();
     activeTileIndex = index;
     const itemRotation = computeItemRotation(item.x, item.y);
-    rotation.x = clamp(-itemRotation.x, -MAX_VERTICAL_ROTATION, MAX_VERTICAL_ROTATION);
-    rotation.y = wrapAngle(-itemRotation.y);
-    applyTransform(rotation.x, rotation.y);
+    animateToRotation(-itemRotation.x, -itemRotation.y);
     element.focus({ preventScroll: true });
   }
 
   function onTileKeydown(event: KeyboardEvent, index: number) {
-    const offset = { ArrowLeft: -5, ArrowRight: 5, ArrowUp: -1, ArrowDown: 1 }[event.key];
+    const offset = { ArrowLeft: -5, ArrowRight: 5, ArrowUp: 1, ArrowDown: -1 }[event.key];
     if (offset === undefined) return;
 
     event.preventDefault();
@@ -203,13 +262,14 @@
     const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     const updateMotion = () => {
       reducedMotion = motionQuery.matches;
-      if (reducedMotion) stopInertia();
+      if (reducedMotion) stopMotion();
+      else startAutoRotation();
     };
     const cancelDrag = () => {
       dragging = false;
       startPosition = null;
       moved = true;
-      stopInertia();
+      startAutoRotation();
     };
 
     updateMotion();
@@ -228,7 +288,7 @@
     window.addEventListener('blur', cancelDrag);
 
     return () => {
-      stopInertia();
+      stopMotion();
       resizeObserver.disconnect();
       motionQuery.removeEventListener('change', updateMotion);
       mainRef.removeEventListener('mousedown', onDragStart);
@@ -363,11 +423,11 @@
     }
 
     &:focus-visible {
-      outline: 0;
-      box-shadow:
-        0 0 0 3px var(--lime),
-        0 0 0 7px rgba(7, 17, 31, 0.8),
-        0 0 28px rgba(191, 244, 139, 0.38);
+      outline: 3px dashed var(--lime);
+      outline-offset: 4px;
+      transition:
+        outline-color 0.2s ease-in-out,
+        outline-offset 0.2s ease-in-out;
       transform: translateZ(12px) scale(1.02);
     }
 
