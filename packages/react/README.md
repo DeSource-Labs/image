@@ -4,8 +4,8 @@
 
   <p>
     <a href="https://www.npmjs.com/package/@desource/image-react"><img src="https://img.shields.io/npm/v/@desource/image-react?logo=react" alt="npm version"></a>
-    <a href="https://github.com/DeSource-Labs/image/actions/workflows/ci.yml"><img src="https://github.com/DeSource-Labs/image/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
     <a href="https://codecov.io/gh/DeSource-Labs/image"><img src="https://codecov.io/gh/DeSource-Labs/image/branch/main/graph/badge.svg" alt="Coverage"></a>
+    <a href="https://sonarcloud.io/summary/new_code?id=DeSource-Labs_image"><img src="https://sonarcloud.io/api/project_badges/measure?project=DeSource-Labs_image&metric=alert_status" alt="SonarCloud"></a>
     <a href="https://github.com/DeSource-Labs/image/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license"></a>
   </p>
 </div>
@@ -349,16 +349,6 @@ export function App() {
 ```
 
 Provider modules and custom-provider utilities are documented in [`@desource/image`](https://github.com/DeSource-Labs/image/tree/main/packages/core).
-
-## Package checks
-
-```sh
-pnpm --filter @desource/image-react build
-pnpm --filter @desource/image-react typecheck
-pnpm --filter @desource/image-react test:unit:coverage
-pnpm --filter @desource/image-react test:e2e
-pnpm --filter @desource/image-react publish:check
-```
 
 ## Links
 
