@@ -1,55 +1,18 @@
 import { describe, expect, it, type Mock } from 'vitest';
-import type {
-  DensityInput,
-  ImageDecoding,
-  ImageFetchPriority,
-  ImageFit,
-  ImageFormat,
-  ImageLoading,
-  ImageModifiers,
-  ImagePlaceholder,
-  ImagePreload,
-  SizesInput
-} from '@desource/image';
-import type { NativeAttributeValue, TestContainer } from './DsImage';
-import { expectPriorityImageAndPreload } from './setup/assertions';
+import type { ImageFormat } from '@desource/image';
+import type { DsImageComponentSetupOptions, NativeAttributeValue, TestContainer } from './DsImage';
+import { expectPlaceholderTransition, expectPriorityImageAndPreload } from './setup/assertions';
 import { installMockImage } from './setup/mock-image';
 import { defaultTestTools, type TestTools } from './setup/tools';
 import { pathname, searchParam } from './setup/url';
 
-export interface DsPictureComponentSetupOptions {
-  src?: string;
-  alt?: string;
-  width?: number | string;
-  height?: number | string;
-  sizes?: SizesInput;
-  quality?: number | string;
-  format?: ImageFormat | readonly ImageFormat[];
+export interface DsPictureComponentSetupOptions extends Omit<
+  DsImageComponentSetupOptions,
+  'ariaDescribedby' | 'nativeAttrs'
+> {
   formats?: readonly ImageFormat[];
   fallbackFormat?: ImageFormat;
   legacyFormat?: ImageFormat;
-  fit?: ImageFit;
-  position?: string;
-  background?: string;
-  modifiers?: ImageModifiers;
-  provider?: string;
-  preset?: string;
-  densities?: DensityInput;
-  loading?: ImageLoading;
-  decoding?: ImageDecoding;
-  fetchpriority?: ImageFetchPriority;
-  priority?: boolean;
-  preload?: ImagePreload;
-  placeholder?: ImagePlaceholder;
-  placeholderClass?: string;
-  crossorigin?: boolean | '' | 'true' | 'anonymous' | 'use-credentials' | null;
-  nonce?: string;
-  className?: string;
-  style?: string;
-  id?: string;
-  role?: string;
-  ariaLabel?: string;
-  dataTestId?: string;
   imgClassName?: string;
   imgStyle?: string;
   referrerpolicy?: string;
@@ -228,25 +191,11 @@ export function testDsPictureComponent(setup: DsPictureComponentSetup, { act }: 
         expect(pathname(mockedImage.images[0]!.src)).toBe('/picture-placeholder.jpg');
         expect(rendered.sources()).toHaveLength(0);
         expect(searchParam(image.getAttribute('src'), 'width')).toBe('10');
-        expect(image.classList.contains('picture-placeholder')).toBe(true);
-
-        image.dispatchEvent(new Event('load'));
-        expect(rendered.onLoad).not.toHaveBeenCalled();
-
-        mockedImage.images[0]!.onerror?.('error');
-        expect(rendered.onError).toHaveBeenCalledOnce();
-
-        await rendered.update({ src: '/picture-placeholder-next.jpg' });
-        await rendered.flush();
-        expect(mockedImage.images).toHaveLength(2);
-        expect(pathname(image.getAttribute('src'))).toBe('/picture-placeholder-next.jpg');
-        expect(searchParam(image.getAttribute('src'), 'width')).toBe('10');
-
-        await act(async () => {
-          mockedImage.images[1]!.onload?.(new Event('load'));
-          await mockedImage.flush();
+        await expectPlaceholderTransition(rendered, image, mockedImage, {
+          act,
+          nextSource: '/picture-placeholder-next.jpg',
+          placeholderClass: 'picture-placeholder'
         });
-        await rendered.flush();
 
         expect(rendered.sources()).toHaveLength(2);
         expect(pathname(image.getAttribute('src'))).toBe('/picture-placeholder-next.jpg');

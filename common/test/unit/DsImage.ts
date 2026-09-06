@@ -1,17 +1,6 @@
 import { describe, expect, it, type Mock } from 'vitest';
-import type {
-  DensityInput,
-  ImageDecoding,
-  ImageFetchPriority,
-  ImageFit,
-  ImageFormat,
-  ImageLoading,
-  ImageModifiers,
-  ImagePlaceholder,
-  ImagePreload,
-  SizesInput
-} from '@desource/image';
-import { expectPriorityImageAndPreload } from './setup/assertions';
+import type { ImageInput } from '@desource/image';
+import { expectPlaceholderTransition, expectPriorityImageAndPreload } from './setup/assertions';
 import { installMockImage } from './setup/mock-image';
 import { defaultTestTools, type TestTools } from './setup/tools';
 import { pathname, searchParam } from './setup/url';
@@ -22,28 +11,9 @@ export interface TestContainer {
   querySelector<T extends Element = Element>(selectors: string): T | null;
 }
 
-export interface DsImageComponentSetupOptions {
-  src?: string;
-  alt?: string;
-  width?: number | string;
-  height?: number | string;
-  sizes?: SizesInput;
-  quality?: number | string;
-  format?: ImageFormat | readonly ImageFormat[];
-  fit?: ImageFit;
-  position?: string;
-  background?: string;
-  modifiers?: ImageModifiers;
-  provider?: string;
-  preset?: string;
-  densities?: DensityInput;
-  loading?: ImageLoading;
-  decoding?: ImageDecoding;
-  fetchpriority?: ImageFetchPriority;
-  priority?: boolean;
-  preload?: ImagePreload;
-  placeholder?: ImagePlaceholder;
-  placeholderClass?: string;
+export interface DsImageComponentSetupOptions extends Partial<
+  Omit<ImageInput, 'formats' | 'fallbackFormat' | 'legacyFormat'>
+> {
   crossorigin?: boolean | '' | 'true' | 'anonymous' | 'use-credentials' | null;
   nonce?: string;
   className?: string;
@@ -206,25 +176,11 @@ export function testDsImageComponent(setup: DsImageComponentSetup, { act }: Test
         expect(pathname(mockedImage.images[0]!.src)).toBe('/placeholder.jpg');
         expect(searchParam(image.getAttribute('src'), 'width')).toBe('10');
         expect(image.hasAttribute('srcset')).toBe(false);
-        expect(image.classList.contains('is-placeholder')).toBe(true);
-
-        image.dispatchEvent(new Event('load'));
-        expect(rendered.onLoad).not.toHaveBeenCalled();
-
-        mockedImage.images[0]!.onerror?.('error');
-        expect(rendered.onError).toHaveBeenCalledOnce();
-
-        await rendered.update({ src: '/placeholder-next.jpg' });
-        await rendered.flush();
-        expect(mockedImage.images).toHaveLength(2);
-        expect(pathname(image.getAttribute('src'))).toBe('/placeholder-next.jpg');
-        expect(searchParam(image.getAttribute('src'), 'width')).toBe('10');
-
-        await act(async () => {
-          mockedImage.images[1]!.onload?.(new Event('load'));
-          await mockedImage.flush();
+        await expectPlaceholderTransition(rendered, image, mockedImage, {
+          act,
+          nextSource: '/placeholder-next.jpg',
+          placeholderClass: 'is-placeholder'
         });
-        await rendered.flush();
 
         expect(pathname(image.getAttribute('src'))).toBe('/placeholder-next.jpg');
         expect(searchParam(image.getAttribute('src'), 'width')).toBe('640');
