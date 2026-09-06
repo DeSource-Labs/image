@@ -63,15 +63,13 @@
           <DsPicture
             src="/img/hero.jpg"
             alt="Joshua tree at sunset in the desert"
-            width={768}
-            height={512}
+            width={500}
+            height={500}
             format="avif,webp"
-            legacyFormat="jpeg"
-            placeholder={true}
             preload
           />
           <div class="hero-sunlight" aria-hidden="true">
-            <RayField originX={0.71} originY={0.515} speed={1} intensity={1} colorA="#fff6c8" colorB="#ffad56" />
+            <RayField originX={0.685} originY={0.515} speed={1} intensity={1} colorA="#fff6c8" colorB="#ffad56" />
           </div>
         </div>
       </div>
@@ -266,11 +264,8 @@
     }
 
     :global(img) {
-      display: block;
       width: 100%;
       height: 100%;
-      object-fit: cover;
-      object-position: 68% center;
     }
   }
 
