@@ -9,6 +9,7 @@ import flyimgSetup from '@src/providers/flyimg';
 import hygraphSetup from '@src/providers/hygraph';
 import imgproxySetup, { imgproxyProvider } from '@src/providers/imgproxy';
 import netlifyLargeMediaSetup from '@src/providers/netlifyLargeMedia';
+import preprSetup from '@src/providers/prepr';
 import sanitySetup from '@src/providers/sanity';
 import strapi5Setup from '@src/providers/strapi5';
 import weservSetup from '@src/providers/weserv';
@@ -147,7 +148,7 @@ describe('provider edge cases', () => {
     vi.stubEnv('NODE_ENV', 'development');
     const warning = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     expect(filerobotSetup().getImage('/photo.jpg', { modifiers: {}, baseURL: '' }, context).url).toBe('/photo.jpg');
-    expect(warning).toHaveBeenCalledOnce();
+    expect(warning).toHaveBeenCalledWith('[desource/image] [filerobot] `baseURL` is required to build an image URL.');
     expect(
       filerobotSetup().getImage(
         'https://origin.example/photo.jpg',
@@ -166,6 +167,18 @@ describe('provider edge cases', () => {
       '/upload/-//photo.jpg'
     );
     expect(warning).toHaveBeenCalledTimes(3);
+    expect(warning).toHaveBeenNthCalledWith(
+      1,
+      '[desource/image] [flyimg] `baseURL` is required. Set it in the Flyimg provider options.'
+    );
+    expect(warning).toHaveBeenNthCalledWith(
+      2,
+      '[desource/image] [flyimg] fit="outside" is not supported by Flyimg and will be ignored.'
+    );
+    expect(warning).toHaveBeenNthCalledWith(
+      3,
+      '[desource/image] [flyimg] `src` is relative, but Flyimg requires an absolute source URL. Set `sourceURL` in the Flyimg provider options.'
+    );
     expect(
       provider.getImage(
         '/photo.jpg',
@@ -205,10 +218,16 @@ describe('provider edge cases', () => {
       provider.getImage('/base-id/folder/image-id', { modifiers: {}, baseURL: 'https://graphassets.com' }, context).url
     ).toBe('https://graphassets.com/base-id/auto_image/image-id');
     expect(() => provider.getImage('/invalid', { modifiers: {}, baseURL: 'https://graphassets.com' }, context)).toThrow(
-      /Invalid image URL/
+      '[desource/image] [hygraph] Invalid image URL.'
     );
     expect(() => provider.getImage('/image-id', { modifiers: {}, baseURL: '' }, context)).toThrow(
       /No Hygraph image base URL/
+    );
+  });
+
+  it('reports missing Prepr configuration with the package name', () => {
+    expect(() => preprSetup().getImage('/photo.jpg', { modifiers: {}, projectName: '' }, context)).toThrow(
+      '[desource/image] [prepr] No project name provided.'
     );
   });
 
