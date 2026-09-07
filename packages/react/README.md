@@ -1,9 +1,9 @@
 <div align="center">
-  <h1>DeSource Image - Optimized images for React and Next.js</h1>
+  <h1>DeSource Image<br/>Optimized images for React and Next.js</h1>
   <p><strong>High-quality image optimization with responsive, provider-first and SSR-friendly workflow for React and Next.js.</strong></p>
 
   <p>
-    <a href="https://www.npmjs.com/package/@desource/image-react"><img src="https://img.shields.io/npm/v/@desource/image-react?logo=react" alt="npm version"></a>
+    <a href="https://www.npmjs.com/package/@desource/image-react"><img src="https://img.shields.io/npm/v/@desource/image-react?color=blue&logo=react" alt="npm version"></a>
     <a href="https://codecov.io/gh/DeSource-Labs/image"><img src="https://codecov.io/gh/DeSource-Labs/image/branch/main/graph/badge.svg" alt="Coverage"></a>
     <a href="https://sonarcloud.io/summary/new_code?id=DeSource-Labs_image"><img src="https://sonarcloud.io/api/project_badges/measure?project=DeSource-Labs_image&metric=alert_status" alt="SonarCloud"></a>
     <a href="https://github.com/DeSource-Labs/image/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license"></a>

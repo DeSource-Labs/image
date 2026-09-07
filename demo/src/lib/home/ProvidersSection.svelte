@@ -25,6 +25,13 @@
     <Gallery images={providerImages} />
   </div>
   <p class="gallery-hint">Drag to explore. Select a provider for setup, options, and examples.</p>
+  <a class="custom-guide" href={resolve('/providers/custom')}>
+    <span>
+      <strong>Build a custom provider</strong>
+      <small>Define typed options, URL mapping, source rules, and tests.</small>
+    </span>
+    <span aria-hidden="true">Read guide →</span>
+  </a>
   <details class="provider-directory animated-details">
     <summary>Browse all {providers.length} providers</summary>
     <ul>
@@ -54,6 +61,52 @@
     color: var(--muted);
     text-align: center;
     font-size: 0.85rem;
+  }
+
+  .custom-guide {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    margin-top: 28px;
+    padding: 20px 22px;
+    border: 1px solid rgba(191, 244, 139, 0.22);
+    border-radius: 12px;
+    color: #ecf5ff;
+    background: linear-gradient(110deg, rgba(191, 244, 139, 0.08), rgba(143, 184, 255, 0.04));
+    text-decoration: none;
+    transition:
+      border-color 160ms ease,
+      background 160ms ease,
+      transform 160ms ease;
+
+    > span:first-child {
+      display: grid;
+      gap: 6px;
+    }
+
+    strong {
+      font-size: 0.95rem;
+    }
+
+    small {
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+    }
+
+    > span:last-child {
+      flex-shrink: 0;
+      color: var(--lime);
+      font-size: 0.8rem;
+      font-weight: 750;
+    }
+
+    &:hover {
+      border-color: rgba(191, 244, 139, 0.42);
+      background: linear-gradient(110deg, rgba(191, 244, 139, 0.12), rgba(143, 184, 255, 0.07));
+      transform: translateY(-1px);
+    }
   }
 
   .provider-directory {
@@ -117,6 +170,12 @@
   @include mixins.at-most(680px) {
     .providers {
       padding-block: 100px;
+    }
+
+    .custom-guide {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 14px;
     }
   }
 </style>
