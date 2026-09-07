@@ -4,8 +4,8 @@
 
   <p>
     <a href="https://www.npmjs.com/package/@desource/image-svelte"><img src="https://img.shields.io/npm/v/@desource/image-svelte?logo=svelte" alt="npm version"></a>
-    <a href="https://github.com/DeSource-Labs/image/actions/workflows/ci.yml"><img src="https://github.com/DeSource-Labs/image/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
     <a href="https://codecov.io/gh/DeSource-Labs/image"><img src="https://codecov.io/gh/DeSource-Labs/image/branch/main/graph/badge.svg" alt="Coverage"></a>
+    <a href="https://sonarcloud.io/summary/new_code?id=DeSource-Labs_image"><img src="https://sonarcloud.io/api/project_badges/measure?project=DeSource-Labs_image&metric=alert_status" alt="SonarCloud"></a>
     <a href="https://github.com/DeSource-Labs/image/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license"></a>
   </p>
 </div>
@@ -380,16 +380,6 @@ export const handle = createDsImageHandle({
 `createDsImageWebHandler()` is available for other Fetch API servers, and `createDsImageNodeMiddleware()` is available for Connect/Express-style Node servers.
 
 All IPX adapters load the optimizer lazily and only handle requests under the configured path. Remote optimization is denied by default. Add trusted `domains`, or set `allowAllDomains: true` only for an intentionally public optimizer.
-
-## Package checks
-
-```sh
-pnpm --filter @desource/image-svelte build
-pnpm --filter @desource/image-svelte typecheck
-pnpm --filter @desource/image-svelte test:unit:coverage
-pnpm --filter @desource/image-svelte test:e2e
-pnpm --filter @desource/image-svelte publish:check
-```
 
 ## Links
 

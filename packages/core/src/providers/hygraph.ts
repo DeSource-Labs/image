@@ -55,7 +55,7 @@ function splitUpURL(baseURL: string, url: string) {
 
     const ids = getCombinedIds(url);
     if (!ids) {
-      throw new TypeError('[nuxt] [image] [hygraph] Invalid image URL');
+      throw new TypeError('[desource/image] [hygraph] Invalid image URL.');
     }
     return ids;
   }
@@ -63,7 +63,7 @@ function splitUpURL(baseURL: string, url: string) {
   const imageId = getTrailingSegment(url, true);
 
   if (!imageId) {
-    throw new TypeError('[nuxt] [image] [hygraph] Invalid image URL');
+    throw new TypeError('[desource/image] [hygraph] Invalid image URL.');
   }
 
   // it's already in baseURL so we can omit it here

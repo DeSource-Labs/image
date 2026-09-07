@@ -76,6 +76,11 @@ const PACKAGE_REPORTS: PackageReport[] = [
     packagePath: 'packages/angular/src'
   },
   {
+    label: '@desource/image-react',
+    file: 'packages/react/coverage/lcov.info',
+    packagePath: 'packages/react/src'
+  },
+  {
     label: '@desource/image-svelte',
     file: 'packages/svelte/coverage/lcov.info',
     packagePath: 'packages/svelte/src'

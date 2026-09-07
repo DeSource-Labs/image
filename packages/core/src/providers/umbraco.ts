@@ -49,7 +49,7 @@ interface UmbracoImageOptions {
 const providerSetup = defineProvider<UmbracoImageOptions>({
   getImage: (src, { modifiers: _modifiers, baseURL = '' }) => {
     const modifiers = { ..._modifiers };
-    // Map standard Nuxt Image fit values to ImageSharp resize modes
+    // Map standard image fit values to ImageSharp resize modes.
     if (modifiers.fit === 'contain') {
       modifiers.fit = 'max';
     } else if (modifiers.fit === 'cover') {

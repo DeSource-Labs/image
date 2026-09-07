@@ -7,6 +7,14 @@ interface PackageJson {
   version?: string;
 }
 
+interface PublicPackage {
+  directory: string;
+  packageJson: PackageJson;
+}
+
+const semverCorePattern = /^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)$/;
+const semverIdentifiersPattern = /^[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*$/;
+
 const packagesDirectory = path.resolve('packages');
 const corePackage = await readPackageJson(path.join(packagesDirectory, 'core/package.json'));
 const version = corePackage.version;
@@ -14,25 +22,48 @@ const version = corePackage.version;
 if (!version || !isSemver(version)) throw new Error(`Core package has an invalid version: ${String(version)}`);
 
 const entries = await readdir(packagesDirectory, { withFileTypes: true });
-const publicPackages = (
+const publicPackages: PublicPackage[] = (
   await Promise.all(
     entries
       .filter((entry) => entry.isDirectory())
-      .map((entry) => readPackageJson(path.join(packagesDirectory, entry.name, 'package.json')))
+      .map(async (entry) => ({
+        directory: path.join(packagesDirectory, entry.name),
+        packageJson: await readPackageJson(path.join(packagesDirectory, entry.name, 'package.json'))
+      }))
   )
-).filter((packageJson) => packageJson.private !== true);
+).filter(({ packageJson }) => packageJson.private !== true);
 
-const mismatches = publicPackages.filter((packageJson) => packageJson.version !== version);
+const mismatches = publicPackages.filter(({ packageJson }) => packageJson.version !== version);
 if (mismatches.length) {
   throw new Error(
     `All public packages must use ${version}. Mismatched packages: ${mismatches
-      .map((packageJson) => `${packageJson.name ?? '<unnamed>'}@${packageJson.version ?? '<missing>'}`)
+      .map(({ packageJson }) => `${packageJson.name ?? '<unnamed>'}@${packageJson.version ?? '<missing>'}`)
       .join(', ')}`
   );
 }
 
 const changelog = await readFile(path.join(packagesDirectory, 'core/CHANGELOG.md'), 'utf8');
 const releaseNotes = extractChangelogEntry(changelog, version);
+const changelogMismatches = (
+  await Promise.all(
+    publicPackages.map(async ({ directory, packageJson }) => ({
+      name: packageJson.name ?? '<unnamed>',
+      releaseNotes: extractChangelogEntry(
+        await readFile(path.join(directory, 'CHANGELOG.md'), 'utf8'),
+        version,
+        `${packageJson.name ?? '<unnamed>'} changelog`
+      )
+    }))
+  )
+).filter((entry) => entry.releaseNotes !== releaseNotes);
+if (changelogMismatches.length) {
+  throw new Error(
+    `All public package changelog entries for ${version} must match @desource/image. Mismatched packages: ${changelogMismatches
+      .map((entry) => entry.name)
+      .join(', ')}`
+  );
+}
+
 const releaseNotesPath = process.env.RELEASE_NOTES_PATH;
 if (!releaseNotesPath) throw new Error('RELEASE_NOTES_PATH must point to the release notes output file');
 
@@ -48,19 +79,16 @@ async function readPackageJson(filePath: string): Promise<PackageJson> {
   return JSON.parse(await readFile(filePath, 'utf8')) as PackageJson;
 }
 
-function extractChangelogEntry(changelog: string, targetVersion: string): string {
+function extractChangelogEntry(changelog: string, targetVersion: string, label = 'Core changelog'): string {
   const escapedVersion = targetVersion.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
   const match = new RegExp(String.raw`^##\s+${escapedVersion}\s*$`, 'm').exec(changelog);
-  if (!match) throw new Error(`Core changelog does not contain a ${targetVersion} release entry`);
+  if (!match) throw new Error(`${label} does not contain a ${targetVersion} release entry`);
 
   const remainder = changelog.slice(match.index + match[0].length);
   const entry = remainder.slice(0, /^##\s+/m.exec(remainder)?.index).trim();
-  if (!entry) throw new Error(`Core changelog entry for ${targetVersion} is empty`);
+  if (!entry) throw new Error(`${label} entry for ${targetVersion} is empty`);
   return entry;
 }
-
-const semverCorePattern = /^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)$/;
-const semverIdentifiersPattern = /^[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*$/;
 
 function isSemver(value: string): boolean {
   const versionParts = value.split('+');

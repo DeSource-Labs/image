@@ -4,8 +4,8 @@
 
   <p>
     <a href="https://www.npmjs.com/package/@desource/image"><img src="https://img.shields.io/npm/v/@desource/image?logo=npm" alt="npm version"></a>
-    <a href="https://github.com/DeSource-Labs/image/actions/workflows/ci.yml"><img src="https://github.com/DeSource-Labs/image/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
     <a href="https://codecov.io/gh/DeSource-Labs/image"><img src="https://codecov.io/gh/DeSource-Labs/image/branch/main/graph/badge.svg" alt="Coverage"></a>
+    <a href="https://sonarcloud.io/summary/new_code?id=DeSource-Labs_image"><img src="https://sonarcloud.io/api/project_badges/measure?project=DeSource-Labs_image&metric=alert_status" alt="SonarCloud"></a>
     <a href="https://github.com/DeSource-Labs/image/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license"></a>
   </p>
 </div>
@@ -350,17 +350,6 @@ The subpath is limited to framework glue. Provider URL logic stays in the main p
 This package validates strings and generates URLs; it does not fetch remote bytes. IPX server integrations live in the framework packages and deny all remote domains by default.
 
 For public optimizer endpoints, keep `domains`, `remotePatterns`, provider width lists, and quality lists aligned with the deployment configuration. Use narrow patterns to avoid transformation abuse.
-
-## Package checks
-
-```sh
-pnpm --filter @desource/image build
-pnpm --filter @desource/image typecheck
-pnpm --filter @desource/image test:unit:coverage
-pnpm --filter @desource/image publish:check
-```
-
-The package is verified with strict TypeScript, provider parity tests, coverage thresholds, `publint`, and Are The Types Wrong checks for the root, `/kit`, `/providers`, and wildcard provider subpaths.
 
 ## Links
 

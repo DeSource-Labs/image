@@ -7,9 +7,8 @@ interface PreprImageOptions {
 }
 
 /**
- * Key map is responsible for mapping readable "properties", which can be passed
- * as modifiers of `NuxtImg` component, to URL path parameters that can be
- * interpreted Prepr's REST API.
+ * Maps readable image modifiers to URL path parameters understood by Prepr's
+ * image API.
  */
 const keyMap = {
   crop: 'c',
@@ -20,9 +19,7 @@ const keyMap = {
 } as const;
 
 /**
- * Value map is responsible for mapping readable "properties" defined in
- * `keyMap.ts` aswell as native modifiers of `NuxtImg` component, to URL path
- * parameter values that can be interpreted Prepr's REST API.
+ * Maps modifier values to the equivalents understood by Prepr's image API.
  *
  * ```Examples
  * Prepr's `w` path param expects an arbitrary number, so, it does not need to be in `valueMap`
@@ -30,10 +27,8 @@ const keyMap = {
  * Our custom param `width` maps to `w` in keyMap, so, it does not need to be in `valueMap`
  *
  * Prepr's `format` path param expects a string which can either be `jpg` or `png`,
- * if we want to allow the user to pass <NuxtImage :modifiers="{ format: 'jpeg' }" />,
- * because it is a valid option of <NuxtImg :format />, then we need to have
- * `jpeg` to `jpg` because Prepr's API does not recognize `jpeg`. Similar things
- * could be said for `fit=cover`, which should map to `fit=crop`
+ * To accept `format: 'jpeg'`, map `jpeg` to `jpg` because Prepr's API does not
+ * recognize `jpeg`. Likewise, `fit=cover` maps to `fit=crop`.
  *```
  */
 const valueMap = {
@@ -61,7 +56,7 @@ const providerSetup = defineProvider<PreprImageOptions>({
     const { projectName } = options;
 
     if (typeof projectName !== 'string' || !projectName.trim()) {
-      throw new TypeError('[nuxt] [image] [prepr] No project name provided.');
+      throw new TypeError('[desource/image] [prepr] No project name provided.');
     }
 
     const fileBucket = 'stream';

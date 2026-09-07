@@ -18,7 +18,7 @@
     "vercel-build": "pnpm build && pnpm dev:prepare && pnpm build:demo",
     "build:fixtures": "pnpm --filter \"./packages/**\" --parallel run build:demo",
     "build:all": "pnpm build && pnpm dev:prepare && pnpm build:demo && pnpm build:fixtures",
-    "check:release": "pnpm format:check && pnpm lint && pnpm check:changesets && pnpm check:peers && pnpm audit:prod && pnpm build:all && pnpm typecheck && pnpm validate:packages && pnpm test:unit:coverage && pnpm test:e2e",
+    "check:release": "pnpm format:check && pnpm lint && pnpm check:peers && pnpm audit:prod && pnpm build:all && pnpm typecheck && pnpm validate:packages && pnpm test:unit:coverage && pnpm test:e2e",
     "check:changesets": "changeset status",
     "check:peers": "pnpm peers check",
     "audit:prod": "pnpm audit --prod",
