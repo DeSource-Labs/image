@@ -1,9 +1,9 @@
 <div align="center">
-  <h1>DeSource Image Core - Framework-independent image optimization</h1>
+  <h1>DeSource Image<br/>Framework-independent image optimization</h1>
   <p><strong><code>@desource/image</code> provides URL generation, responsive attributes, picture sources, configuration, presets, aliases, and provider tools for any JavaScript runtime.</strong></p>
 
   <p>
-    <a href="https://www.npmjs.com/package/@desource/image"><img src="https://img.shields.io/npm/v/@desource/image?logo=npm" alt="npm version"></a>
+    <a href="https://www.npmjs.com/package/@desource/image"><img src="https://img.shields.io/npm/v/@desource/image?color=blue&logo=typescript" alt="npm version"></a>
     <a href="https://codecov.io/gh/DeSource-Labs/image"><img src="https://codecov.io/gh/DeSource-Labs/image/branch/main/graph/badge.svg" alt="Coverage"></a>
     <a href="https://sonarcloud.io/summary/new_code?id=DeSource-Labs_image"><img src="https://sonarcloud.io/api/project_badges/measure?project=DeSource-Labs_image&metric=alert_status" alt="SonarCloud"></a>
     <a href="https://github.com/DeSource-Labs/image/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT license"></a>
