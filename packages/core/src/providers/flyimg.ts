@@ -170,7 +170,7 @@ function applyFit(modifiers: ResolvedFlyimgModifiers, fit: unknown, preserveAspe
       break;
     case 'outside':
       if (isDevelopment()) {
-        console.warn('[nuxt] [image] [flyimg] fit="outside" is not supported by Flyimg and will be ignored.');
+        console.warn('[desource/image] [flyimg] fit="outside" is not supported by Flyimg and will be ignored.');
       }
       break;
   }
@@ -209,7 +209,7 @@ function resolveImageUrl(src: string, sourceURL: string | undefined): string {
   const isAbsolute = hasProtocol(src);
   if (isDevelopment() && !isAbsolute && !sourceURL) {
     console.warn(
-      '[nuxt] [image] [flyimg] `src` is a relative path but `sourceURL` is not configured. Flyimg requires an absolute source URL. Set `image.flyimg.sourceURL` in your nuxt.config.'
+      '[desource/image] [flyimg] `src` is relative, but Flyimg requires an absolute source URL. Set `sourceURL` in the Flyimg provider options.'
     );
   }
 
@@ -221,9 +221,7 @@ const providerSetup = defineProvider<FlyimgOptions>({
     const { modifiers: rawModifiers = {}, baseURL, sourceURL, processType = 'upload' } = options;
 
     if (isDevelopment() && !baseURL) {
-      console.warn(
-        '[nuxt] [image] [flyimg] `baseURL` is required. Set it in your nuxt.config under `image.flyimg.baseURL`.'
-      );
+      console.warn('[desource/image] [flyimg] `baseURL` is required. Set it in the Flyimg provider options.');
     }
 
     const modifiers = resolveModifiers(rawModifiers as Record<string, unknown>);

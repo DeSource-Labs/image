@@ -36,7 +36,7 @@ const operationsGenerator = createOperationsGenerator({
       // so quality 90 == compression 10.  Convert using: compression = 100 - quality
       let compression = 100 - Number.parseInt(value, 10);
 
-      // ImageEngine's values are 0-99 (100 values), whereas Nuxt uses 0-100 (101 values)
+      // ImageEngine uses 0-99, while the shared image quality scale uses 0-100.
       // so we clip the upper bound at 99 if 100 was requested.
       if (compression === 100) {
         compression = 99;

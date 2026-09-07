@@ -32,7 +32,7 @@ const providerSetup = defineProvider<FilerobotOptions>({
 
     if (isDevelopment()) {
       if (!baseURL) {
-        console.warn(`[fielrobot] <baseURL> is required to build image URL`);
+        console.warn('[desource/image] [filerobot] `baseURL` is required to build an image URL.');
       }
     }
 
