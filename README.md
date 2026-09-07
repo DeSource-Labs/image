@@ -83,7 +83,7 @@ Install only the framework package your app uses. Install `@desource/image` dire
 
 One source file: `/public/img/hero.jpg`
 
-One component: `<DsImage src="/img/hero.jpg" />`
+One component: `<DsImage src="/img/hero.jpg" alt="Product preview" />`
 
 Need smaller files? Use `quality` prop. Need different breakpoints? Change `sizes` prop. No image re-export or filename update.
 
