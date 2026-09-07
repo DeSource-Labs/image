@@ -129,6 +129,7 @@ jobs:
           files: |
             ./packages/core/coverage/lcov.info
             ./packages/angular/coverage/lcov.info
+            ./packages/react/coverage/lcov.info
             ./packages/svelte/coverage/lcov.info
 
       - name: Cleanup baseline worktree
