@@ -35,6 +35,7 @@
       <details class="animated-details">
         <summary>Choose a provider</summary>
         <ul>
+          <li><a href={resolve('/providers/custom')}>Custom provider</a></li>
           {#each providers as provider (provider.id)}
             <li>
               <a
