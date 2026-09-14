@@ -3,17 +3,17 @@ packages:
   - 'demo'
 
 overrides:
-  '@angular-devkit/architect': 0.2201.3
-  '@angular-devkit/core': 22.1.3
-  '@angular-devkit/schematics': 22.1.3
-  '@angular/cli': 22.1.3
-  '@schematics/angular': 22.1.3
+  '@angular-devkit/architect': 0.2201.8
+  '@angular-devkit/core': 22.1.8
+  '@angular-devkit/schematics': 22.1.8
+  '@angular/cli': 22.1.8
+  '@schematics/angular': 22.1.8
   glob: ^13.0.6
-  immutable: ^5.1.8
-  less: 4.8.0
-  listr2: 10.2.1
-  sass: ^1.102.0
-  sharp: ^0.35.3
+  immutable: ^5.1.9
+  less: 4.9.1
+  listr2: 11.1.0
+  sass: ^1.104.1
+  sharp: ^0.35.4
 
 allowBuilds:
   '@parcel/watcher': true
