@@ -89,8 +89,6 @@ export const providers = providerIds.map((id) => ({
   icon: `/providers/${toProviderSlug(sharedIconProviders[id] ?? id)}.png`
 }));
 
-export const providerCount = BUILT_IN_PROVIDER_NAMES.length;
-
 function toProviderSlug(id: BuiltInProviderName): string {
   return id.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
 }

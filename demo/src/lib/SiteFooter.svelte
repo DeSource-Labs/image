@@ -1,7 +1,7 @@
 <script lang="ts">
   import { resolve } from '$app/paths';
   import { DsImage } from '@desource/image-svelte';
-  import { providerCount } from '$lib/providers';
+  import { providerCount } from '$lib/provider-count';
 
   const year = new Date().getUTCFullYear();
 </script>

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { DsPicture } from '@desource/image-svelte';
   import RayField from '$lib/RayField.svelte';
-  import { providerCount } from '$lib/providers';
+  import { providerCount } from '$lib/provider-count';
 
   function updatePerspective(event: PointerEvent) {
     if (event.pointerType === 'touch') return;

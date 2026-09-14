@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { providerCount } from '$lib/providers';
+  import { providerCount } from '$lib/provider-count';
   import RayField from '$lib/RayField.svelte';
 </script>
 

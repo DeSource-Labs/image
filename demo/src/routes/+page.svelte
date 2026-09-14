@@ -9,7 +9,7 @@
   import PlaygroundSection from '$lib/home/PlaygroundSection.svelte';
   import ProvidersSection from '$lib/home/ProvidersSection.svelte';
   import SiteHeader from '$lib/home/SiteHeader.svelte';
-  import { providerCount } from '$lib/providers';
+  import { providerCount } from '$lib/provider-count';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
