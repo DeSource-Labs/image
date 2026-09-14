@@ -23,11 +23,12 @@ const providerSetup = defineProvider<KeyCDNProviderOptions>({
           return typeof color === 'string' && /^[\da-f]{3}$/i.test(color) ? color.replace(/./g, '$&$&') : color;
         },
         format: (value) => {
+          if (typeof value !== 'string') {
+            throw new TypeError('[desource/image] [keycdn] Format must be a string. Use jpeg, jpg, png, or webp.');
+          }
           if (value === 'jpg') return 'jpeg';
           if (value !== 'jpeg' && value !== 'png' && value !== 'webp') {
-            throw new Error(
-              `[desource/image] [keycdn] Unsupported format "${String(value)}". Use jpeg, jpg, png, or webp.`
-            );
+            throw new Error(`[desource/image] [keycdn] Unsupported format "${value}". Use jpeg, jpg, png, or webp.`);
           }
           return value;
         },

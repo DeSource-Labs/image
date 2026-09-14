@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { createImage, getImage, getImageAttrs, getPictureAttrs, type ImageConfig } from '@src/index';
+import {
+  createImage,
+  getImage,
+  getImageAttrs,
+  getPictureAttrs,
+  type ImageConfig,
+  type ModifierValue
+} from '@src/index';
 import { createBuiltInProviders, keycdnProvider, type KeyCDNProviderOptions } from '@src/providers';
 import keycdnSetup from '@src/providers/keycdn';
 import { localProviderContext } from '../setup/shared';
@@ -52,6 +59,17 @@ describe('KeyCDN provider', () => {
     expect(() => getImage({ src: '/example.jpg', format }, config)).toThrow(
       `[desource/image] [keycdn] Unsupported format "${format}"`
     );
+  });
+
+  it.each<{ value: ModifierValue }>([
+    { value: { format: 'webp' } },
+    { value: { toString: 'webp' } },
+    { value: ['webp'] },
+    { value: 42 }
+  ])('rejects non-string format aliases $value with a clear error', ({ value }) => {
+    expect(() =>
+      keycdnSetup().getImage('/example.jpg', { ...providerOptions, modifiers: { f: value } }, localProviderContext)
+    ).toThrow(new TypeError('[desource/image] [keycdn] Format must be a string. Use jpeg, jpg, png, or webp.'));
   });
 
   it('preserves absolute custom domains, paths, query values, and fragments while replacing transformations', () => {
