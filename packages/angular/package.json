@@ -1,7 +1,7 @@
 {
   "name": "@desource/image-angular",
   "version": "0.1.0",
-  "description": "High-quality image optimization for Angular with responsive output, deployment-aware provider selection, 46 providers, and Angular SSR IPX.",
+  "description": "High-quality image optimization for Angular with responsive output, deployment-aware provider selection, dozens of built-in provider modules, and Angular SSR IPX.",
   "keywords": [
     "angular",
     "ngoptimizedimage",
@@ -66,15 +66,15 @@
     }
   },
   "devDependencies": {
-    "@analogjs/vite-plugin-angular": "^2.7.0",
-    "@analogjs/vitest-angular": "^2.7.0",
-    "@angular/build": "^22.1.3",
-    "@angular/cli": "^22.1.3",
-    "@angular/common": "^22.1.1",
-    "@angular/compiler": "^22.1.1",
-    "@angular/compiler-cli": "^22.1.1",
-    "@angular/core": "^22.1.1",
-    "@angular/platform-browser": "^22.1.1",
+    "@analogjs/vite-plugin-angular": "^2.7.2",
+    "@analogjs/vitest-angular": "^2.7.2",
+    "@angular/build": "^22.1.8",
+    "@angular/cli": "^22.1.8",
+    "@angular/common": "^22.1.6",
+    "@angular/compiler": "^22.1.6",
+    "@angular/compiler-cli": "^22.1.6",
+    "@angular/core": "^22.1.6",
+    "@angular/platform-browser": "^22.1.6",
     "ng-packagr": "^22.1.1"
   }
 }

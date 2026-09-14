@@ -22,14 +22,14 @@ Provider configuration is optional. On Vercel, Netlify, or AWS Amplify, DeSource
 
 ## Why DeSource Image for React?
 
-React has no built-in image optimization layer. Next.js has a strong image pipeline for Next-only applications. DeSource Image adds deployment-aware provider selection, 46 provider modules, local IPX, and image rules that can also work outside Next.js.
+React has no built-in image optimization layer. Next.js has a strong image pipeline for Next-only applications. DeSource Image adds deployment-aware provider selection, built-in provider modules, local IPX, and image rules that can also work outside Next.js.
 
 - **Built for fast product iterations.** Change image quality, format, crop, or responsive sizes in JSX. Source files and filenames stay unchanged.
 - **One source instead of exported variants.** Start with one suitable image and generate the widths and formats each screen needs.
 - **Deployment-aware provider selection.** Leave `provider` on `auto`. DeSource Image detects Vercel, Netlify, or AWS Amplify and uses IPX for local or other environments.
 - **Vite and Next.js use the same image model.** Keep the same inputs, presets, aliases, and providers across applications.
 - **Native framework APIs.** Use `DsImage` and `DsPicture`, or spread hook results onto elements owned by a design system. Output remains native `<img>` and `<picture>` markup.
-- **46 built-in provider modules.** Import one provider subpath, use the complete registry, or register a typed custom provider.
+- **Dozens of built-in provider modules.** Import one provider subpath, use the complete registry, or register a typed custom provider.
 - **Built-in local optimizer.** Vite middleware and a Next.js App Router route handler serve IPX transformations without a separate image service.
 - **`next/image` remains available.** `createNextImageLoader()` lets Next own rendering while DeSource Image owns provider URLs.
 

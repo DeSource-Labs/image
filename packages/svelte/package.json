@@ -1,7 +1,7 @@
 {
   "name": "@desource/image-svelte",
   "version": "0.1.0",
-  "description": "High-quality image optimization for Svelte and SvelteKit with responsive output, deployment-aware provider selection, 46 providers, and IPX.",
+  "description": "High-quality image optimization for Svelte and SvelteKit with responsive output, deployment-aware provider selection, dozens of built-in provider modules, and IPX.",
   "keywords": [
     "svelte",
     "sveltekit",
@@ -113,7 +113,7 @@
   "devDependencies": {
     "@sveltejs/package": "^2.5.8",
     "@sveltejs/vite-plugin-svelte": "^7.3.0",
-    "svelte": "^5.56.9",
-    "svelte-check": "^4.7.5"
+    "svelte": "^5.57.0",
+    "svelte-check": "^4.7.6"
   }
 }

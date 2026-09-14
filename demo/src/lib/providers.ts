@@ -45,6 +45,7 @@ const providerNames = {
   imgproxy: 'imgproxy',
   ipx: 'IPX',
   ipxStatic: 'IPX Static',
+  keycdn: 'KeyCDN',
   netlify: 'Netlify',
   netlifyImageCdn: 'Netlify Image CDN',
   netlifyLargeMedia: 'Netlify Large Media',

@@ -87,6 +87,46 @@ describe('React DsImage component behavior', () => {
     }
   });
 
+  it('preserves responsive and CORS options while decoding a placeholder replacement only once', async () => {
+    const mockedImage = installMockImage();
+    const { target, root } = createReactRoot();
+    const onError = vi.fn();
+
+    try {
+      await renderReact(
+        root,
+        <DsImage
+          src="/responsive.jpg"
+          alt="Responsive"
+          width={320}
+          sizes="100vw"
+          crossOrigin="use-credentials"
+          placeholder
+          onError={onError}
+        />
+      );
+      const replacement = mockedImage.images[0]!;
+      expect(replacement.crossOrigin).toBe('use-credentials');
+      expect(replacement.sizes).toBe('100vw');
+      expect(replacement.srcset).toContain('width=320');
+
+      await act(async () => {
+        replacement.onload?.(new Event('load'));
+        replacement.onload?.(new Event('load'));
+        replacement.onerror?.(new Event('error'));
+        await mockedImage.flush();
+      });
+
+      expect(replacement.decode).toHaveBeenCalledOnce();
+      expect(onError).not.toHaveBeenCalled();
+      expect(requireElement<HTMLImageElement>(target, 'img').getAttribute('src')).toBe(replacement.src);
+    } finally {
+      mockedImage.restore();
+      await act(async () => root.unmount());
+      target.remove();
+    }
+  });
+
   it('emits an error when placeholder decode rejects', async () => {
     const mockedImage = installMockImage({
       async decode() {

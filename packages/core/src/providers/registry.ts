@@ -24,6 +24,7 @@ import { imgixProvider } from './imgix.js';
 import { imgproxyProvider } from './imgproxy.js';
 import { ipxProvider } from './ipx.js';
 import { ipxStaticProvider } from './ipxStatic.js';
+import { keycdnProvider } from './keycdn.js';
 import { netlifyProvider } from './netlify.js';
 import { netlifyLargeMediaProvider } from './netlifyLargeMedia.js';
 import { netlifyImageCdnProvider } from './netlifyImageCdn.js';
@@ -72,6 +73,7 @@ export const BUILT_IN_PROVIDER_NAMES = [
   'imgproxy',
   'ipx',
   'ipxStatic',
+  'keycdn',
   'netlify',
   'netlifyLargeMedia',
   'netlifyImageCdn',
@@ -124,6 +126,7 @@ export function createBuiltInProviders(): Record<BuiltInProviderName, ImageProvi
     imgproxy: imgproxyProvider(),
     ipx: ipxProvider(),
     ipxStatic: ipxStaticProvider(),
+    keycdn: keycdnProvider(),
     netlify: netlifyProvider(),
     netlifyLargeMedia: netlifyLargeMediaProvider(),
     netlifyImageCdn: netlifyImageCdnProvider(),
