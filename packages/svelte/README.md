@@ -30,7 +30,7 @@ SvelteKit's `@sveltejs/enhanced-img` is a strong build-time tool for imported lo
 - **Local and dynamic sources.** Use a local path, CMS response, database value, API result, object-store URL, CDN URL, or user upload with the same component props.
 - **Deployment-aware provider selection.** Leave `provider` on `auto`. DeSource Image detects Vercel, Netlify, or AWS Amplify and uses IPX for local or other environments.
 - **Native framework APIs.** Use components, actions, Svelte 5 attachments, snippets, or SSR prop helpers. Output remains native `<img>` and `<picture>` markup.
-- **46 built-in provider modules.** Import one provider subpath, use the complete registry, or register a typed custom provider.
+- **Dozens of built-in provider modules.** Import one provider subpath, use the complete registry, or register a typed custom provider.
 - **Built-in local optimizer.** Vite middleware and SvelteKit server handlers can serve IPX transformations without a separate image service.
 - **Responsive images and modern formats.** Generate width or density candidates, breakpoint-aware `sizes`, ordered AVIF/WebP sources, and a fallback image.
 

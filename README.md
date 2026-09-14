@@ -41,10 +41,10 @@ Framework defaults solve images inside one framework. DeSource Image handles ima
 - **Built for fast product iterations.** Change image quality, format, crop, or responsive sizes in code. Source files and filenames stay unchanged.
 - **One source instead of exported variants.** Start with one suitable image and generate the widths and formats each screen needs.
 - **Deployment-aware provider selection.** Leave `provider` on `auto`. DeSource Image detects Vercel, Netlify, or AWS Amplify and uses IPX for local or other environments.
-- **Simplest way to deal with image providers.** CMS URLs need aliases, validation, and provider-specific modifiers. DeSource Image handles provider selection, modifier translation, and URL generation for 46 built-in providers.
+- **Simplest way to deal with image providers.** CMS URLs need aliases, validation, and provider-specific modifiers. DeSource Image handles provider selection, modifier translation, and URL generation for built-in providers.
 - **Native framework APIs.** Use Angular components and directives, React components and hooks, or Svelte components, actions, and attachments. Output remains native `<img>` and `<picture>` markup.
 - **Built-in local optimizer.** React/Vite, Next.js, Angular SSR, and SvelteKit adapters can serve IPX transformations without a separate image service.
-- **46 provider modules.** Use Cloudinary, Imgix, ImageKit, Sanity, Contentful, Shopify, Vercel, Netlify, or another built-in provider. Provider subpath imports remain **tree-shakable**.
+- **Dozens of built-in provider modules.** Use Cloudinary, Imgix, ImageKit, Sanity, Contentful, Shopify, Vercel, Netlify, or another built-in provider. Provider subpath imports remain **tree-shakable**.
 - **Responsive images and modern formats.** Generate width or density candidates, breakpoint-aware `sizes`, ordered AVIF/WebP sources, and a fallback image from one input.
 - **Placeholders and LCP controls.** Generate low-resolution placeholders, preload links, loading hints, and fetch priority without hand-maintained head tags.
 - **SSR-friendly.** The same inputs generate the same URLs and attributes on the server and client, so hydration does not rewrite image markup.
@@ -66,7 +66,7 @@ After adopting the package for your framework, image components need no host-spe
 | [`@sveltejs/enhanced-img`](https://svelte.dev/docs/kit/images)             | Static local assets transformed during the Vite build                            | Images are processed at build time. The deployment target does not switch them to its runtime image service.                                                                                                       | You want local images transformed on demand to save your time. Your images arrive from a CMS, database, API, object store, or CDN, or the same source should use IPX locally and the deployment platform’s optimizer in production.                                |
 | [Unpic](https://unpic.pics/)                                               | Cross-framework responsive images already hosted on recognizable CDN or CMS URLs | Detects the provider from each `src` URL. Local or unknown sources need a fallback or explicit provider; the deployment itself is not the selection signal.                                                        | Vercel, Netlify, or AWS Amplify should choose the optimizer for every source, including relative paths, and you also need presets, aliases, source rules, `<picture>`, or server adapters.                                                                         |
 
-DeSource Image combines deployment-aware selection and 46 provider modules under one configuration for React/Next.js, Angular, and Svelte/SvelteKit. Nuxt applications should continue to use [`@nuxt/image`](https://image.nuxt.com/).
+DeSource Image combines deployment-aware selection and built-in provider modules under one configuration for React/Next.js, Angular, and Svelte/SvelteKit. Nuxt applications should continue to use [`@nuxt/image`](https://image.nuxt.com/).
 
 ## Packages
 
@@ -252,7 +252,7 @@ const picture = image.getPicture({
 - Picture output: ordered AVIF/WebP/etc. `<source>` elements plus a fallback `<img>`.
 - Placeholders: generated low-resolution provider URLs, custom URLs, custom `[width, height, quality, blur]` tuples, decode-before-swap behavior, and temporary classes.
 - Head preloads: responsive `<link rel="preload" as="image">` generation with reference counting in framework packages.
-- Providers: 46 built-in modules, a small default registry, tree-shakable subpath imports, and typed custom providers.
+- Providers: built-in modules, a small default registry, tree-shakable subpath imports, and typed custom providers.
 - Presets and aliases: reusable image defaults and clean source aliases for CMS or asset hosts.
 - Source controls: `domains`, `localPatterns`, `remotePatterns`, and invalid-source policies.
 - Server adapters: IPX middleware for Angular SSR, React/Vite, Next.js App Router, SvelteKit, Fetch API servers, and Connect/Express-style Node servers.
@@ -347,7 +347,7 @@ The default registry is intentionally small:
 - `netlifyLargeMedia`
 - `none`
 
-Import all 46 provider modules only when needed:
+Import all built-in provider modules only when needed:
 
 ```ts
 import { BUILT_IN_PROVIDER_NAMES, createBuiltInProviders } from '@desource/image/providers';
@@ -363,7 +363,7 @@ import { sanityProvider } from '@desource/image/providers/sanity';
 
 Supported provider modules:
 
-`aliyun`, `awsAmplify`, `builderio`, `bunny`, `caisy`, `cloudflare`, `cloudflareimages`, `cloudimage`, `cloudinary`, `contentful`, `directus`, `edgeonePages`, `fastly`, `filerobot`, `flyimg`, `github`, `glide`, `gumlet`, `hygraph`, `imageengine`, `imagekit`, `imgix`, `imgproxy`, `ipx`, `ipxStatic`, `netlify`, `netlifyImageCdn`, `netlifyLargeMedia`, `none`, `picsum`, `prepr`, `prismic`, `sanity`, `shopify`, `sirv`, `storyblok`, `strapi`, `strapi5`, `supabase`, `twicpics`, `umbraco`, `unsplash`, `uploadcare`, `vercel`, `wagtail`, and `weserv`.
+`aliyun`, `awsAmplify`, `builderio`, `bunny`, `caisy`, `cloudflare`, `cloudflareimages`, `cloudimage`, `cloudinary`, `contentful`, `directus`, `edgeonePages`, `fastly`, `filerobot`, `flyimg`, `github`, `glide`, `gumlet`, `hygraph`, `imageengine`, `imagekit`, `imgix`, `imgproxy`, `ipx`, `ipxStatic`, `keycdn`, `netlify`, `netlifyImageCdn`, `netlifyLargeMedia`, `none`, `picsum`, `prepr`, `prismic`, `sanity`, `shopify`, `sirv`, `storyblok`, `strapi`, `strapi5`, `supabase`, `twicpics`, `umbraco`, `unsplash`, `uploadcare`, `vercel`, `wagtail`, and `weserv`.
 
 ## Local optimization
 

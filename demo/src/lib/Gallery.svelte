@@ -327,7 +327,6 @@
                 alt={item.alt}
                 draggable={false}
                 loading="lazy"
-                fetchpriority="low"
                 format="webp"
                 width={60}
                 height={60}

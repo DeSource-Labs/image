@@ -1,6 +1,7 @@
 <script lang="ts">
   import { DsPicture } from '@desource/image-svelte';
   import RayField from '$lib/RayField.svelte';
+  import { providerCount } from '$lib/providers';
 
   function updatePerspective(event: PointerEvent) {
     if (event.pointerType === 'touch') return;
@@ -43,7 +44,7 @@
         <dd>deployment provider</dd>
       </div>
       <div>
-        <dt>46</dt>
+        <dt>{providerCount}</dt>
         <dd>provider modules</dd>
       </div>
       <div>

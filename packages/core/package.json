@@ -1,7 +1,7 @@
 {
   "name": "@desource/image",
   "version": "0.1.0",
-  "description": "Framework-independent image optimization with responsive output, deployment-aware selection, presets, aliases, IPX, and 46 provider modules.",
+  "description": "Framework-independent image optimization with responsive output, deployment-aware selection, presets, aliases, IPX, and dozens of built-in provider modules.",
   "keywords": [
     "image",
     "image-optimization",

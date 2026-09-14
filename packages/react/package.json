@@ -1,7 +1,7 @@
 {
   "name": "@desource/image-react",
   "version": "0.1.0",
-  "description": "High-quality image optimization for React and Next.js with responsive output, deployment-aware provider selection, 46 providers, and IPX.",
+  "description": "High-quality image optimization for React and Next.js with responsive output, deployment-aware provider selection, dozens of built-in provider modules, and IPX.",
   "keywords": [
     "react",
     "nextjs",

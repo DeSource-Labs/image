@@ -31,7 +31,7 @@ Angular's `NgOptimizedImage` remains a strong built-in choice for performance ch
 - **Deployment-aware provider selection.** Leave `provider` on `auto`. DeSource Image detects Vercel, Netlify, or AWS Amplify and uses IPX for local or other environments.
 - **`<picture>` is a first-class API.** Components and directives generate ordered AVIF/WebP sources with fallback control.
 - **Native framework APIs.** Use standalone components and native-element directives. Output remains native `<img>` and `<picture>` markup.
-- **46 built-in provider modules.** Import one provider subpath, use the complete registry, or register a typed custom provider.
+- **Dozens of built-in provider modules.** Import one provider subpath, use the complete registry, or register a typed custom provider.
 - **Built-in local optimizer.** Angular SSR middleware can serve IPX transformations without a separate image service.
 - **`NgOptimizedImage` still works.** `provideDsImage()` registers DeSource Image as Angular's `IMAGE_LOADER`.
 

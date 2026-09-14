@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { providerCount } from '$lib/providers';
   import RayField from '$lib/RayField.svelte';
 </script>
 
@@ -46,7 +47,7 @@
       <div><small>delivery</small><strong>CDN</strong></div>
     </div>
     <div class="output-foot">
-      <span>46 providers</span>
+      <span>{providerCount} providers</span>
       <span>3 frameworks</span>
     </div>
   </div>

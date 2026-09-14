@@ -1,7 +1,7 @@
 {
   "name": "@desource/image-angular",
   "version": "0.1.0",
-  "description": "High-quality image optimization for Angular with responsive output, deployment-aware provider selection, 46 providers, and Angular SSR IPX.",
+  "description": "High-quality image optimization for Angular with responsive output, deployment-aware provider selection, dozens of built-in provider modules, and Angular SSR IPX.",
   "keywords": [
     "angular",
     "ngoptimizedimage",

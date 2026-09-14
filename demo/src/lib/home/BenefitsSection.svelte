@@ -1,3 +1,7 @@
+<script lang="ts">
+  import { providerCount } from '$lib/providers';
+</script>
+
 <section class="trust-strip" aria-label="Core capabilities">
   <div class="shell">
     <span>Angular 19-22</span>
@@ -26,7 +30,7 @@
     <p>Leave provider on auto. DeSource Image detects Vercel, Netlify, or AWS Amplify and uses IPX elsewhere.</p>
   </article>
   <article>
-    <h3>46 provider modules</h3>
+    <h3>{providerCount} provider modules</h3>
     <p>Use Cloudinary, Imgix, ImageKit, Sanity, Contentful, Shopify, or another built-in provider.</p>
   </article>
   <article>
