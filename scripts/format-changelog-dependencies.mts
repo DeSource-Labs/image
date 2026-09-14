@@ -11,7 +11,7 @@ for (const entry of packageEntries) {
   const original = await readOptionalFile(changelogPath);
   if (original === null) continue;
 
-  const formatted = original.replace(/([^\n])\n(- Updated dependencies \[)/g, '$1\n\n$2');
+  const formatted = formatUpdatedDependenciesSpacing(original);
   if (formatted === original) continue;
 
   await writeFile(changelogPath, formatted);
@@ -24,7 +24,25 @@ async function readOptionalFile(filePath: string): Promise<string | null> {
   try {
     return await readFile(filePath, 'utf8');
   } catch (error) {
-    if (error && typeof error === 'object' && 'code' in error && error.code === 'ENOENT') return null;
+    if (error && typeof error === 'object' && 'code' in error && error.code === 'ENOENT') {
+      return null;
+    }
+
     throw error;
   }
+}
+
+function formatUpdatedDependenciesSpacing(markdown: string): string {
+  const lines = markdown.split('\n');
+  const formattedLines: string[] = [];
+
+  for (const line of lines) {
+    if (line.startsWith('- Updated dependencies [') && formattedLines.at(-1)?.trim()) {
+      formattedLines.push('');
+    }
+
+    formattedLines.push(line);
+  }
+
+  return formattedLines.join('\n');
 }
