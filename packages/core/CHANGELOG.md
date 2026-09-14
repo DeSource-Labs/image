@@ -1,5 +1,20 @@
 # @desource/image
 
+## 0.2.0
+
+### Minor Changes
+
+- Core | Angular | React | Svelte Upgrades:
+  - Added KeyCDN as a built-in image provider:
+    - Exposed `keycdnProvider` and `KeyCDNProviderOptions` through the provider registry and tree-shakable subpath imports.
+    - Supported resizing, fit, position, background, quality, JPEG, PNG, WebP, and native KeyCDN modifiers.
+    - Preserved source paths, query parameters, and fragments while replacing explicit transformations.
+    - Rejected unsupported values with clear errors.
+  - Added KeyCDN setup documentation.
+  - Standardized README titles, badges, and provider descriptions.
+  - Updated runtime and development dependencies.
+  - Upgraded pnpm to 12.4.1.
+
 ## 0.1.0
 
 ### Minor Changes
