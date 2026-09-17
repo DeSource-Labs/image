@@ -9,6 +9,7 @@ import { cloudflareImagesProvider } from './cloudflareimages.js';
 import { cloudimageProvider } from './cloudimage.js';
 import { cloudinaryProvider } from './cloudinary.js';
 import { contentfulProvider } from './contentful.js';
+import { contentstackProvider } from './contentstack.js';
 import { directusProvider } from './directus.js';
 import { edgeonePagesProvider } from './edgeonePages.js';
 import { fastlyProvider } from './fastly.js';
@@ -58,6 +59,7 @@ export const BUILT_IN_PROVIDER_NAMES = [
   'cloudimage',
   'cloudinary',
   'contentful',
+  'contentstack',
   'directus',
   'edgeonePages',
   'fastly',
@@ -111,6 +113,7 @@ export function createBuiltInProviders(): Record<BuiltInProviderName, ImageProvi
     cloudimage: cloudimageProvider(),
     cloudinary: cloudinaryProvider(),
     contentful: contentfulProvider(),
+    contentstack: contentstackProvider(),
     directus: directusProvider(),
     edgeonePages: edgeonePagesProvider(),
     fastly: fastlyProvider(),

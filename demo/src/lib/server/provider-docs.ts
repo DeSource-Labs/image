@@ -306,6 +306,50 @@ export const providerDocs: Record<ProviderId, ProviderDoc> = {
     },
     extra: []
   },
+  contentstack: {
+    description: 'Resize published Contentstack assets while preserving their delivery host and environment.',
+    options: [
+      {
+        name: 'baseURL',
+        value: null,
+        description:
+          'Optional delivery origin and asset prefix for relative sources. Absolute URLs keep their own host.'
+      },
+      {
+        name: 'environment',
+        value: 'production',
+        description: 'Fallback publishing environment when the source URL has no environment parameter.'
+      }
+    ],
+    src: 'https://eu-images.contentstack.com/v3/assets/stack-api-key/asset-uid/file-uid/photo.jpg?environment=production',
+    source:
+      'Use the full asset delivery URL from Contentstack, including its regional or custom hostname and complete asset path. Existing environment, branch, query parameters, and fragments are retained. Explicit modifiers replace matching query parameters.',
+    modifiers:
+      'Supports width, height, quality, jpeg/jpg, png, gif, webp, and avif. JPEG is sent as jpg. Fit cover maps to crop for exact dimensions; contain maps to bounds to preserve aspect ratio within the requested box. Native crop and bounds fit values are also accepted. Other fit values and formats throw. Native crop expressions such as crop: "100,80,x10,y20" pass through unchanged.',
+    notes: [
+      'Publish the asset to the requested environment. An environment must be present in the source URL, provider configuration, or modifiers; missing or empty environments throw. The source environment wins over the configured fallback, and an explicit environment modifier wins over both.',
+      'Fit requires both width and height. Bounds can return a smaller dimension on one axis; use cover for exact card or hero dimensions. Contentstack native fit=cover can return a larger dimension and is not forwarded for core cover.',
+      'Use explicit formats for picture sources. An explicit format removes any auto parameter because native auto negotiation can override it. Without an explicit format, existing or native auto parameters are preserved. The adapter does not support format=auto, pjpg, webpll, or webply.',
+      'Native controls such as crop, trim, disable, and blur can be passed in modifiers. Crops and disable: "upscale" can change output dimensions; keep responsive descriptors consistent with the resulting image.',
+      'Server-side probes should send an Accept header for the requested WebP or AVIF format. Verify response Content-Type and decoded dimensions on your delivery endpoint.'
+    ],
+    reference: 'https://www.contentstack.com/docs/developers/apis/image-delivery-api',
+    factory: 'contentstackProvider',
+    example: {
+      width: 800,
+      height: 500,
+      quality: 80,
+      format: 'webp',
+      fit: 'cover'
+    },
+    extra: [
+      {
+        title: 'Relative asset paths',
+        language: 'ts',
+        code: "contentstackProvider({\n  baseURL: 'https://eu-images.contentstack.com/v3/assets/your-stack',\n  environment: 'production'\n});\n// src: 'your-asset/your-file/photo.jpg'"
+      }
+    ]
+  },
   directus: {
     description: 'Request resized assets and transformation presets from Directus.',
     options: [
