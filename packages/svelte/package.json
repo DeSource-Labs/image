@@ -1,6 +1,6 @@
 {
   "name": "@desource/image-svelte",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "High-quality image optimization for Svelte and SvelteKit with responsive output, deployment-aware provider selection, dozens of built-in provider modules, and IPX.",
   "keywords": [
     "svelte",
