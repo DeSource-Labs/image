@@ -11,11 +11,17 @@ export interface ContentstackProviderOptions {
 const providerSetup = defineProvider<ContentstackProviderOptions>({
   getImage: (src, { modifiers, baseURL = '', environment }) => {
     const source = withBase(src, baseURL);
+    const sourceQuery = getQuery(source);
     const query = mappedModifiers(
       { src, modifiers },
       {},
       {
         fit: (value) => {
+          if (typeof value !== 'string') {
+            throw new TypeError(
+              '[desource/image] [contentstack] Fit must be a string. Use cover, contain, crop, or bounds.'
+            );
+          }
           if (value === 'cover' || value === 'crop') return 'crop';
           if (value === 'contain' || value === 'bounds') return 'bounds';
           throw new Error(
@@ -38,15 +44,24 @@ const providerSetup = defineProvider<ContentstackProviderOptions>({
       ['f']
     );
 
-    query.environment = query.environment ?? getQuery(source).environment ?? environment;
+    query.environment = query.environment ?? sourceQuery.environment ?? environment;
     if (typeof query.environment !== 'string' || !query.environment.trim()) {
       throw new Error(
         '[desource/image] [contentstack] An environment is required. Include it in the source URL or configure contentstackProvider({ environment }).'
       );
     }
 
+    if (
+      (query.fit ?? sourceQuery.fit) !== undefined &&
+      (!(query.width ?? sourceQuery.width) || !(query.height ?? sourceQuery.height))
+    ) {
+      throw new Error(
+        '[desource/image] [contentstack] Fit requires both width and height. Provide them as modifiers or source URL query parameters.'
+      );
+    }
+
     // Native auto negotiation overrides format, which would invalidate picture MIME types.
-    if (query.format !== undefined) query.auto = undefined;
+    if (query.format !== undefined || sourceQuery.format !== undefined) query.auto = undefined;
 
     return { url: withQuery(source, query) };
   }

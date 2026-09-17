@@ -5,6 +5,7 @@ import {
   getImageAttrs,
   getPictureAttrs,
   type ImageConfig,
+  type ImageModifiers,
   type ModifierValue
 } from '@src/index';
 import { contentstackProvider, createBuiltInProviders, type ContentstackProviderOptions } from '@src/providers';
@@ -127,6 +128,52 @@ describe('Contentstack provider', () => {
     expect(() => getImage({ src: path, fit }, config)).toThrow(`[contentstack] Unsupported fit "${fit}"`);
   });
 
+  it.each([
+    ['', { fit: 'cover' }],
+    ['', { fit: 'contain', width: 320 }],
+    ['', { fit: 'crop', height: 180 }],
+    ['?width=320', { fit: 'bounds' }],
+    ['?height=180', { fit: 'cover' }],
+    ['?fit=crop', { width: 320 }],
+    ['?fit=bounds&width=320&height=', {}]
+  ] satisfies [string, ImageModifiers][])('rejects fit without both dimensions: %s %j', (query, modifiers) => {
+    expect(() => getImage({ src: `${path}${query}`, modifiers }, config)).toThrow(
+      '[contentstack] Fit requires both width and height.'
+    );
+  });
+
+  it.each([
+    ['?width=320&height=180', { fit: 'cover' }, '320', '180', 'crop'],
+    ['?width=0.50', { fit: 'contain', height: 180 }, '0.50', '180', 'bounds'],
+    ['?height=250p', { fit: 'cover', width: 320 }, '320', '250p', 'crop'],
+    ['?fit=bounds&width=320&height=180', { width: 640 }, '640', '180', 'bounds']
+  ] satisfies [string, ImageModifiers, string, string, string][])(
+    'resolves fit dimensions from modifiers and source parameters: %s %j',
+    (query, modifiers, width, height, fit) => {
+      const url = new URL(getImage({ src: `${path}${query}`, modifiers }, config).url);
+      expect(url.searchParams.getAll('width')).toEqual([width]);
+      expect(url.searchParams.getAll('height')).toEqual([height]);
+      expect(url.searchParams.get('fit')).toBe(fit);
+    }
+  );
+
+  it.each<{ value: ModifierValue }>([
+    { value: { fit: 'cover' } },
+    { value: { toString: 'cover' } },
+    { value: ['cover'] },
+    { value: 42 }
+  ])('rejects non-string fit values with a clear type error: $value', ({ value }) => {
+    expect(() =>
+      contentstackSetup().getImage(
+        path,
+        { ...providerOptions, modifiers: { fit: value as unknown as ImageModifiers['fit'] } },
+        localProviderContext
+      )
+    ).toThrow(
+      new TypeError('[desource/image] [contentstack] Fit must be a string. Use cover, contain, crop, or bounds.')
+    );
+  });
+
   it.each(['jpeg', 'jpg', 'png', 'gif', 'webp', 'avif'])('maps %s output and quality', (format) => {
     const url = new URL(getImage({ src: path, format, quality: 72 }, config).url);
     expect(url.searchParams.get('format')).toBe(format === 'jpeg' ? 'jpg' : format);
@@ -157,6 +204,19 @@ describe('Contentstack provider', () => {
     expect(query.has('f')).toBe(false);
     expect(query.has('auto')).toBe(false);
   });
+
+  it.each([
+    ['?format=png&auto=webp', {}],
+    ['?format=png', { auto: 'avif' }]
+  ] satisfies [string, ImageModifiers][])(
+    'removes source or modifier auto negotiation when the source specifies a format: %s %j',
+    (query, modifiers) => {
+      const url = new URL(getImage({ src: `${path}${query}`, modifiers }, config).url);
+      expect(url.searchParams.get('format')).toBe('png');
+      expect(url.searchParams.has('auto')).toBe(false);
+      expect(url.searchParams.get('environment')).toBe('production');
+    }
+  );
 
   it('preserves native crop controls and negotiation when no explicit format is requested', () => {
     const modifiers = { crop: '100,80,x10,y20', disable: 'upscale', quality: 0, blur: 0 };
