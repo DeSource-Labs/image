@@ -27,6 +27,24 @@ describe('SvelteKit and Vite server integrations', () => {
     expect(resolveEvent).toHaveBeenCalledOnce();
   });
 
+  it('serves optimizer requests from the working directory without invoking the SvelteKit resolver', async () => {
+    const cwd = vi.spyOn(process, 'cwd').mockReturnValue(resolve(import.meta.dirname, '../../../../demo'));
+    const resolveEvent = vi.fn(() => new Response('application'));
+    try {
+      const handle = createDsImageHandle();
+      const response = await handle({
+        event: { request: new Request('https://example.test/_ipx/w_24/img/hero.jpg') },
+        resolve: resolveEvent
+      });
+      expect(response.status).toBe(200);
+      expect(response.headers.get('content-type')).toContain('image/');
+      expect((await response.arrayBuffer()).byteLength).toBeGreaterThan(100);
+      expect(resolveEvent).not.toHaveBeenCalled();
+    } finally {
+      cwd.mockRestore();
+    }
+  });
+
   it('optimizes a local image through the production Web handler', async () => {
     const handler = createDsImageWebHandler({
       root: resolve(import.meta.dirname, '../../../../demo'),
