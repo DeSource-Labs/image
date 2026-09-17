@@ -426,6 +426,58 @@ describe('provider edge cases', () => {
     expect(warning).toHaveBeenCalledWith(expect.stringContaining('invalid image asset ID'));
   });
 
+  it('preserves a full Sanity CDN URL, dataset, and existing query when adding transforms', () => {
+    const url = sanitySetup().getImage(
+      'https://cdn.sanity.io/images/project/staging/abc-800x600.jpg?dl=photo.jpg',
+      { projectId: '', modifiers: { width: 320, crop: 'focalpoint', hotspot: 'center', fit: 'contain', bg: '000000' } },
+      context
+    ).url;
+    const parsed = new URL(url);
+    expect(parsed.pathname).toBe('/images/project/staging/abc-800x600.jpg');
+    expect(Object.fromEntries(parsed.searchParams)).toEqual({
+      dl: 'photo.jpg',
+      w: '320',
+      crop: 'focalpoint',
+      hotspot: 'center',
+      fit: 'fill',
+      bg: '000000',
+      auto: 'format'
+    });
+  });
+
+  it('does not warn for a configured Cloudimage CDN in development', () => {
+    vi.stubEnv('NODE_ENV', 'development');
+    const warning = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    expect(
+      cloudimageSetup().getImage('/photo.jpg', { token: '', cdnURL: 'https://cdn.example', modifiers: {} }, context).url
+    ).toBe('https://cdn.example/site/photo.jpg');
+    expect(warning).not.toHaveBeenCalled();
+  });
+
+  it('preserves explicit Flyimg crop and stretch settings and encodes watermark colors', () => {
+    const provider = flyimgSetup();
+    expect(
+      provider.getImage(
+        'https://origin.example/photo.jpg',
+        {
+          baseURL: 'https://fly.example',
+          modifiers: { fit: 'cover', crop: true, background: 'transparent', textColor: 'white', textBackground: '#000' }
+        },
+        context
+      ).url
+    ).toBe('https://fly.example/upload/c_1,bg_transparent,tc_white,tbg_%23000/https://origin.example/photo.jpg');
+    expect(
+      provider.getImage(
+        'https://origin.example/photo.jpg',
+        {
+          baseURL: 'https://fly.example',
+          modifiers: { fit: 'fill', preserveAspectRatio: false }
+        },
+        context
+      ).url
+    ).toBe('https://fly.example/upload/par_0/https://origin.example/photo.jpg');
+  });
+
   it('selects the closest available Strapi 5 breakpoint or falls back', () => {
     const provider = strapi5Setup();
     const formats = {

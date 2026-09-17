@@ -9,7 +9,7 @@ export interface MockImageInstance {
   naturalWidth: number;
   onload: ((event: Event) => void) | null;
   onerror: ((event: Event | string) => void) | null;
-  decode: () => Promise<void>;
+  decode: (() => Promise<void>) | undefined;
 }
 
 export interface MockImageController {
@@ -18,21 +18,23 @@ export interface MockImageController {
   restore(): void;
 }
 
-export function installMockImage(options: { decode?: () => Promise<void> } = {}): MockImageController {
+export function installMockImage(
+  options: { decode?: (() => Promise<void>) | false; complete?: boolean; naturalWidth?: number } = {}
+): MockImageController {
   const originalImage = globalThis.Image;
   const images: MockImageInstance[] = [];
-  const decodeImage = options.decode ?? (async () => undefined);
+  const decodeImage = typeof options.decode === 'function' ? options.decode : async () => undefined;
 
   class MockImage {
     src = '';
     srcset = '';
     sizes = '';
     crossOrigin: string | null = null;
-    complete = false;
-    naturalWidth = 0;
+    complete = options.complete ?? false;
+    naturalWidth = options.naturalWidth ?? 0;
     onload: ((event: Event) => void) | null = null;
     onerror: ((event: Event | string) => void) | null = null;
-    decode = vi.fn(decodeImage);
+    decode = options.decode === false ? undefined : vi.fn(decodeImage);
 
     constructor() {
       images.push(this);

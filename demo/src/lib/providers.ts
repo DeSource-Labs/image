@@ -30,6 +30,7 @@ const providerNames = {
   cloudimage: 'Cloudimage',
   cloudinary: 'Cloudinary',
   contentful: 'Contentful',
+  contentstack: 'Contentstack',
   directus: 'Directus',
   edgeonePages: 'EdgeOne Pages',
   fastly: 'Fastly',
