@@ -1,5 +1,16 @@
 # @desource/image
 
+## 0.3.1
+
+### Patch Changes
+
+- Core | Angular | React | Svelte Upgrades:
+  - Updated runtime, development, and CI dependencies:
+    - Updated `std-env` to 4.3.0.
+    - Updated Vite to 8.3.1 and Vitest with V8 coverage to 5.0.2.
+    - Updated linting, formatting, type definitions, and supporting development tools.
+  - Upgraded pnpm to 12.8.1.
+
 ## 0.3.0
 
 ### Minor Changes
