@@ -22,6 +22,12 @@ export default defineConfig({
     },
     rollupOptions: {
       external: (id) => !id.startsWith('.') && !id.startsWith('/') && !id.startsWith('\0'),
+      onwarn(warning, warn) {
+        // `preserveModules: true` retains each module's "use client" directive
+        // see https://rolldown.rs/in-depth/directives#other-directives
+        if (warning.code === 'MODULE_LEVEL_DIRECTIVE' && warning.message.includes('"use client"')) return;
+        warn(warning);
+      },
       output: {
         preserveModules: true,
         preserveModulesRoot: 'src',
