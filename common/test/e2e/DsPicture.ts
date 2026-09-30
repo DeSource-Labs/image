@@ -60,9 +60,9 @@ function testDsPicture(options: DsPictureE2EOptions): void {
 
       await expect(picture).toHaveAttribute('data-ds-picture', '');
       await expect(sources).toHaveCount(options.sourceCount);
-      for (const [index, type] of options.sourceTypes.entries()) {
-        await expect(sources.nth(index)).toHaveAttribute('type', type);
-      }
+      await Promise.all(
+        options.sourceTypes.map((type, index) => expect(sources.nth(index)).toHaveAttribute('type', type))
+      );
       await expect(image).toHaveAttribute(options.imageMarker, '');
       await expect(image).toHaveAttribute('src', options.fallbackSrc);
     },

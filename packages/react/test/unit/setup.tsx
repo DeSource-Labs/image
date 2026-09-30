@@ -41,9 +41,9 @@ export function createReactRoot() {
 }
 
 export async function renderReact(root: Root, element: ReactElement): Promise<void> {
-  await reactAct(async () => {
-    root.render(createElement(DsImageProvider, { config: imageComponentTestConfig }, element));
-  });
+  await reactAct(() =>
+    Promise.resolve(root.render(createElement(DsImageProvider, { config: imageComponentTestConfig }, element)))
+  );
 }
 
 export function renderConfiguredMarkup(element: ReactElement): string {
@@ -72,7 +72,7 @@ export async function createReactHarness<TOptions extends object>(
     },
     flush: flushReact,
     async unmount() {
-      await reactAct(async () => root.unmount());
+      await reactAct(() => Promise.resolve(root.unmount()));
       target.remove();
     },
     onLoad: events.onLoad,
@@ -92,7 +92,7 @@ export async function withRenderedRef<T extends Element>(
     await renderReact(root, createComponent(ref));
     await inspect(ref.current, requireElement<T>(target, selector));
   } finally {
-    await reactAct(async () => root.unmount());
+    await reactAct(() => Promise.resolve(root.unmount()));
     target.remove();
   }
 }

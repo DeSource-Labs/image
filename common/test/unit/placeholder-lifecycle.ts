@@ -15,7 +15,7 @@ export function testPlaceholderLifecycle(setup: DsImageComponentSetup, { act }: 
         try {
           await rendered.flush();
           const oldImage = mocked.images[0]!;
-          await act(async () => oldImage.onload?.(new Event('load')));
+          await act(() => Promise.resolve(oldImage.onload?.(new Event('load'))));
           await rendered.update({ src: '/current.jpg' });
           expect(oldImage.onload).toBeNull();
           expect(oldImage.onerror).toBeNull();
@@ -32,7 +32,7 @@ export function testPlaceholderLifecycle(setup: DsImageComponentSetup, { act }: 
           expect(mocked.images).toHaveLength(2);
 
           // The replacement still owns the loading state after the stale result.
-          mocked.images[1]!.decode = async () => undefined;
+          mocked.images[1]!.decode = () => Promise.resolve();
           await act(async () => {
             mocked.images[1]!.onload?.(new Event('load'));
             await mocked.flush();
@@ -55,7 +55,7 @@ export function testPlaceholderLifecycle(setup: DsImageComponentSetup, { act }: 
       try {
         await rendered.flush();
         const image = mocked.images[0]!;
-        await act(async () => image.onload?.(new Event('load')));
+        await act(() => Promise.resolve(image.onload?.(new Event('load'))));
         await rendered.unmount();
         unmounted = true;
         expect(image.onload).toBeNull();
@@ -93,9 +93,7 @@ export function testPlaceholderLifecycle(setup: DsImageComponentSetup, { act }: 
 
     it('keeps the placeholder visible when decoding fails and reports the error', async () => {
       const mocked = installMockImage({
-        decode: async () => {
-          throw new Error('invalid image');
-        }
+        decode: () => Promise.reject(new Error('invalid image'))
       });
       const rendered = await setup({ src: '/broken.jpg', alt: 'Photo', placeholder: '/preview.jpg' });
       try {
