@@ -23,6 +23,14 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    emptyOutDir: true
+    emptyOutDir: true,
+    rollupOptions: {
+      onwarn(warning, warn) {
+        // `preserveModules: true` retains each module's "use client" directive
+        // see https://rolldown.rs/in-depth/directives#other-directives
+        if (warning.code === 'MODULE_LEVEL_DIRECTIVE' && warning.message.includes('"use client"')) return;
+        warn(warning);
+      }
+    }
   }
 });
