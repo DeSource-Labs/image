@@ -23,7 +23,7 @@ export function installMockImage(
 ): MockImageController {
   const originalImage = globalThis.Image;
   const images: MockImageInstance[] = [];
-  const decodeImage = typeof options.decode === 'function' ? options.decode : async () => undefined;
+  const decodeImage = typeof options.decode === 'function' ? options.decode : () => Promise.resolve();
 
   class MockImage {
     src = '';
