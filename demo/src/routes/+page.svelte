@@ -9,6 +9,7 @@
   import PlaygroundSection from '$lib/home/PlaygroundSection.svelte';
   import ProvidersSection from '$lib/home/ProvidersSection.svelte';
   import SiteHeader from '$lib/home/SiteHeader.svelte';
+  import { providerCount } from '$lib/provider-count';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
@@ -37,7 +38,7 @@
   <meta name="twitter:title" content="DeSource Image - Optimized images for React, Angular, and Svelte" />
   <meta
     name="twitter:description"
-    content="Responsive images, modern formats, deployment-aware provider selection, 46 providers, and local IPX."
+    content="Responsive images, modern formats, deployment-aware provider selection, {providerCount} providers, and local IPX."
   />
   <meta name="twitter:image" content={`${data.origin}/og.jpg`} />
   <meta name="twitter:image:alt" content="DeSource Image optimization for React, Angular, and Svelte" />

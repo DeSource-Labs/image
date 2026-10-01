@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  generateDensities,
   generateSizes,
   generateSrcset,
   parseDensities,
@@ -59,6 +60,33 @@ describe('sizes and densities', () => {
 });
 
 describe('responsive parsing edge cases', () => {
+  it('uses numeric breakpoints without requiring named screens', () => {
+    expect(generateSizes({ sizes: '100vw 900:450px', screens: {}, providerSizes: [320, 640], densities: [1] })).toEqual(
+      {
+        sizes: '(max-width: 899px) 100vw, 450px',
+        widths: [320, 450, 640, 899]
+      }
+    );
+    expect(generateSizes({ sizes: '100vw', screens: {}, providerSizes: [320, 640], densities: [1] })).toEqual({
+      sizes: '100vw',
+      widths: [320, 640]
+    });
+  });
+
+  it('uses safe responsive defaults when no breakpoints or provider widths are configured', () => {
+    expect(generateSizes({ sizes: '100vw', screens: {}, providerSizes: [], densities: [1] })).toEqual({
+      sizes: '100vw',
+      widths: [1536]
+    });
+    expect(generateSizes({ width: 320 })).toEqual({ widths: [320, 640] });
+  });
+
+  it('scales a height-only image without inventing its width', () => {
+    expect(generateDensities({ height: 150, densities: [1, 2] })).toEqual([
+      { density: 1, width: undefined, height: 150 },
+      { density: 2, width: undefined, height: 300 }
+    ]);
+  });
   it('parses each density input form and falls back from invalid strings', () => {
     expect(parseDensities([2, 1, 2])).toEqual([1, 2]);
     expect(parseDensities(1.5)).toEqual([2]);

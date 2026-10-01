@@ -44,6 +44,7 @@ if (mismatches.length) {
 
 const changelog = await readFile(path.join(packagesDirectory, 'core/CHANGELOG.md'), 'utf8');
 const releaseNotes = extractChangelogEntry(changelog, version);
+const comparableReleaseNotes = normalizeChangelogEntry(releaseNotes);
 const changelogMismatches = (
   await Promise.all(
     publicPackages.map(async ({ directory, packageJson }) => ({
@@ -55,10 +56,10 @@ const changelogMismatches = (
       )
     }))
   )
-).filter((entry) => entry.releaseNotes !== releaseNotes);
+).filter((entry) => normalizeChangelogEntry(entry.releaseNotes) !== comparableReleaseNotes);
 if (changelogMismatches.length) {
   throw new Error(
-    `All public package changelog entries for ${version} must match @desource/image. Mismatched packages: ${changelogMismatches
+    `All public package changelog entries for ${version} must match @desource/image after excluding generated dependency updates from Patch Changes. Mismatched packages: ${changelogMismatches
       .map((entry) => entry.name)
       .join(', ')}`
   );
@@ -88,6 +89,31 @@ function extractChangelogEntry(changelog: string, targetVersion: string, label =
   const entry = remainder.slice(0, /^##\s+/m.exec(remainder)?.index).trim();
   if (!entry) throw new Error(`${label} entry for ${targetVersion} is empty`);
   return entry;
+}
+
+function normalizeChangelogEntry(entry: string): string {
+  return entry
+    .replaceAll('\r\n', '\n')
+    .split(/(?=^### )/m)
+    .map((section) => {
+      const heading = '### Patch Changes\n';
+      if (!section.startsWith(heading)) return section.trim();
+
+      // Changesets adds package-specific dependency updates alongside shared release notes.
+      const patchChanges = section
+        .slice(heading.length)
+        .split(/(?=^- )/m)
+        .filter(
+          (block) =>
+            !/^- Updated dependencies \[[^\n]*\]:\n(?: {2}- (?:@[^/\s]+\/)?[^@\s]+@[^\s]+(?:\n|$))+$/.test(block.trim())
+        )
+        .join('')
+        .trim();
+
+      return patchChanges ? `${heading}\n${patchChanges}` : '';
+    })
+    .filter(Boolean)
+    .join('\n\n');
 }
 
 function isSemver(value: string): boolean {

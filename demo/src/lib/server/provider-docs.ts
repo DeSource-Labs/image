@@ -306,6 +306,50 @@ export const providerDocs: Record<ProviderId, ProviderDoc> = {
     },
     extra: []
   },
+  contentstack: {
+    description: 'Resize published Contentstack assets while preserving their delivery host and environment.',
+    options: [
+      {
+        name: 'baseURL',
+        value: null,
+        description:
+          'Optional delivery origin and asset prefix for relative sources. Absolute URLs keep their own host.'
+      },
+      {
+        name: 'environment',
+        value: 'production',
+        description: 'Fallback publishing environment when the source URL has no environment parameter.'
+      }
+    ],
+    src: 'https://eu-images.contentstack.com/v3/assets/stack-api-key/asset-uid/file-uid/photo.jpg?environment=production',
+    source:
+      'Use the full asset delivery URL from Contentstack, including its regional or custom hostname and complete asset path. Existing environment, branch, query parameters, and fragments are retained. Explicit modifiers replace matching query parameters.',
+    modifiers:
+      'Supports width, height, quality, jpeg/jpg, png, gif, webp, and avif. JPEG is sent as jpg. Fit cover maps to crop for exact dimensions; contain maps to bounds to preserve aspect ratio within the requested box. Native crop and bounds fit values are also accepted. Other fit values and formats throw. Native crop expressions such as crop: "100,80,x10,y20" pass through unchanged.',
+    notes: [
+      'Publish the asset to the requested environment. An environment must be present in the source URL, provider configuration, or modifiers; missing or empty environments throw. The source environment wins over the configured fallback, and an explicit environment modifier wins over both.',
+      'Fit requires both width and height, from modifiers or source URL query parameters; missing dimensions throw. Bounds can return a smaller dimension on one axis; use cover for exact card or hero dimensions. Contentstack native fit=cover can return a larger dimension and is not forwarded for core cover.',
+      'Use explicit formats for picture sources. An explicit format removes any auto parameter because native auto negotiation can override it. Without an explicit format, existing or native auto parameters are preserved. The adapter does not support format=auto, pjpg, webpll, or webply.',
+      'Native controls such as crop, trim, disable, and blur can be passed in modifiers. Crops and disable: "upscale" can change output dimensions; keep responsive descriptors consistent with the resulting image.',
+      'Server-side probes should send an Accept header for the requested WebP or AVIF format. Verify response Content-Type and decoded dimensions on your delivery endpoint.'
+    ],
+    reference: 'https://www.contentstack.com/docs/developers/apis/image-delivery-api',
+    factory: 'contentstackProvider',
+    example: {
+      width: 800,
+      height: 500,
+      quality: 80,
+      format: 'webp',
+      fit: 'cover'
+    },
+    extra: [
+      {
+        title: 'Relative asset paths',
+        language: 'ts',
+        code: "contentstackProvider({\n  baseURL: 'https://eu-images.contentstack.com/v3/assets/your-stack',\n  environment: 'production'\n});\n// src: 'your-asset/your-file/photo.jpg'"
+      }
+    ]
+  },
   directus: {
     description: 'Request resized assets and transformation presets from Directus.',
     options: [
@@ -848,6 +892,39 @@ export const providerDocs: Record<ProviderId, ProviderDoc> = {
       quality: 80,
       format: 'webp',
       fit: 'cover'
+    },
+    extra: []
+  },
+  keycdn: {
+    description: 'Transform images served by a KeyCDN Zone with Image Processing enabled.',
+    options: [
+      {
+        name: 'baseURL',
+        value: 'https://your-zone.kxcdn.com',
+        description: 'Your Zone URL or custom delivery domain. Optional when src is an absolute KeyCDN delivery URL.'
+      }
+    ],
+    src: '/photo.jpg',
+    source:
+      'Use a path served by the configured Zone, or a full delivery URL. Existing paths, query parameters, and fragments are preserved; explicit modifiers replace matching parameters.',
+    modifiers:
+      'Supports width, height, quality, format, fit, position, and background (mapped to bg). Fit values are cover, contain, fill, inside, and outside. Position supports top, right, bottom, and left; center clears the position parameter to use the service default. Native operations such as blur, crop, and enlarge can be passed as modifiers; boolean flags become 0 or 1.',
+    notes: [
+      'Enable Image Processing on the Pull or Push Zone. A Pull Zone must include query strings in its cache key; enabling Image Processing disables Ignore Query String automatically. Keep Cache Key Scheme disabled as documented by KeyCDN.',
+      'Supported explicit formats are jpeg, jpg, png, and webp; jpg is sent as jpeg. Unsupported formats, including avif and auto, throw an error. Configure picture formats to use webp with a jpeg or png fallback.',
+      'Quality applies to JPEG and WebP. Width and height must remain within the service limit of 10000 pixels, including responsive density variants.',
+      'Background accepts hex with or without #, RGB/RGBA comma-separated values, or transparent. Three-digit hex colors are expanded to six digits.',
+      'Secure Token signing is not generated by this adapter. Sign each final transformed URL on the server when the Zone requires it; an existing token does not automatically authorize new transformations.'
+    ],
+    reference: 'https://www.keycdn.com/support/image-processing',
+    factory: 'keycdnProvider',
+    example: {
+      width: 800,
+      height: 500,
+      quality: 80,
+      format: 'webp',
+      fit: 'contain',
+      background: '#ffffff'
     },
     extra: []
   },

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { resolve } from '$app/paths';
   import { DsImage } from '@desource/image-svelte';
+  import { providerCount } from '$lib/provider-count';
 
   const year = new Date().getUTCFullYear();
 </script>
@@ -18,7 +19,7 @@
             <small>Open image tooling</small>
           </span>
         </a>
-        <p>One image API for React, Angular, and Svelte, backed by 46 provider modules.</p>
+        <p>One image API for React, Angular, and Svelte, backed by {providerCount} provider modules.</p>
         <span class="license"><i aria-hidden="true"></i> MIT licensed</span>
       </div>
 

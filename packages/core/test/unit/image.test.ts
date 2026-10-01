@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   configureProvider,
   createImage,
@@ -11,6 +11,7 @@ import {
   getImage,
   getImageAttrs,
   getImageMeta,
+  getImageSizes,
   getImagePreloadLink,
   getPictureAttrs,
   ipxProvider,
@@ -19,6 +20,11 @@ import {
   type ImageConfig,
   type ImageProvider
 } from '@src/index';
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.unstubAllGlobals();
+});
 
 describe('core image behavior', () => {
   const ipxConfig: ImageConfig = {
@@ -385,9 +391,87 @@ describe('image context and metadata', () => {
       /metadata is not available/
     );
   });
+
+  it.each([
+    [400, 200, 2],
+    [400, 0, undefined]
+  ])('uses browser dimensions when natural dimensions are unavailable (%s × %s)', async (width, height, ratio) => {
+    class BrowserImage {
+      naturalWidth = 0;
+      naturalHeight = 0;
+      width = width;
+      height = height;
+      onload: (() => void) | null = null;
+      set src(_value: string) {
+        queueMicrotask(() => this.onload?.());
+      }
+    }
+    vi.stubGlobal('Image', BrowserImage);
+    await expect(getImageMeta({ src: '/logo.svg' }, { provider: 'none' })).resolves.toEqual({ width, height, ratio });
+  });
 });
 
 describe('image edge behavior', () => {
+  it('keeps widthless pictures and size helpers usable without srcset candidates', () => {
+    expect(getImageSizes({ src: '/photo.jpg' })).toEqual({ src: '/_ipx/_/photo.jpg', srcset: '', widths: [] });
+    expect(generatePictureSources({ src: '/photo.jpg', formats: ['avif', 'webp'] })).toEqual([
+      { type: 'image/avif', srcset: '/_ipx/f_avif/photo.jpg', sizes: undefined },
+      { type: 'image/webp', srcset: '/_ipx/f_webp/photo.jpg', sizes: undefined }
+    ]);
+  });
+
+  it('keeps SVG loading hints and priority overrides on the original source', () => {
+    expect(getPictureAttrs({ src: '/logo.svg', priority: true, loading: 'lazy', fetchpriority: 'low' }).img).toEqual({
+      src: '/logo.svg',
+      loading: 'eager',
+      fetchpriority: 'high',
+      isOptimized: false
+    });
+  });
+
+  it('deduplicates picture formats and excludes equivalent JPEG fallback formats', () => {
+    const picture = getPictureAttrs({ src: '/asset', format: ['webp', '', 'avif, webp', 'jpeg', 'jpg'] });
+    expect(picture.sources.map((source) => source.type)).toEqual(['image/webp', 'image/avif']);
+  });
+
+  it('inherits picture formats from presets and supports square numeric placeholders', () => {
+    const config: ImageConfig = { presets: { thumbnail: { format: ['avif', 'webp'], placeholder: 24 } } };
+    const picture = getPictureAttrs({ src: '/photo.jpg', preset: 'thumbnail' }, config);
+    expect(picture.sources.map((source) => source.type)).toEqual(['image/avif', 'image/webp']);
+    expect(getImageAttrs({ src: '/photo.jpg', preset: 'thumbnail' }, config).placeholderSrc).toBe(
+      '/_ipx/blur_3&q_50&f_avif&s_24x24/photo.jpg'
+    );
+  });
+
+  it('falls back from invalid modifier aliases while preserving explicit provider results', () => {
+    const provider: ImageProvider = {
+      getImage: (_src, { modifiers }) => ({
+        url: `/image?w=${modifiers.width}&q=${modifiers.quality}`,
+        format: 'png',
+        isOptimized: false
+      })
+    };
+    expect(
+      getImage(
+        { src: '/photo.jpg', modifiers: { width: 'invalid', w: 320, q: false }, format: 'webp' },
+        {
+          provider: 'custom',
+          providers: { custom: provider },
+          quality: 70
+        }
+      )
+    ).toEqual({ url: '/image?w=320&q=70', format: 'png', isOptimized: false });
+  });
+
+  it('allows protocol-relative remote sources only when the provider allowlist matches', () => {
+    expect(getImage({ src: '//cdn.example.com/photo.jpg', width: 320 })).toEqual({
+      url: '//cdn.example.com/photo.jpg',
+      isOptimized: false
+    });
+    expect(
+      getImage({ src: '//cdn.example.com/photo.jpg', width: 320 }, { domains: ['cdn.example.com'] }).url
+    ).toContain('/_ipx/w_320/');
+  });
   it('passes SVG and data sources through without generating candidates', () => {
     expect(generatePictureSources({ src: '/icon.svg', format: 'webp' })).toEqual([]);
     expect(generateSrcset({ src: 'data:image/png;base64,abc', width: 320 })).toEqual({

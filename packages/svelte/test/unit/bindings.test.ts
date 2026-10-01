@@ -2,6 +2,7 @@
 
 import { describe, expect, it, vi } from 'vitest';
 import { defineProvider, type ImageConfig } from '@desource/image';
+import { installMockImage } from '@common/test/unit/setup/mock-image';
 import {
   createDsImageBindings,
   getDsImageProps,
@@ -35,6 +36,80 @@ function createConfig(setup = vi.fn()) {
 }
 
 describe('Svelte image bindings', () => {
+  it('retries a failed placeholder load on update without duplicating an in-flight request', async () => {
+    const mocked = installMockImage();
+    const image = document.createElement('img');
+    const onerror = vi.fn();
+    const options = {
+      src: '/photo.jpg',
+      alt: 'Photo',
+      width: 320,
+      placeholder: '/preview.jpg',
+      config: createConfig(),
+      onerror
+    };
+    const binding = dsImageAction(image, options);
+    try {
+      binding.update({ ...options, alt: 'Updated description' });
+      expect(mocked.images).toHaveLength(1);
+      const failure = new Event('error');
+      mocked.images[0]!.onerror?.(failure);
+      expect(onerror).toHaveBeenCalledExactlyOnceWith(failure);
+      expect(image.getAttribute('src')).toBe('/preview.jpg');
+
+      binding.update(options);
+      expect(mocked.images).toHaveLength(2);
+      mocked.images[1]!.onload?.(new Event('load'));
+      await mocked.flush();
+      expect(image.getAttribute('src')).toContain('/photo.jpg?width=320');
+      expect(image.classList.contains('ds-image-placeholder')).toBe(false);
+    } finally {
+      binding.destroy();
+      mocked.restore();
+    }
+  });
+
+  it('copies responsive and CORS attributes to the preloader', async () => {
+    const mocked = installMockImage();
+    const ready = vi.fn();
+    const error = vi.fn();
+    const cleanup = preloadImage(
+      { src: '/photo.jpg', srcset: '/small.jpg 320w, /large.jpg 640w', sizes: '50vw' },
+      { ready, error },
+      'use-credentials'
+    );
+    try {
+      expect(mocked.images[0]).toMatchObject({
+        src: '/photo.jpg',
+        srcset: '/small.jpg 320w, /large.jpg 640w',
+        sizes: '50vw',
+        crossOrigin: 'use-credentials'
+      });
+      mocked.images[0]!.onload?.(new Event('load'));
+      mocked.images[0]!.onload?.(new Event('load'));
+      await mocked.flush();
+      expect(ready).toHaveBeenCalledOnce();
+      expect(error).not.toHaveBeenCalled();
+    } finally {
+      cleanup();
+      mocked.restore();
+    }
+  });
+
+  it('allows preload cleanup in an environment without the browser Image API', () => {
+    const ready = vi.fn();
+    const error = vi.fn();
+    vi.stubGlobal('Image', undefined);
+    try {
+      const cleanup = preloadImage({ src: '/photo.jpg' }, { ready, error });
+      cleanup();
+      expect(ready).not.toHaveBeenCalled();
+      expect(error).not.toHaveBeenCalled();
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
   it('creates SSR-safe image and picture props with required accessibility attrs', () => {
     const config = createConfig();
     const image = getDsImageProps({

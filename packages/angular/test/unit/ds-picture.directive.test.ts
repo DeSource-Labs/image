@@ -21,7 +21,7 @@ const providers = () => [provideDsImage(imageComponentTestConfig)];
       [placeholder]="placeholder()"
       placeholderClass="picture-placeholder"
       [preload]="preload()"
-      [imgAttrs]="{ class: 'picture-image', 'data-kind': 'fallback' }"
+      [imgAttrs]="imgAttrs()"
       (dsLoad)="loadCount += 1"
       (dsError)="errorCount += 1"
     >
@@ -34,6 +34,10 @@ class PictureDirectiveHost {
   readonly formats = signal<readonly ('avif' | 'webp')[]>(['avif', 'webp']);
   readonly placeholder = signal(false);
   readonly preload = signal(false);
+  readonly imgAttrs = signal<Record<string, string | boolean | null>>({
+    class: 'picture-image',
+    'data-kind': 'fallback'
+  });
   loadCount = 0;
   errorCount = 0;
 }
@@ -69,6 +73,22 @@ describe('DsPictureDirective', () => {
 
     image.dispatchEvent(new Event('load'));
     expect(fixture.componentInstance.loadCount).toBe(1);
+  });
+
+  it('protects generated fallback attributes while removing obsolete native attributes', async () => {
+    TestBed.configureTestingModule({ imports: [PictureDirectiveHost], providers: providers() });
+    const fixture = TestBed.createComponent(PictureDirectiveHost);
+    fixture.componentInstance.imgAttrs.set({ src: '/wrong.jpg', width: '999', hidden: true, title: 'Photo' });
+    await settle(fixture);
+    const image = requireImage(requirePicture(fixture));
+    expect(image.getAttribute('src')).toContain('/picture.jpg');
+    expect(image.getAttribute('width')).toBe('640');
+    expect(image.hasAttribute('hidden')).toBe(true);
+
+    fixture.componentInstance.imgAttrs.set({ hidden: false });
+    await settle(fixture);
+    expect(image.hasAttribute('hidden')).toBe(false);
+    expect(image.hasAttribute('title')).toBe(false);
   });
 
   it('preloads and decodes picture placeholders before restoring responsive sources', async () => {

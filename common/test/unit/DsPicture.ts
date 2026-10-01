@@ -5,6 +5,7 @@ import { expectPlaceholderTransition, expectPriorityImageAndPreload } from './se
 import { installMockImage } from './setup/mock-image';
 import { defaultTestTools, type TestTools } from './setup/tools';
 import { pathname, searchParam } from './setup/url';
+import { testPlaceholderLifecycle } from './placeholder-lifecycle';
 
 export interface DsPictureComponentSetupOptions extends Omit<
   DsImageComponentSetupOptions,
@@ -39,6 +40,22 @@ export type DsPictureComponentSetup = (
 
 export function testDsPictureComponent(setup: DsPictureComponentSetup, { act }: TestTools = defaultTestTools): void {
   describe('DsPicture component shared behavior', () => {
+    testPlaceholderLifecycle(setup, { act });
+
+    it('preloads an SVG fallback without generating raster sources', async () => {
+      const rendered = await setup({ src: '/logo.svg', alt: 'Logo', priority: true, preload: true });
+      try {
+        expect(rendered.sources()).toHaveLength(0);
+        expect(rendered.image().getAttribute('src')).toBe('/logo.svg');
+        expect(rendered.image().getAttribute('fetchpriority')).toBe('high');
+        expect(rendered.preloadLinks()).toHaveLength(1);
+        expect(rendered.preloadLinks()[0]!.getAttribute('href')).toBe('/logo.svg');
+        expect(rendered.preloadLinks()[0]!.hasAttribute('imagesrcset')).toBe(false);
+      } finally {
+        await rendered.unmount();
+      }
+    });
+
     it('renders sources, fallback attrs and forwarded picture/image attrs', async () => {
       const rendered = await setup({
         src: '/picture.jpg',

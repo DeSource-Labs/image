@@ -1,6 +1,7 @@
 <script lang="ts">
   import { resolve } from '$app/paths';
   import Gallery from '$lib/Gallery.svelte';
+  import { providerCount } from '$lib/provider-count';
   import { providers } from '$lib/providers';
 
   const providerImages = providers.map((provider) => ({
@@ -13,7 +14,7 @@
 <section class="providers shell" id="providers">
   <div class="provider-heading">
     <div>
-      <p class="eyebrow">46 built-in provider modules</p>
+      <p class="eyebrow">{providerCount} built-in provider modules</p>
       <h2>Use the CDN, CMS, or image service already in your stack.</h2>
     </div>
     <p class="section-copy">
@@ -33,7 +34,7 @@
     <span aria-hidden="true">Read guide →</span>
   </a>
   <details class="provider-directory animated-details">
-    <summary>Browse all {providers.length} providers</summary>
+    <summary>Browse all {providerCount} providers</summary>
     <ul>
       {#each providers as provider (provider.slug)}<li>
           <a href={resolve('/providers/[provider]', { provider: provider.slug })}>{provider.name}</a>

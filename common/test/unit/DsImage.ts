@@ -4,6 +4,7 @@ import { expectPlaceholderTransition, expectPriorityImageAndPreload } from './se
 import { installMockImage } from './setup/mock-image';
 import { defaultTestTools, type TestTools } from './setup/tools';
 import { pathname, searchParam } from './setup/url';
+import { testPlaceholderLifecycle } from './placeholder-lifecycle';
 
 export type NativeAttributeValue = string | number | boolean | null | undefined;
 
@@ -45,6 +46,52 @@ export type DsImageComponentSetup = (
 
 export function testDsImageComponent(setup: DsImageComponentSetup, { act }: TestTools = defaultTestTools): void {
   describe('DsImage component shared behavior', () => {
+    testPlaceholderLifecycle(setup, { act });
+
+    it('decodes an image already in the browser cache without waiting for a load event', async () => {
+      const mocked = installMockImage({ complete: true, naturalWidth: 640 });
+      const rendered = await setup({
+        src: '/cached.jpg',
+        alt: 'Cached photo',
+        width: 640,
+        placeholder: '/preview.jpg'
+      });
+      try {
+        await act(async () => {
+          await mocked.flush();
+        });
+        await rendered.flush();
+        expect(mocked.images[0]!.decode).toHaveBeenCalledOnce();
+        expect(rendered.image().getAttribute('src')).toContain('/cached.jpg');
+        expect(rendered.image().getAttribute('srcset')).toContain('width=640');
+        expect(rendered.onLoad).not.toHaveBeenCalled();
+      } finally {
+        await rendered.unmount();
+        mocked.restore();
+      }
+    });
+
+    it('replaces preload hints on source changes and removes them on unmount', async () => {
+      const rendered = await setup({ src: '/first.jpg', alt: 'Photo', width: 320, sizes: '100vw', preload: true });
+      let unmounted = false;
+      try {
+        expect(rendered.preloadLinks()).toHaveLength(1);
+        expect(rendered.preloadLinks()[0]!.getAttribute('imagesizes')).toBe('100vw');
+        await rendered.update({ src: '/second.jpg' });
+        expect(rendered.preloadLinks()).toHaveLength(1);
+        expect(rendered.preloadLinks()[0]!.getAttribute('href')).toContain('/second.jpg');
+        await rendered.update({ preload: false });
+        expect(rendered.preloadLinks()).toHaveLength(0);
+        await rendered.update({ preload: true });
+        expect(rendered.preloadLinks()).toHaveLength(1);
+        await rendered.unmount();
+        unmounted = true;
+        expect(rendered.preloadLinks()).toHaveLength(0);
+      } finally {
+        if (!unmounted) await rendered.unmount();
+      }
+    });
+
     it('renders generated attrs and forwards native image attrs', async () => {
       const rendered = await setup({
         src: '/hero.jpg',

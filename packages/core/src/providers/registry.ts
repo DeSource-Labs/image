@@ -9,6 +9,7 @@ import { cloudflareImagesProvider } from './cloudflareimages.js';
 import { cloudimageProvider } from './cloudimage.js';
 import { cloudinaryProvider } from './cloudinary.js';
 import { contentfulProvider } from './contentful.js';
+import { contentstackProvider } from './contentstack.js';
 import { directusProvider } from './directus.js';
 import { edgeonePagesProvider } from './edgeonePages.js';
 import { fastlyProvider } from './fastly.js';
@@ -24,6 +25,7 @@ import { imgixProvider } from './imgix.js';
 import { imgproxyProvider } from './imgproxy.js';
 import { ipxProvider } from './ipx.js';
 import { ipxStaticProvider } from './ipxStatic.js';
+import { keycdnProvider } from './keycdn.js';
 import { netlifyProvider } from './netlify.js';
 import { netlifyLargeMediaProvider } from './netlifyLargeMedia.js';
 import { netlifyImageCdnProvider } from './netlifyImageCdn.js';
@@ -57,6 +59,7 @@ export const BUILT_IN_PROVIDER_NAMES = [
   'cloudimage',
   'cloudinary',
   'contentful',
+  'contentstack',
   'directus',
   'edgeonePages',
   'fastly',
@@ -72,6 +75,7 @@ export const BUILT_IN_PROVIDER_NAMES = [
   'imgproxy',
   'ipx',
   'ipxStatic',
+  'keycdn',
   'netlify',
   'netlifyLargeMedia',
   'netlifyImageCdn',
@@ -109,6 +113,7 @@ export function createBuiltInProviders(): Record<BuiltInProviderName, ImageProvi
     cloudimage: cloudimageProvider(),
     cloudinary: cloudinaryProvider(),
     contentful: contentfulProvider(),
+    contentstack: contentstackProvider(),
     directus: directusProvider(),
     edgeonePages: edgeonePagesProvider(),
     fastly: fastlyProvider(),
@@ -124,6 +129,7 @@ export function createBuiltInProviders(): Record<BuiltInProviderName, ImageProvi
     imgproxy: imgproxyProvider(),
     ipx: ipxProvider(),
     ipxStatic: ipxStaticProvider(),
+    keycdn: keycdnProvider(),
     netlify: netlifyProvider(),
     netlifyLargeMedia: netlifyLargeMediaProvider(),
     netlifyImageCdn: netlifyImageCdnProvider(),
