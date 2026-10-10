@@ -1,5 +1,20 @@
 # @desource/image
 
+## 0.4.0
+
+### Minor Changes
+
+- Core | Angular | React | Svelte Upgrades:
+  - Added support for IPX 4.0.0-beta.1 while preserving IPX 3 compatibility:
+    - Supported the new Node and Fetch handler APIs alongside the existing server APIs.
+    - Expanded optional IPX peer dependency ranges across Angular, React, and Svelte.
+    - Updated the demo and core development dependency to IPX 4.0.0-beta.1.
+    - Extended shared server tests to cover both IPX API shapes.
+  - Migrated the demo to SvelteKit 3.0.1 and adapter-vercel 7.0.0.
+  - Updated development, build, and CI dependencies.
+  - Added Context7 and DeepWiki badges to repository and package READMEs and updated the repository license link.
+  - Upgraded pnpm to 12.10.1.
+
 ## 0.3.1
 
 ### Patch Changes
