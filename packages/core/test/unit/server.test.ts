@@ -1,5 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createDsImageServer, type DsImageServerRuntime } from '@src/kit';
 
 const nodeUrls: string[] = [];
@@ -25,7 +25,21 @@ const runtime: DsImageServerRuntime = {
 };
 const server = createDsImageServer(runtime);
 
-describe('shared image server', () => {
+describe.each(['v3', 'v4'])('shared image server with IPX %s', (version) => {
+  beforeEach(() => {
+    vi.mocked(runtime.loadIpx).mockResolvedValue(
+      version === 'v3'
+        ? ipx
+        : {
+            createIPX: ipx.createIPX,
+            createIPXNodeHandler: ipx.createIPXNodeServer,
+            createIPXFetchHandler: ipx.createIPXWebServer,
+            ipxFSStorage: ipx.ipxFSStorage,
+            ipxHttpStorage: ipx.ipxHttpStorage
+          }
+    );
+  });
+
   afterEach(() => {
     vi.clearAllMocks();
     nodeUrls.length = 0;

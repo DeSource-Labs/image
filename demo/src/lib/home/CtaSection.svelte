@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { providerCount } from '$lib/provider-count';
-  import RayField from '$lib/RayField.svelte';
+  import { providerCount } from '#lib/provider-count.js';
+  import RayField from '#lib/RayField.svelte';
 </script>
 
 <section class="cta shell">

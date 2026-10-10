@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { providerCount } from '$lib/provider-count';
+  import { providerCount } from '#lib/provider-count.js';
 </script>
 
 <section class="trust-strip" aria-label="Core capabilities">

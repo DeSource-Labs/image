@@ -2,7 +2,7 @@
   /* eslint-disable svelte/no-navigation-without-resolve -- Service documentation links are external URLs supplied by the server catalog. Internal links use resolve(). */
   import { resolve } from '$app/paths';
   import { DsImage } from '@desource/image-svelte';
-  import { providers } from '$lib/providers';
+  import { providers } from '#lib/providers.js';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
@@ -25,7 +25,7 @@
       <DsImage src="/logo.png" format="avif" width="31" height="31" alt="" />
       DeSource Image
     </a>
-    <a class="back-link" href={resolve('/#providers')}>← All providers</a>
+    <a class="back-link" href={resolve('#providers')}>← All providers</a>
   </div>
 </header>
 
@@ -163,7 +163,7 @@
           Netlify Image CDN configuration and examples →
         </a>
       </p>{/if}
-    <a class="back-button" href={resolve('/#providers')}>← Back to all providers</a>
+    <a class="back-button" href={resolve('#providers')}>← Back to all providers</a>
   </article>
 </main>
 

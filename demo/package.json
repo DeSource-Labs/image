@@ -2,6 +2,9 @@
   "name": "@desource/image-demo",
   "private": true,
   "type": "module",
+  "imports": {
+    "#lib/*": "./src/lib/*"
+  },
   "scripts": {
     "clean": "rimraf .svelte-kit build .vercel test-results",
     "clean:modules": "rimraf node_modules",
@@ -15,15 +18,15 @@
   "dependencies": {
     "@desource/image": "workspace:*",
     "@desource/image-svelte": "workspace:*",
-    "ipx": "^3.1.1",
+    "ipx": "^4.0.0-beta.1",
     "ogl": "^1.0.11"
   },
   "devDependencies": {
-    "@sveltejs/adapter-vercel": "^6.3.4",
-    "@sveltejs/kit": "^2.70.3",
+    "@sveltejs/adapter-vercel": "^7.0.0",
+    "@sveltejs/kit": "^3.0.1",
     "@sveltejs/vite-plugin-svelte": "^7.3.1",
-    "sass": "^1.105.0",
-    "svelte": "^5.57.1",
+    "sass": "^1.105.1",
+    "svelte": "^5.57.2",
     "svelte-check": "^4.7.6"
   }
 }

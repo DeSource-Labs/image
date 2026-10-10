@@ -1,7 +1,7 @@
 <script lang="ts">
   import { resolve } from '$app/paths';
   import { DsImage } from '@desource/image-svelte';
-  import { providers } from '$lib/providers';
+  import { providers } from '#lib/providers.js';
   import type { PageData } from './$types';
 
   type Framework = 'core' | 'svelte' | 'react' | 'angular';
@@ -45,7 +45,7 @@
       <DsImage src="/logo.png" format="avif" width="31" height="31" alt="" />
       DeSource Image
     </a>
-    <a class="back-link" href={resolve('/#providers')}>← All providers</a>
+    <a class="back-link" href={resolve('#providers')}>← All providers</a>
   </div>
 </header>
 
@@ -235,7 +235,7 @@
       </div>
     </section>
 
-    <a class="back-button" href={resolve('/#providers')}>← Back to all providers</a>
+    <a class="back-button" href={resolve('#providers')}>← Back to all providers</a>
   </article>
 </main>
 
