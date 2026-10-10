@@ -1,7 +1,7 @@
 <script lang="ts">
   import { resolve } from '$app/paths';
   import { DsImage } from '@desource/image-svelte';
-  import { providerCount } from '$lib/provider-count';
+  import { providerCount } from '#lib/provider-count.js';
 
   const year = new Date().getUTCFullYear();
 </script>
@@ -26,10 +26,10 @@
       <nav class="footer-nav" aria-label="Footer navigation">
         <div>
           <p>Explore</p>
-          <a href={resolve('/#playground')}>Playground</a>
-          <a href={resolve('/#providers')}>Providers</a>
-          <a href={resolve('/#compare')}>Comparison</a>
-          <a href={resolve('/#api')}>API overview</a>
+          <a href={resolve('#playground')}>Playground</a>
+          <a href={resolve('#providers')}>Providers</a>
+          <a href={resolve('#compare')}>Comparison</a>
+          <a href={resolve('#api')}>API overview</a>
         </div>
         <div>
           <p>Project</p>

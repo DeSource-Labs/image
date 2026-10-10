@@ -1,8 +1,8 @@
 <script lang="ts">
   import { resolve } from '$app/paths';
-  import Gallery from '$lib/Gallery.svelte';
-  import { providerCount } from '$lib/provider-count';
-  import { providers } from '$lib/providers';
+  import Gallery from '#lib/Gallery.svelte';
+  import { providerCount } from '#lib/provider-count.js';
+  import { providers } from '#lib/providers.js';
 
   const providerImages = providers.map((provider) => ({
     src: provider.icon,

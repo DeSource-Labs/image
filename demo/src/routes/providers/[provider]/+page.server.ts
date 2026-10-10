@@ -1,6 +1,6 @@
 import { error } from '@sveltejs/kit';
-import { providers } from '$lib/providers';
-import { providerDocs } from '$lib/server/provider-docs';
+import { providers } from '#lib/providers.js';
+import { providerDocs } from '#lib/server/provider-docs.js';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = ({ params, url }) => {

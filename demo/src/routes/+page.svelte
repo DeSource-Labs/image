@@ -1,15 +1,15 @@
 <script lang="ts">
-  import ApiSection from '$lib/home/ApiSection.svelte';
-  import AutodetectSection from '$lib/home/AutodetectSection.svelte';
-  import BenefitsSection from '$lib/home/BenefitsSection.svelte';
-  import ComparisonSection from '$lib/home/ComparisonSection.svelte';
-  import CtaSection from '$lib/home/CtaSection.svelte';
-  import FrameworkGuide from '$lib/home/FrameworkGuide.svelte';
-  import HeroSection from '$lib/home/HeroSection.svelte';
-  import PlaygroundSection from '$lib/home/PlaygroundSection.svelte';
-  import ProvidersSection from '$lib/home/ProvidersSection.svelte';
-  import SiteHeader from '$lib/home/SiteHeader.svelte';
-  import { providerCount } from '$lib/provider-count';
+  import ApiSection from '#lib/home/ApiSection.svelte';
+  import AutodetectSection from '#lib/home/AutodetectSection.svelte';
+  import BenefitsSection from '#lib/home/BenefitsSection.svelte';
+  import ComparisonSection from '#lib/home/ComparisonSection.svelte';
+  import CtaSection from '#lib/home/CtaSection.svelte';
+  import FrameworkGuide from '#lib/home/FrameworkGuide.svelte';
+  import HeroSection from '#lib/home/HeroSection.svelte';
+  import PlaygroundSection from '#lib/home/PlaygroundSection.svelte';
+  import ProvidersSection from '#lib/home/ProvidersSection.svelte';
+  import SiteHeader from '#lib/home/SiteHeader.svelte';
+  import { providerCount } from '#lib/provider-count.js';
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();

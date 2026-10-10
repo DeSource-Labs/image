@@ -1,4 +1,4 @@
-import type { ProviderId } from '$lib/providers';
+import type { ProviderId } from '#lib/providers.js';
 
 export interface ProviderDoc {
   description: string;

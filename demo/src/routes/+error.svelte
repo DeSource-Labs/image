@@ -79,7 +79,7 @@
         <p class="error-message">{content.message}</p>
         <div class="error-actions">
           <a class="primary" href={resolve('/')}>Back to homepage</a>
-          <a class="secondary" href={resolve('/#providers')}>Browse providers</a>
+          <a class="secondary" href={resolve('#providers')}>Browse providers</a>
         </div>
       </div>
 

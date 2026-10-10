@@ -1,5 +1,7 @@
 {
-  "extends": "./.svelte-kit/tsconfig.json",
+  "extends": "$app/tsconfig",
+  "include": ["src", "*.ts", "*.js"],
+  "exclude": ["node_modules", ".svelte-kit", ".vercel", "build"],
   "compilerOptions": {
     "allowJs": true,
     "checkJs": true,
