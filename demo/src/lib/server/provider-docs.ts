@@ -9,7 +9,10 @@ export interface ProviderDoc {
   notes: string[];
   reference: string;
   factory: string;
-  example: Record<string, unknown>;
+  example: Record<string, unknown> & {
+    width?: number;
+    height?: number;
+  };
   extra: { title: string; language: string; code: string }[];
 }
 
