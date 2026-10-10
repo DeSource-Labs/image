@@ -21,18 +21,25 @@ type Next = (error?: unknown) => void;
 type NodeHandler<NodeRequest, NodeResponse> = (request: NodeRequest, response: NodeResponse) => void | Promise<void>;
 type WebHandler = (request: Request) => Response | Promise<Response>;
 
-interface IpxModule<NodeRequest, NodeResponse> {
+type IpxModule<NodeRequest, NodeResponse> = {
   createIPX(options: {
     maxAge: number;
     alias: Record<string, string> | undefined;
     storage: unknown;
     httpStorage: unknown;
   }): unknown;
-  createIPXNodeServer(ipx: unknown): NodeHandler<NodeRequest, NodeResponse>;
-  createIPXWebServer(ipx: unknown): WebHandler;
   ipxFSStorage(options: { dir: string[]; maxAge: number }): unknown;
   ipxHttpStorage(options: { allowAllDomains: boolean; domains: string[] | undefined; maxAge: number }): unknown;
-}
+} & (
+  | {
+      createIPXNodeHandler(ipx: unknown): NodeHandler<NodeRequest, NodeResponse>;
+      createIPXFetchHandler(ipx: unknown): WebHandler;
+    }
+  | {
+      createIPXNodeServer(ipx: unknown): NodeHandler<NodeRequest, NodeResponse>;
+      createIPXWebServer(ipx: unknown): WebHandler;
+    }
+);
 
 export interface DsImageServerRuntime {
   defaultDirs: readonly string[];
@@ -113,12 +120,14 @@ async function createNodeHandler<NodeRequest, NodeResponse>(
   runtime: DsImageServerRuntime
 ): Promise<NodeHandler<NodeRequest, NodeResponse>> {
   const ipx = (await runtime.loadIpx()) as IpxModule<NodeRequest, NodeResponse>;
-  return ipx.createIPXNodeServer(createIpx(options, runtime, ipx));
+  const createHandler = 'createIPXNodeHandler' in ipx ? ipx.createIPXNodeHandler : ipx.createIPXNodeServer;
+  return createHandler(createIpx(options, runtime, ipx));
 }
 
 async function createWebHandler(options: DsImageServerOptions, runtime: DsImageServerRuntime): Promise<WebHandler> {
   const ipx = (await runtime.loadIpx()) as IpxModule<unknown, unknown>;
-  return ipx.createIPXWebServer(createIpx(options, runtime, ipx));
+  const createHandler = 'createIPXFetchHandler' in ipx ? ipx.createIPXFetchHandler : ipx.createIPXWebServer;
+  return createHandler(createIpx(options, runtime, ipx));
 }
 
 function createIpx<NodeRequest, NodeResponse>(
