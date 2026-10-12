@@ -21,6 +21,7 @@ const featuredProviderIds = [
 
 const providerNames = {
   aliyun: 'Aliyun',
+  appwrite: 'Appwrite Storage',
   awsAmplify: 'AWS Amplify',
   bunny: 'Bunny',
   builderio: 'Builder.io',

@@ -11,6 +11,7 @@ export {
 } from './default.js';
 export { BUILT_IN_PROVIDER_NAMES, createBuiltInProviders } from './registry.js';
 export { aliyunProvider } from './aliyun.js';
+export { appwriteProvider } from './appwrite.js';
 export { bunnyProvider } from './bunny.js';
 export { builderioProvider } from './builderio.js';
 export { caisyProvider } from './caisy.js';
@@ -61,6 +62,7 @@ export type {
 export type { BuiltInProviderName } from './registry.js';
 export type { GenericProviderOptions } from '../provider-utils.js';
 export type { AliyunProviderOptions } from './aliyun.js';
+export type { AppwriteProviderOptions } from './appwrite.js';
 export type { BunnyProviderOptions } from './bunny.js';
 export type { BuilderioProviderOptions } from './builderio.js';
 export type { CaisyProviderOptions } from './caisy.js';
