@@ -1,5 +1,6 @@
 import type { ImageProviderDefinition } from '../types.js';
 import { aliyunProvider } from './aliyun.js';
+import { appwriteProvider } from './appwrite.js';
 import { awsAmplifyProvider } from './awsAmplify.js';
 import { bunnyProvider } from './bunny.js';
 import { builderioProvider } from './builderio.js';
@@ -50,6 +51,7 @@ import { sirvProvider } from './sirv.js';
 
 export const BUILT_IN_PROVIDER_NAMES = [
   'aliyun',
+  'appwrite',
   'awsAmplify',
   'bunny',
   'builderio',
@@ -104,6 +106,7 @@ export type BuiltInProviderName = (typeof BUILT_IN_PROVIDER_NAMES)[number];
 export function createBuiltInProviders(): Record<BuiltInProviderName, ImageProviderDefinition> {
   return {
     aliyun: aliyunProvider(),
+    appwrite: appwriteProvider(),
     awsAmplify: awsAmplifyProvider(),
     bunny: bunnyProvider(),
     builderio: builderioProvider(),

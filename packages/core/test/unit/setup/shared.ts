@@ -14,6 +14,7 @@ export const referenceProviderContext = {
 };
 
 const sourceOverrides: Record<string, string> = {
+  appwrite: '/v1/storage/buckets/photos/files/hero/view?project=project',
   contentstack: '/v3/assets/stack/asset/version/photo.jpg?environment=production',
   cloudflareimages: 'image-id',
   github: 'u/1',
@@ -30,6 +31,13 @@ export function providerSourceFor(name: string): string {
 }
 
 export function providerOptionsFor(name: string): Record<string, unknown> {
+  if (name === 'appwrite') {
+    return {
+      baseURL: 'https://appwrite.example.com',
+      modifiers: { width: 320, height: 180, quality: 75, format: 'webp', gravity: 'center' }
+    };
+  }
+
   let baseURL = 'https://images.example.com/base';
   if (name === 'hygraph') {
     baseURL = 'https://eu-central-1.graphassets.com/base';

@@ -17,6 +17,49 @@ export interface ProviderDoc {
 }
 
 export const providerDocs: Record<ProviderId, ProviderDoc> = {
+  appwrite: {
+    description: 'Resize public Appwrite Storage files with the file preview endpoint.',
+    options: [
+      {
+        name: 'baseURL',
+        value: 'https://fra.cloud.appwrite.io/v1/storage',
+        description: 'Storage URL prefix for relative paths. Full source URLs keep their own host and path.'
+      },
+      {
+        name: 'projectId',
+        value: 'your-project-id',
+        description: 'Fallback project ID when the source URL has no project query parameter.'
+      }
+    ],
+    src: '/buckets/photos/files/hero/view',
+    source:
+      'Use a full HTTP(S) Storage file URL ending in /view or /preview, or a file path relative to baseURL. The provider changes /view to /preview and preserves existing query parameters and fragments. Explicit modifiers replace matching query parameters.',
+    modifiers:
+      'Width, height and quality use Appwrite query parameters. Format maps to output and supports jpeg/jpg, png, gif, webp, avif and heic; JPEG is sent as jpg. Native preview modifiers such as gravity, borderWidth, borderColor, borderRadius, opacity, rotation and background pass through. Generic fit values throw; use gravity for crop positioning. Generic blur and position are omitted.',
+    notes: [
+      'A non-empty project query parameter is required. The source project wins over the projectId fallback; an explicit project modifier wins over both. Project IDs identify the project and do not grant file access.',
+      'Use publicly readable files. Existing token query parameters are retained, but the provider does not create sessions, tokens or API keys, or change Storage permissions.',
+      'Width and height must be integers from 0 to 4000. The provider validates source query dimensions and every responsive candidate, and throws for invalid or excessive dimensions instead of silently clamping them. Keep both dimensions within the limit at every density.',
+      "Appwrite Cloud transformations require a paid plan and are unavailable on Free. Self-hosted deployments need working preview transformations and support for the requested output format. Source files must meet the deployment's preview type and size limits.",
+      'Appwrite accepts quality values from 0 to 100; the shared image helpers normalize explicit quality inputs to 1–100. Color parameters use hexadecimal values without a leading #. The provider generates URLs; Appwrite performs the transformations.'
+    ],
+    reference: 'https://appwrite.io/docs/products/storage/images',
+    factory: 'appwriteProvider',
+    example: {
+      width: 800,
+      height: 500,
+      quality: 80,
+      format: 'webp',
+      gravity: 'center'
+    },
+    extra: [
+      {
+        title: 'Full Storage URL without baseURL',
+        language: 'ts',
+        code: "import { createImage } from '@desource/image';\nimport { appwriteProvider } from '@desource/image/providers/appwrite';\n\nconst image = createImage({\n  provider: 'appwrite',\n  providers: { appwrite: appwriteProvider() }\n});\n\nconst picture = image.getPicture({\n  src: 'https://fra.cloud.appwrite.io/v1/storage/buckets/photos/files/hero/view?project=your-project-id',\n  alt: 'Mountain lake',\n  width: 800,\n  height: 500,\n  densities: [1, 2],\n  formats: ['avif', 'webp'],\n  fallbackFormat: 'jpeg'\n});"
+      }
+    ]
+  },
   ipx: {
     description: 'Transform local files and allowed remote images with an IPX server.',
     options: [
