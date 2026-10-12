@@ -24,6 +24,33 @@ const config = {
 // Fixtures follow https://appwrite.io/docs/products/storage/images.
 // The pinned Nuxt Image version does not include an Appwrite provider.
 describe('Appwrite provider', () => {
+  it.each([
+    ['view', 'https://storage.example.com/v1'],
+    ['preview', 'https://storage.example.com/v1'],
+    ['view', ''],
+    ['preview', '']
+  ])('preserves protocol-relative %s URLs with baseURL "%s"', (endpoint, baseURL) => {
+    const src = `//fra.cloud.appwrite.io:8443${path}/${endpoint}?project=source&token=a%2Bb%2Fc%3D&width=100#asset`;
+    const configured = {
+      provider: 'appwrite',
+      providers: { appwrite: appwriteProvider({ baseURL, projectId: 'fallback' }) }
+    };
+    const result = getImage({ src, width: 640, format: 'webp' }, configured);
+    const url = new URL(result.url, 'https://app.example.com');
+
+    expect(result.url.startsWith('//fra.cloud.appwrite.io:8443/')).toBe(true);
+    expect(url.origin).toBe('https://fra.cloud.appwrite.io:8443');
+    expect(url.pathname).toBe(`${path}/preview`);
+    expect(url.hash).toBe('#asset');
+    expect(Object.fromEntries(url.searchParams)).toEqual({
+      project: 'source',
+      token: 'a+b/c=',
+      width: '640',
+      output: 'webp'
+    });
+    expect(getImage({ src: result.url, width: 640, format: 'webp' }, configured).url).toBe(result.url);
+  });
+
   it.each(['cloud.appwrite.io', 'fra.cloud.appwrite.io', 'storage.example.com'])(
     'normalizes view URLs on %s without changing the bucket or file',
     (host) => {

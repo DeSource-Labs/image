@@ -1,5 +1,6 @@
 import { getQuery, parseURL, stringifyParsedURL, withBase, withQuery } from 'ufo';
 import { configureProvider, defineProvider, mappedModifiers } from '../provider-utils.js';
+import type { ModifierValue } from '../types.js';
 
 // https://appwrite.io/docs/products/storage/images
 export interface AppwriteProviderOptions {
@@ -11,7 +12,7 @@ export interface AppwriteProviderOptions {
 
 const providerSetup = defineProvider<AppwriteProviderOptions>({
   getImage: (src, { modifiers, baseURL = '', projectId }) => {
-    const source = parseURL(withBase(src, baseURL));
+    const source = parseURL(src.startsWith('//') ? src : withBase(src, baseURL));
     if (!/\/storage\/buckets\/[^/]+\/files\/[^/]+\/(?:view|preview)\/?$/.test(source.pathname)) {
       throw new Error(
         '[desource/image] [appwrite] Expected a Storage file URL ending in /storage/buckets/{bucket}/files/{file}/view or /preview.'
@@ -37,15 +38,7 @@ const providerSetup = defineProvider<AppwriteProviderOptions>({
       );
     }
 
-    for (const dimension of ['width', 'height'] as const) {
-      const value = query[dimension];
-      if (value === undefined) continue;
-      const number = typeof value === 'string' && value.trim() ? Number(value) : value;
-      if (typeof number !== 'number' || !Number.isInteger(number) || number < 0 || number > 4000) {
-        throw new RangeError(`[desource/image] [appwrite] ${dimension} must be an integer between 0 and 4000.`);
-      }
-      query[dimension] = number;
-    }
+    normalizeDimensions(query);
 
     const output = modifiers.format ?? modifiers.f ?? query.output;
     if (output !== undefined && output !== null) {
@@ -60,6 +53,18 @@ const providerSetup = defineProvider<AppwriteProviderOptions>({
     return { url: withQuery(preview, query) };
   }
 });
+
+function normalizeDimensions(query: Record<string, ModifierValue>): void {
+  for (const dimension of ['width', 'height'] as const) {
+    const value = query[dimension];
+    if (value === undefined) continue;
+    const number = typeof value === 'string' && value.trim() ? Number(value) : value;
+    if (typeof number !== 'number' || !Number.isInteger(number) || number < 0 || number > 4000) {
+      throw new RangeError(`[desource/image] [appwrite] ${dimension} must be an integer between 0 and 4000.`);
+    }
+    query[dimension] = number;
+  }
+}
 
 export function appwriteProvider(options: AppwriteProviderOptions = {}) {
   return configureProvider(providerSetup, options, 'appwrite');
