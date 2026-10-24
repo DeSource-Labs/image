@@ -111,18 +111,8 @@ function serializeTasks(modifiers: ImageModifiers): string[] {
   const resize: string[] = [];
   if (width !== undefined) resize.push(`width:${width}`);
   if (height !== undefined) resize.push(`height:${height}`);
-  if (modifiers.fit !== undefined && modifiers.fit !== null) {
-    const fit = Object.hasOwn(fitMap, modifiers.fit) ? fitMap[modifiers.fit] : undefined;
-    if (!fit)
-      throw new Error(
-        '[desource/image] [filestack] Unsupported fit. Use cover, contain, fill, inside, scale-down, clip, crop, scale, or max.'
-      );
-    if (!width && !height) throw new Error('[desource/image] [filestack] A fit requires width or height.');
-    if ((fit === 'crop' || fit === 'scale') && (!width || !height)) {
-      throw new Error('[desource/image] [filestack] Crop and scale fits require both width and height.');
-    }
-    resize.push(`fit:${fit}`);
-  }
+  const fit = resolveFit(modifiers.fit, width, height);
+  if (fit) resize.push(`fit:${fit}`);
 
   const tasks: string[] = [];
   if (resize.length) tasks.push(`resize=${resize.join(',')}`);
@@ -138,6 +128,21 @@ function serializeTasks(modifiers: ImageModifiers): string[] {
   if (quality !== undefined) output.push(`quality:${quality}`);
   if (output.length) tasks.push(`output=${output.join(',')}`);
   return tasks;
+}
+
+function resolveFit(fit: ImageModifiers['fit'], width?: number, height?: number): string | undefined {
+  if (fit === undefined || fit === null) return undefined;
+  const mapped = Object.hasOwn(fitMap, fit) ? fitMap[fit] : undefined;
+  if (!mapped) {
+    throw new Error(
+      '[desource/image] [filestack] Unsupported fit. Use cover, contain, fill, inside, scale-down, clip, crop, scale, or max.'
+    );
+  }
+  if (!width && !height) throw new Error('[desource/image] [filestack] A fit requires width or height.');
+  if ((mapped === 'crop' || mapped === 'scale') && (!width || !height)) {
+    throw new Error('[desource/image] [filestack] Crop and scale fits require both width and height.');
+  }
+  return mapped;
 }
 
 function integerModifier(value: ModifierValue, name: string, max: number): number | undefined {
