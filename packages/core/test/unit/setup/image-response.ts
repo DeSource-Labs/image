@@ -63,28 +63,32 @@ export async function expectResponsiveImageWidths(src: string, config: ImageConf
   const attrs = getImageAttrs({ src, width: 640, height: 360, sizes: '100vw', format: 'webp' }, config);
   const variants = candidates(attrs.srcset!);
   expect(variants.map(({ descriptor }) => descriptor)).toEqual(['160w', '320w', '640w', '1536w']);
-  for (const { url, descriptor } of variants) {
-    const width = Number.parseInt(descriptor, 10);
-    expect(await inspectImage(url)).toEqual({
-      width,
-      height: (width * 9) / 16,
-      type: 'webp',
-      contentType: 'image/webp'
-    });
-  }
+  await Promise.all(
+    variants.map(async ({ url, descriptor }) => {
+      const width = Number.parseInt(descriptor, 10);
+      expect(await inspectImage(url)).toEqual({
+        width,
+        height: (width * 9) / 16,
+        type: 'webp',
+        contentType: 'image/webp'
+      });
+    })
+  );
 }
 
 export async function expectDensityImageSizes(attrs: ImageAttrs, expected: { width: number; height: number }) {
   const variants = candidates(attrs.srcset!);
   expect(variants.map(({ descriptor }) => descriptor)).toEqual(['1x', '2x']);
-  for (const { url, descriptor } of variants) {
-    const density = Number.parseInt(descriptor, 10);
-    expect(await inspectImage(url)).toMatchObject({
-      width: expected.width * density,
-      height: expected.height * density,
-      type: 'png'
-    });
-  }
+  await Promise.all(
+    variants.map(async ({ url, descriptor }) => {
+      const density = Number.parseInt(descriptor, 10);
+      expect(await inspectImage(url)).toMatchObject({
+        width: expected.width * density,
+        height: expected.height * density,
+        type: 'png'
+      });
+    })
+  );
   return variants;
 }
 
@@ -94,16 +98,18 @@ export async function expectPictureImageTypes(src: string, config: ImageConfig):
     config
   );
   expect(picture.sources.map(({ type }) => type)).toEqual(['image/avif', 'image/webp']);
-  for (const { srcset, type } of picture.sources) {
-    for (const { url } of candidates(srcset)) {
-      expect(await inspectImage(url)).toEqual({
-        width: 160,
-        height: 90,
-        type: type!.slice('image/'.length),
-        contentType: type
-      });
-    }
-  }
+  await Promise.all(
+    picture.sources.flatMap(({ srcset, type }) =>
+      candidates(srcset).map(async ({ url }) => {
+        expect(await inspectImage(url)).toEqual({
+          width: 160,
+          height: 90,
+          type: type!.slice('image/'.length),
+          contentType: type
+        });
+      })
+    )
+  );
   expect(await inspectImage(picture.img.src)).toEqual({
     width: 160,
     height: 90,
