@@ -1,6 +1,6 @@
 import { encodeQueryItem, joinURL } from 'ufo';
-import { createOperationsGenerator, isDevelopment } from '../utils.js';
-import { configureProvider, defineProvider, type ProviderOptionsOf } from '../provider-utils.js';
+import { createOperationsGenerator } from '../utils.js';
+import { configureProvider, defineProvider, resolveProviderWidth, type ProviderOptionsOf } from '../provider-utils.js';
 
 const operationsGenerator = createOperationsGenerator({
   keyMap: {
@@ -59,25 +59,7 @@ interface AmplifyOptions {
 const providerSetup = defineProvider<AmplifyOptions>({
   validateDomains: true,
   getImage: (src, { modifiers, baseURL = '/_amplify/image' }, ctx) => {
-    const validWidths = Object.values(ctx.options.screens || {}).sort((a, b) => a - b);
-    const largestWidth = validWidths.at(-1) ?? 0;
-    let width = Number(modifiers?.width || 0);
-
-    if (!width) {
-      width = largestWidth;
-      if (isDevelopment()) {
-        console.warn(
-          `A defined width should be provided to use the \`awsAmplify\` provider. Defaulting to \`${largestWidth}\`. Warning originated from \`${src}\`.`
-        );
-      }
-    } else if (!validWidths.includes(width)) {
-      width = validWidths.find((validWidth) => validWidth > width) || largestWidth;
-      if (isDevelopment()) {
-        console.warn(
-          `The width being used (\`${modifiers?.width}\`) should be added to \`image.screens\`. Defaulting to \`${width}\`. Warning originated from \`${src}\`.`
-        );
-      }
-    }
+    const width = resolveProviderWidth('awsAmplify', src, modifiers?.width, ctx.options.screens);
 
     const operations = operationsGenerator({
       ...modifiers,

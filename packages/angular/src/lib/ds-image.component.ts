@@ -1,17 +1,5 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import type {
-  DensityInput,
-  ImageDecoding,
-  ImageFetchPriority,
-  ImageFit,
-  ImageFormat,
-  ImageLoading,
-  ImageModifiers,
-  ImagePlaceholder,
-  ImagePreload,
-  SizesInput
-} from '@desource/image';
-import { coerceBoolean, coerceCrossorigin, coerceNumber, coercePlaceholder, coercePreload } from './coercion.js';
+import { ImageInputs } from './image-inputs.js';
 import { DsImageDirective } from './ds-image.directive.js';
 import type { DsNativeImageAttrs } from './types.js';
 
@@ -61,32 +49,8 @@ import type { DsNativeImageAttrs } from './types.js';
     />
   `
 })
-export class DsImageComponent {
+export class DsImageComponent extends ImageInputs {
   readonly src = input.required<string>();
-  readonly alt = input.required<string>();
-  readonly width = input<number | undefined, unknown>(undefined, { transform: coerceNumber });
-  readonly height = input<number | undefined, unknown>(undefined, { transform: coerceNumber });
-  readonly sizes = input<SizesInput | undefined>();
-  readonly quality = input<number | undefined, unknown>(undefined, { transform: coerceNumber });
-  readonly format = input<ImageFormat | readonly ImageFormat[] | undefined>();
-  readonly fit = input<ImageFit | undefined>();
-  readonly position = input<string | undefined>();
-  readonly background = input<string | undefined>();
-  readonly modifiers = input<ImageModifiers | undefined>();
-  readonly provider = input<string | undefined>();
-  readonly preset = input<string | undefined>();
-  readonly densities = input<DensityInput | undefined>();
-  readonly loading = input<ImageLoading | undefined>();
-  readonly decoding = input<ImageDecoding | undefined>();
-  readonly fetchpriority = input<ImageFetchPriority | undefined>();
-  readonly priority = input<boolean, unknown>(false, { transform: coerceBoolean });
-  readonly preload = input<ImagePreload | undefined, unknown>(undefined, { transform: coercePreload });
-  readonly placeholder = input<ImagePlaceholder | undefined, unknown>(undefined, { transform: coercePlaceholder });
-  readonly placeholderClass = input<string | undefined>();
-  readonly crossorigin = input<'anonymous' | 'use-credentials' | undefined, unknown>(undefined, {
-    transform: coerceCrossorigin
-  });
-  readonly nonce = input<string | undefined>();
   readonly nativeAttrs = input<DsNativeImageAttrs>({});
 
   readonly imgClass = input<string | undefined>(undefined, { alias: 'class' });

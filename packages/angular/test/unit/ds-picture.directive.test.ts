@@ -78,11 +78,18 @@ describe('DsPictureDirective', () => {
   it('protects generated fallback attributes while removing obsolete native attributes', async () => {
     TestBed.configureTestingModule({ imports: [PictureDirectiveHost], providers: providers() });
     const fixture = TestBed.createComponent(PictureDirectiveHost);
-    fixture.componentInstance.imgAttrs.set({ src: '/wrong.jpg', width: '999', hidden: true, title: 'Photo' });
+    fixture.componentInstance.imgAttrs.set({
+      src: '/wrong.jpg',
+      width: '999',
+      alt: 'Native caption',
+      hidden: true,
+      title: 'Photo'
+    });
     await settle(fixture);
     const image = requireImage(requirePicture(fixture));
     expect(image.getAttribute('src')).toContain('/picture.jpg');
     expect(image.getAttribute('width')).toBe('640');
+    expect(image.getAttribute('alt')).toBe('Native caption');
     expect(image.hasAttribute('hidden')).toBe(true);
 
     fixture.componentInstance.imgAttrs.set({ hidden: false });

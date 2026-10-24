@@ -90,11 +90,18 @@ describe('DsImageDirective', () => {
   it('protects generated attributes and removes false or obsolete native attributes', async () => {
     TestBed.configureTestingModule({ imports: [ImageDirectiveHost], providers: providers() });
     const fixture = TestBed.createComponent(ImageDirectiveHost);
-    fixture.componentInstance.nativeAttrs.set({ src: '/wrong.jpg', width: '999', title: 'Photo', hidden: true });
+    fixture.componentInstance.nativeAttrs.set({
+      src: '/wrong.jpg',
+      width: '999',
+      ALT: 'Wrong description',
+      title: 'Photo',
+      hidden: true
+    });
     await settle(fixture);
     const image = requireImage(fixture);
     expect(image.getAttribute('src')).toContain('/photo.jpg');
     expect(image.getAttribute('width')).toBe('600');
+    expect(image.getAttribute('alt')).toBe('Fixture image');
     expect(image.hasAttribute('hidden')).toBe(true);
 
     fixture.componentInstance.nativeAttrs.set({ hidden: false });

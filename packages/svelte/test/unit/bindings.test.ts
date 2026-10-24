@@ -146,23 +146,8 @@ describe('Svelte image bindings', () => {
   });
 
   it('uses a true placeholder, decodes the main source and updates reactively', async () => {
-    const originalImage = globalThis.Image;
-    const preloaders: MockImage[] = [];
-    class MockImage {
-      src = '';
-      srcset = '';
-      sizes = '';
-      crossOrigin: string | null = null;
-      complete = false;
-      naturalWidth = 0;
-      onload: (() => void) | null = null;
-      onerror: ((event: Event | string) => void) | null = null;
-      decode = vi.fn().mockResolvedValue(undefined);
-      constructor() {
-        preloaders.push(this);
-      }
-    }
-    globalThis.Image = MockImage as unknown as typeof Image;
+    const mocked = installMockImage();
+    const preloaders = mocked.images;
 
     try {
       const image = document.createElement('img');
@@ -189,7 +174,7 @@ describe('Svelte image bindings', () => {
       expect(preloaders).toHaveLength(1);
       expect(onStateChange).toHaveBeenLastCalledWith(false);
 
-      preloaders[0]!.onload?.();
+      preloaders[0]!.onload?.(new Event('load'));
       await Promise.resolve();
       await Promise.resolve();
       expect(image.src).toContain('width=600');
@@ -220,7 +205,7 @@ describe('Svelte image bindings', () => {
       image.dispatchEvent(new Event('load'));
       expect(onload).toHaveBeenCalledOnce();
     } finally {
-      globalThis.Image = originalImage;
+      mocked.restore();
     }
   });
 
@@ -263,23 +248,8 @@ describe('Svelte image bindings', () => {
   });
 
   it('preloads picture placeholders, handles failures, and follows a replaced fallback image', async () => {
-    const originalImage = globalThis.Image;
-    const preloaders: MockImage[] = [];
-    class MockImage {
-      src = '';
-      srcset = '';
-      sizes = '';
-      crossOrigin: string | null = null;
-      complete = false;
-      naturalWidth = 0;
-      onload: (() => void) | null = null;
-      onerror: ((event: Event | string) => void) | null = null;
-      decode = vi.fn().mockResolvedValue(undefined);
-      constructor() {
-        preloaders.push(this);
-      }
-    }
-    globalThis.Image = MockImage as unknown as typeof Image;
+    const mocked = installMockImage();
+    const preloaders = mocked.images;
 
     try {
       const picture = document.createElement('picture');
@@ -327,7 +297,7 @@ describe('Svelte image bindings', () => {
         onStateChange
       });
       expect(preloaders).toHaveLength(2);
-      preloaders[1]!.onload?.();
+      preloaders[1]!.onload?.(new Event('load'));
       await Promise.resolve();
       await Promise.resolve();
       expect(picture.querySelectorAll('source')).toHaveLength(1);
@@ -355,31 +325,19 @@ describe('Svelte image bindings', () => {
       replacement.dispatchEvent(new Event('load'));
       expect(onload).toHaveBeenCalledOnce();
     } finally {
-      globalThis.Image = originalImage;
+      mocked.restore();
     }
   });
 
   it('reports preload decode and native loading failures once', async () => {
-    const originalImage = globalThis.Image;
-    const preloaders: MockImage[] = [];
-    class MockImage {
-      src = '';
-      complete = false;
-      naturalWidth = 0;
-      onload: (() => void) | null = null;
-      onerror: ((event: Event | string) => void) | null = null;
-      decode = vi.fn().mockRejectedValue(new Error('decode failed'));
-      constructor() {
-        preloaders.push(this);
-      }
-    }
-    globalThis.Image = MockImage as unknown as typeof Image;
+    const mocked = installMockImage({ decode: () => Promise.reject(new Error('decode failed')) });
+    const preloaders = mocked.images;
 
     try {
       const ready = vi.fn();
       const error = vi.fn();
       const cleanup = preloadImage({ src: '/photo.jpg' }, { ready, error }, 'anonymous');
-      preloaders[0]!.onload?.();
+      preloaders[0]!.onload?.(new Event('load'));
       await Promise.resolve();
       await Promise.resolve();
       expect(ready).not.toHaveBeenCalled();
@@ -393,7 +351,7 @@ describe('Svelte image bindings', () => {
       preloaders[1]!.onerror?.('error');
       expect(secondError).toHaveBeenCalledOnce();
     } finally {
-      globalThis.Image = originalImage;
+      mocked.restore();
     }
   });
 
