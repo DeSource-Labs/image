@@ -17,6 +17,63 @@ export interface ProviderDoc {
 }
 
 export const providerDocs: Record<ProviderId, ProviderDoc> = {
+  filestack: {
+    description: 'Resize Filestack files, remote images and storage aliases with ordered transformation tasks.',
+    options: [
+      {
+        name: 'baseURL',
+        value: null,
+        description:
+          'Optional HTTP(S) CDN origin. Defaults to https://cdn.filestackcontent.com. Paths, queries, credentials and fragments are not supported.'
+      },
+      {
+        name: 'apiKey',
+        value: null,
+        description: 'Public application API key, required for external HTTP(S) sources and src:// storage aliases.'
+      },
+      {
+        name: 'signURL',
+        value: null,
+        description:
+          'Optional synchronous server-only callback. Receives each final transformation URL and returns its authorized URL.'
+      }
+    ],
+    src: 'YourFilestackHandle',
+    source:
+      'Use a file handle, /handle, or an untransformed file URL on cdn.filestackcontent.com or your configured CDN origin. External HTTP(S) URLs and src://alias/path sources require apiKey. Their full source, including embedded query parameters, is encoded as UTF-8 URL-safe Base64 with padding after b64:// in the processing URL. Existing transformed or signed CDN URLs, and CDN URLs with queries or fragments, are rejected; pass the original source instead.',
+    modifiers:
+      'Width and height become resize parameters. Fit maps cover to crop, contain to clip, fill to scale, and inside or scale-down to max; native clip, crop, scale and max are also accepted. Crop and scale require both dimensions. Format and quality form an output task after resize. Formats include jpg/jpeg, png, webp and avif; JPEG is sent as jpg. Other formats, including auto, auto_image, pjpg and svg, are rejected. Outside fit is unsupported. Other modifiers, including position, background and blur, are omitted.',
+    notes: [
+      'Dimensions must be integers from 1 to 10000. Every responsive candidate is validated; keep both dimensions within that range at every density. Quality accepts integers from 1 to 100.',
+      'Clip preserves the source aspect ratio inside the requested bounds, and max also prevents upscaling. These modes can return smaller dimensions than requested. Use crop with both dimensions when the output must fill a responsive image box.',
+      'External images must be reachable by Filestack. Storage aliases must be configured for the application identified by apiKey. The public API key identifies the application; it is not a signing secret.',
+      'Security-enabled applications need a Filestack security policy with the required read and convert permissions. A policy restricts sources, calls and expiry; it does not bind the signature to transformation dimensions or an exact task chain. Restricting delivery to specific derivatives requires an application proxy or custom delivery layer outside this provider.',
+      'Keep signing secrets and signURL in server code. The callback runs after task serialization for every responsive, picture and placeholder URL. Generate a fresh policy and signature when authorization expires; the provider does not sign or refresh policies.',
+      'Send the finalized image attributes from the server to the browser. Render those attributes directly, or use the none provider for a finalized URL. Do not pass signed URLs back through the Filestack provider.',
+      'The provider builds URLs; Filestack performs the transformations. Format availability and transformation permissions depend on your Filestack application.'
+    ],
+    reference: 'https://go.filestack.com/docs/transformations/overview/',
+    factory: 'filestackProvider',
+    example: {
+      width: 800,
+      height: 600,
+      fit: 'cover',
+      quality: 80,
+      format: 'webp'
+    },
+    extra: [
+      {
+        title: 'External images and storage aliases',
+        language: 'ts',
+        code: "import { createImage } from '@desource/image';\nimport { filestackProvider } from '@desource/image/providers/filestack';\n\nconst image = createImage({\n  provider: 'filestack',\n  providers: {\n    filestack: filestackProvider({ apiKey: 'your-public-api-key' })\n  }\n});\n\nconst remote = image('https://images.example.com/hero.jpg?version=2&token=a%2Bb', {\n  width: 800,\n  height: 600,\n  fit: 'cover',\n  format: 'webp'\n});\n\nconst stored = image('src://product-images/hero.jpg', {\n  width: 800,\n  height: 600,\n  fit: 'cover',\n  format: 'webp'\n});"
+      },
+      {
+        title: 'Server-side authorization',
+        language: 'ts',
+        code: "// Keep this configuration in a server-only module.\nimport { createImage } from '@desource/image';\nimport { filestackProvider } from '@desource/image/providers/filestack';\n// Your application implements this helper with Filestack policy signing.\n// https://www.filestack.com/docs/security/policies/\nimport { authorizeFilestackURL } from './filestack-signing.server';\n\nconst image = createImage({\n  provider: 'filestack',\n  providers: {\n    filestack: filestackProvider({ signURL: authorizeFilestackURL })\n  }\n});\n\nconst picture = image.getPicture({\n  src: 'YourFilestackHandle',\n  alt: 'Mountain lake',\n  width: 800,\n  height: 600,\n  fit: 'cover',\n  densities: [1, 2],\n  formats: ['avif', 'webp'],\n  fallbackFormat: 'jpeg'\n});\n\n// Render picture.sources and picture.img directly.\n// Send only these finalized attributes to the browser."
+      }
+    ]
+  },
   appwrite: {
     description: 'Resize public Appwrite Storage files with the file preview endpoint.',
     options: [

@@ -36,6 +36,7 @@ const providerNames = {
   edgeonePages: 'EdgeOne Pages',
   fastly: 'Fastly',
   filerobot: 'Filerobot',
+  filestack: 'Filestack',
   flyimg: 'Flyimg',
   github: 'GitHub Avatars',
   glide: 'Glide',

@@ -17,6 +17,7 @@ const sourceOverrides: Record<string, string> = {
   appwrite: '/v1/storage/buckets/photos/files/hero/view?project=project',
   contentstack: '/v3/assets/stack/asset/version/photo.jpg?environment=production',
   cloudflareimages: 'image-id',
+  filestack: 'pdn7PhZdT02GoYZCVYeF',
   github: 'u/1',
   hygraph: '/base/image-id',
   picsum: 'id/42',
@@ -31,6 +32,13 @@ export function providerSourceFor(name: string): string {
 }
 
 export function providerOptionsFor(name: string): Record<string, unknown> {
+  if (name === 'filestack') {
+    return {
+      baseURL: 'https://cdn.filestackcontent.com',
+      modifiers: { width: 320, height: 180, quality: 75, format: 'webp', fit: 'cover' }
+    };
+  }
+
   if (name === 'appwrite') {
     return {
       baseURL: 'https://appwrite.example.com',

@@ -15,6 +15,7 @@ import { directusProvider } from './directus.js';
 import { edgeonePagesProvider } from './edgeonePages.js';
 import { fastlyProvider } from './fastly.js';
 import { filerobotProvider } from './filerobot.js';
+import { filestackProvider } from './filestack.js';
 import { flyimgProvider } from './flyimg.js';
 import { githubProvider } from './github.js';
 import { glideProvider } from './glide.js';
@@ -66,6 +67,7 @@ export const BUILT_IN_PROVIDER_NAMES = [
   'edgeonePages',
   'fastly',
   'filerobot',
+  'filestack',
   'flyimg',
   'github',
   'glide',
@@ -121,6 +123,7 @@ export function createBuiltInProviders(): Record<BuiltInProviderName, ImageProvi
     edgeonePages: edgeonePagesProvider(),
     fastly: fastlyProvider(),
     filerobot: filerobotProvider(),
+    filestack: filestackProvider(),
     flyimg: flyimgProvider(),
     github: githubProvider(),
     glide: glideProvider(),
