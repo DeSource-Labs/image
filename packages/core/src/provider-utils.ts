@@ -1,6 +1,7 @@
 import type {
   ImageModifiers,
   ImageProvider,
+  ImageProviderContext,
   ImageProviderDefinition,
   ImageProviderInput,
   ImageProviderRegistration,
@@ -9,7 +10,43 @@ import type {
   ImageProviderSetup,
   ModifierValue
 } from './types.js';
-import { appendQuery, joinURL, normalizeFormat, stableModifiers, stringifyModifierValue } from './utils.js';
+import {
+  appendQuery,
+  isDevelopment,
+  joinURL,
+  normalizeFormat,
+  stableModifiers,
+  stringifyModifierValue
+} from './utils.js';
+
+export function resolveProviderWidth(
+  provider: string,
+  src: string,
+  requestedWidth: ImageModifiers['width'],
+  screens: ImageProviderContext['options']['screens']
+): number {
+  const validWidths = Object.values(screens || {}).sort((a, b) => a - b);
+  const largestWidth = validWidths.at(-1) ?? 0;
+  let width = Number(requestedWidth || 0);
+
+  if (!width) {
+    width = largestWidth;
+    if (isDevelopment()) {
+      console.warn(
+        `A defined width should be provided to use the \`${provider}\` provider. Defaulting to \`${largestWidth}\`. Warning originated from \`${src}\`.`
+      );
+    }
+  } else if (!validWidths.includes(width)) {
+    width = validWidths.find((validWidth) => validWidth > width) || largestWidth;
+    if (isDevelopment()) {
+      console.warn(
+        `The width being used (\`${requestedWidth}\`) should be added to \`image.screens\`. Defaulting to \`${width}\`. Warning originated from \`${src}\`.`
+      );
+    }
+  }
+
+  return width;
+}
 
 export interface GenericProviderOptions {
   baseURL?: string;

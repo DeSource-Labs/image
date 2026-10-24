@@ -11,6 +11,7 @@ import {
 import { contentstackProvider, createBuiltInProviders, type ContentstackProviderOptions } from '@src/providers';
 import contentstackSetup from '@src/providers/contentstack';
 import { localProviderContext } from '../setup/shared';
+import { expectQueryTransformPreservesSource } from '../setup/query-provider';
 
 const path = '/v3/assets/stack/asset/version/photo.jpg';
 const providerOptions = {
@@ -51,18 +52,13 @@ describe('Contentstack provider', () => {
   it('preserves encoded paths, repeated query parameters, and fragments while replacing transformations', () => {
     const src =
       'https://assets.example.com/v3/assets/stack/asset/caf%C3%A9%20photo%2F1.jpg?environment=preview&tag=a&tag=b&width=100&width=200&format=png&source=https%3A%2F%2Forigin.example%2Fa.jpg%3Fx%3D1%26y%3D2#preview';
-    const result = getImage({ src, width: 640, format: 'webp' }, config);
-    const url = new URL(result.url);
-
-    expect(url.origin).toBe('https://assets.example.com');
-    expect(url.pathname).toBe('/v3/assets/stack/asset/caf%C3%A9%20photo%2F1.jpg');
-    expect(url.hash).toBe('#preview');
-    expect(url.searchParams.get('environment')).toBe('preview');
-    expect(url.searchParams.getAll('tag')).toEqual(['a', 'b']);
-    expect(url.searchParams.getAll('width')).toEqual(['640']);
-    expect(url.searchParams.getAll('format')).toEqual(['webp']);
-    expect(url.searchParams.get('source')).toBe('https://origin.example/a.jpg?x=1&y=2');
-    expect(getImage({ src: result.url, width: 640, format: 'webp' }, config).url).toBe(result.url);
+    expectQueryTransformPreservesSource(src, config, {
+      environment: 'preview',
+      source: 'https://origin.example/a.jpg?x=1&y=2',
+      tag: ['a', 'b'],
+      width: ['640'],
+      format: ['webp']
+    });
   });
 
   it('joins relative sources to a configured regional base path', () => {

@@ -1,26 +1,21 @@
-import { Buffer } from 'node:buffer';
-import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
-import type { AddressInfo } from 'node:net';
-import { createIPX, type IPXModifiers } from 'ipx';
+import type { IncomingMessage, ServerResponse } from 'node:http';
+import type { IPXModifiers } from 'ipx';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { getImageAttrs, getPictureAttrs, type ImageConfig } from '@src/index';
+import { getImageAttrs, type ImageConfig } from '@src/index';
 import { appwriteProvider } from '@src/providers/appwrite';
+import {
+  createImageResponsePreview,
+  createImageResponseServer,
+  expectDensityImageSizes,
+  expectPictureImageTypes,
+  expectResponsiveImageWidths,
+  imageContentTypes,
+  inspectImage
+} from '../setup/image-response';
 
-const source = Buffer.from(
-  '<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900"><rect width="1600" height="900" fill="#246" /></svg>'
-);
-const preview = createIPX({
-  storage: { name: 'appwrite-preview-fixture', getMeta: () => ({}), getData: () => source }
-});
+const preview = createImageResponsePreview('appwrite-preview-fixture');
 const path = '/v1/storage/buckets/photos/files/landscape';
 const token = 'file+token/with=encoding';
-const contentTypes: Record<string, string> = {
-  png: 'image/png',
-  jpg: 'image/jpeg',
-  jpeg: 'image/jpeg',
-  webp: 'image/webp',
-  avif: 'image/avif'
-};
 let baseURL: string;
 let config: ImageConfig;
 
@@ -48,7 +43,7 @@ async function servePreview(request: IncomingMessage, response: ServerResponse) 
     height < 0 ||
     width > 4000 ||
     height > 4000 ||
-    !Object.hasOwn(contentTypes, output)
+    !Object.hasOwn(imageContentTypes, output)
   ) {
     response.writeHead(400).end('Invalid preview dimensions or output.');
     return;
@@ -59,39 +54,13 @@ async function servePreview(request: IncomingMessage, response: ServerResponse) 
   else if (width) modifiers.width = width;
   else if (height) modifiers.height = height;
   const image = await preview('landscape.svg', modifiers).process();
-  response.writeHead(200, { 'Content-Type': contentTypes[output]! }).end(image.data);
+  response.writeHead(200, { 'Content-Type': imageContentTypes[output]! }).end(image.data);
 }
 
-const server = createServer((request, response) => {
-  void servePreview(request, response).catch((error: unknown) => {
-    response.writeHead(500).end(String(error));
-  });
-});
-
-async function inspectImage(url: string) {
-  const response = await fetch(url);
-  expect(response.status).toBe(200);
-  const data = Buffer.from(await response.arrayBuffer());
-  const decode = createIPX({
-    storage: { name: 'response-bytes', getMeta: () => ({}), getData: () => data }
-  });
-  // Re-encoding forces the image decoder to consume the response body. The
-  // metadata describes those response bytes, independently of the URL query.
-  const decoded = await decode('response', { format: 'png' }).process();
-  expect(decoded.data.length).toBeGreaterThan(0);
-  return { ...decoded.meta, contentType: response.headers.get('content-type') };
-}
-
-function candidates(srcset: string) {
-  return srcset.split(', ').map((candidate) => {
-    const [url, descriptor] = candidate.split(' ');
-    return { url: url!, descriptor: descriptor! };
-  });
-}
+const server = createImageResponseServer(servePreview);
 
 beforeAll(async () => {
-  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
-  baseURL = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+  baseURL = await server.start();
   config = {
     provider: 'appwrite',
     providers: { appwrite: appwriteProvider({ baseURL, projectId: 'project-id' }) },
@@ -100,34 +69,11 @@ beforeAll(async () => {
   };
 });
 
-afterAll(async () => {
-  server.closeAllConnections();
-  await new Promise<void>((resolve, reject) => server.close((error) => (error ? reject(error) : resolve())));
-});
+afterAll(() => server.close());
 
 describe('Appwrite controlled-server response contract', () => {
   it('returns decoded widths matching every responsive width descriptor', async () => {
-    const attrs = getImageAttrs(
-      {
-        src: `${path}/view?token=${encodeURIComponent(token)}`,
-        width: 640,
-        height: 360,
-        sizes: '100vw',
-        format: 'webp'
-      },
-      config
-    );
-    const variants = candidates(attrs.srcset!);
-    expect(variants.map(({ descriptor }) => descriptor)).toEqual(['160w', '320w', '640w', '1536w']);
-    for (const { url, descriptor } of variants) {
-      const width = Number.parseInt(descriptor, 10);
-      expect(await inspectImage(url)).toEqual({
-        width,
-        height: (width * 9) / 16,
-        type: 'webp',
-        contentType: 'image/webp'
-      });
-    }
+    await expectResponsiveImageWidths(`${path}/view?token=${encodeURIComponent(token)}`, config);
   });
 
   it('keeps access parameters while serving density variants and the placeholder', async () => {
@@ -142,42 +88,11 @@ describe('Appwrite controlled-server response contract', () => {
       },
       config
     );
-    const variants = candidates(attrs.srcset!);
-    expect(variants.map(({ descriptor }) => descriptor)).toEqual(['1x', '2x']);
-    for (const { url, descriptor } of variants) {
-      const density = Number.parseInt(descriptor, 10);
-      expect(await inspectImage(url)).toMatchObject({ width: 160 * density, height: 90 * density, type: 'png' });
-    }
+    await expectDensityImageSizes(attrs, { width: 160, height: 90 });
     expect(await inspectImage(attrs.placeholderSrc!)).toMatchObject({ width: 10, type: 'png' });
   });
 
   it('serves each advertised picture MIME type and a decoded JPEG fallback', async () => {
-    const picture = getPictureAttrs(
-      {
-        src: `${path}/view?token=${encodeURIComponent(token)}`,
-        width: 160,
-        height: 90,
-        formats: ['avif', 'webp'],
-        fallbackFormat: 'jpeg'
-      },
-      config
-    );
-    expect(picture.sources.map(({ type }) => type)).toEqual(['image/avif', 'image/webp']);
-    for (const { srcset, type } of picture.sources) {
-      for (const { url } of candidates(srcset)) {
-        expect(await inspectImage(url)).toEqual({
-          width: 160,
-          height: 90,
-          type: type!.slice('image/'.length),
-          contentType: type
-        });
-      }
-    }
-    expect(await inspectImage(picture.img.src)).toEqual({
-      width: 160,
-      height: 90,
-      type: 'jpg',
-      contentType: 'image/jpeg'
-    });
+    await expectPictureImageTypes(`${path}/view?token=${encodeURIComponent(token)}`, config);
   });
 });

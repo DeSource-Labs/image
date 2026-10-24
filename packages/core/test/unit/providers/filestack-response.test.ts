@@ -1,25 +1,21 @@
-import { Buffer } from 'node:buffer';
 import { createHmac } from 'node:crypto';
-import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
-import type { AddressInfo } from 'node:net';
-import { createIPX, type IPXModifiers } from 'ipx';
+import type { IncomingMessage, ServerResponse } from 'node:http';
+import type { IPXModifiers } from 'ipx';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { getImageAttrs, getPictureAttrs, type ImageConfig } from '@src/index';
+import { getImageAttrs, type ImageConfig } from '@src/index';
 import { filestackProvider } from '@src/providers/filestack';
+import {
+  createImageResponsePreview,
+  createImageResponseServer,
+  expectDensityImageSizes,
+  expectPictureImageTypes,
+  expectResponsiveImageWidths,
+  imageContentTypes,
+  inspectImage
+} from '../setup/image-response';
 
 const handle = 'pdn7PhZdT02GoYZCVYeF';
-const source = Buffer.from(
-  '<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900"><rect width="1600" height="900" fill="#246" /></svg>'
-);
-const preview = createIPX({
-  storage: { name: 'filestack-processing-fixture', getMeta: () => ({}), getData: () => source }
-});
-const contentTypes: Record<string, string> = {
-  png: 'image/png',
-  jpg: 'image/jpeg',
-  webp: 'image/webp',
-  avif: 'image/avif'
-};
+const preview = createImageResponsePreview('filestack-processing-fixture');
 const secret = 'controlled-server-test-key';
 let baseURL: string;
 let config: ImageConfig;
@@ -64,33 +60,13 @@ async function serveImage(request: IncomingMessage, response: ServerResponse) {
   if (fit !== 'max') modifiers.enlarge = true;
   if (match[5]) modifiers.quality = match[5];
   const image = await preview('landscape.svg', modifiers).process();
-  response.writeHead(200, { 'Content-Type': contentTypes[format]! }).end(image.data);
+  response.writeHead(200, { 'Content-Type': imageContentTypes[format]! }).end(image.data);
 }
 
-const server = createServer((request, response) => {
-  void serveImage(request, response).catch((error: unknown) => response.writeHead(500).end(String(error)));
-});
-
-function candidates(srcset: string) {
-  return srcset.split(', ').map((candidate) => {
-    const [url, descriptor] = candidate.split(' ');
-    return { url: url!, descriptor: descriptor! };
-  });
-}
-
-async function inspectImage(url: string) {
-  const response = await fetch(url);
-  expect(response.status).toBe(200);
-  const bytes = Buffer.from(await response.arrayBuffer());
-  const decode = createIPX({ storage: { name: 'response-bytes', getMeta: () => ({}), getData: () => bytes } });
-  const decoded = await decode('response', { format: 'png' }).process();
-  expect(decoded.data.length).toBeGreaterThan(0);
-  return { ...decoded.meta, contentType: response.headers.get('content-type') };
-}
+const server = createImageResponseServer(serveImage);
 
 beforeAll(async () => {
-  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
-  baseURL = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+  baseURL = await server.start();
   config = {
     provider: 'filestack',
     providers: {
@@ -101,25 +77,11 @@ beforeAll(async () => {
   };
 });
 
-afterAll(async () => {
-  server.closeAllConnections();
-  await new Promise<void>((resolve, reject) => server.close((error) => (error ? reject(error) : resolve())));
-});
+afterAll(() => server.close());
 
 describe('Filestack controlled-server response contract', () => {
   it('returns decoded widths matching every responsive width descriptor', async () => {
-    const attrs = getImageAttrs({ src: handle, width: 640, height: 360, sizes: '100vw', format: 'webp' }, config);
-    const variants = candidates(attrs.srcset!);
-    expect(variants.map(({ descriptor }) => descriptor)).toEqual(['160w', '320w', '640w', '1536w']);
-    for (const { url, descriptor } of variants) {
-      const width = Number.parseInt(descriptor, 10);
-      expect(await inspectImage(url)).toEqual({
-        width,
-        height: (width * 9) / 16,
-        type: 'webp',
-        contentType: 'image/webp'
-      });
-    }
+    await expectResponsiveImageWidths(handle, config);
   });
 
   it('crops density variants and serves the separately signed placeholder', async () => {
@@ -127,38 +89,13 @@ describe('Filestack controlled-server response contract', () => {
       { src: handle, width: 160, height: 160, fit: 'cover', densities: [1, 2], format: 'png', placeholder: true },
       config
     );
-    const variants = candidates(attrs.srcset!);
-    expect(variants.map(({ descriptor }) => descriptor)).toEqual(['1x', '2x']);
-    for (const { url, descriptor } of variants) {
-      const density = Number.parseInt(descriptor, 10);
-      expect(await inspectImage(url)).toMatchObject({ width: 160 * density, height: 160 * density, type: 'png' });
-    }
+    const variants = await expectDensityImageSizes(attrs, { width: 160, height: 160 });
     expect(await inspectImage(attrs.placeholderSrc!)).toMatchObject({ width: 10, height: 10, type: 'png' });
     const tampered = variants[0]!.url.replace('width:160', 'width:161');
     expect((await fetch(tampered)).status).toBe(401);
   });
 
   it('serves each advertised picture MIME type and a decoded JPEG fallback', async () => {
-    const picture = getPictureAttrs(
-      { src: handle, width: 160, height: 90, formats: ['avif', 'webp'], fallbackFormat: 'jpeg' },
-      config
-    );
-    expect(picture.sources.map(({ type }) => type)).toEqual(['image/avif', 'image/webp']);
-    for (const { srcset, type } of picture.sources) {
-      for (const { url } of candidates(srcset)) {
-        expect(await inspectImage(url)).toEqual({
-          width: 160,
-          height: 90,
-          type: type!.slice('image/'.length),
-          contentType: type
-        });
-      }
-    }
-    expect(await inspectImage(picture.img.src)).toEqual({
-      width: 160,
-      height: 90,
-      type: 'jpg',
-      contentType: 'image/jpeg'
-    });
+    await expectPictureImageTypes(handle, config);
   });
 });
