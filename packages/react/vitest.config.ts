@@ -8,7 +8,8 @@ export default defineFrameworkVitestConfig({
     '@lib': './src/index',
     '@server': './src/server'
   },
-  environment: 'jsdom',
+  // DOM suites opt into jsdom with @vitest-environment.
+  environment: 'node',
   setupFiles: ['./test/unit/setup-environment.ts'],
   include: ['./test/unit/**/*.test.ts', './test/unit/**/*.test.tsx'],
   coverage: {

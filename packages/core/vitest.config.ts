@@ -1,6 +1,9 @@
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vitest/config';
 
+// Provider detection mocks std-env and needs a fresh module graph.
+const isolatedTests = ['test/unit/provider-detection.test.ts'];
+
 export default defineConfig({
   resolve: {
     alias: {
@@ -11,7 +14,29 @@ export default defineConfig({
   },
   test: {
     environment: 'node',
-    include: ['test/unit/**/*.test.ts'],
+    pool: 'threads',
+    restoreMocks: true,
+    unstubEnvs: true,
+    unstubGlobals: true,
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: 'unit',
+          isolate: false,
+          include: ['test/unit/**/*.test.ts'],
+          exclude: isolatedTests
+        }
+      },
+      {
+        extends: true,
+        test: {
+          name: 'provider-detection',
+          isolate: true,
+          include: isolatedTests
+        }
+      }
+    ],
     server: {
       deps: {
         inline: ['@nuxt/image']
