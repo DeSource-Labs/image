@@ -93,6 +93,6 @@
     "ufo": "^1.6.4"
   },
   "devDependencies": {
-    "ipx": "^4.0.0-beta.1"
+    "ipx": "^4.0.0"
   }
 }

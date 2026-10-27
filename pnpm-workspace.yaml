@@ -3,18 +3,16 @@ packages:
   - 'demo'
 
 overrides:
-  '@angular-devkit/architect': 0.2202.2
-  '@angular-devkit/core': 22.2.2
-  '@angular-devkit/schematics': 22.2.2
-  '@angular/cli': 22.2.2
-  '@schematics/angular': 22.2.2
+  '@angular-devkit/architect': 0.2202.4
+  '@angular-devkit/core': 22.2.4
+  '@angular-devkit/schematics': 22.2.4
+  '@angular/cli': 22.2.4
+  '@schematics/angular': 22.2.4
   glob: ^13.0.6
   immutable: ^5.1.9
   less: 4.9.1
-  listr2: 11.1.1
-  # Updates Yuku and fixes its codegen source-map API together.
-  'ng-packagr@22.2.4>rolldown-plugin-dts': 0.28.7
-  sass: ^1.105.1
+  listr2: 11.4.0
+  sass: ^1.106.1
   sharp: ^0.35.5
 
 # Updates Yuku and fixes its codegen source-map API together.
