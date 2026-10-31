@@ -1,5 +1,49 @@
 # @desource/image-svelte
 
+## 0.5.0
+
+### Minor Changes
+
+- Core | Angular | React | Svelte Upgrades:
+  - Added Appwrite Storage as a built-in image provider:
+    - Exposed `appwriteProvider` and `AppwriteProviderOptions` through the provider registry and tree-shakable subpath imports.
+    - Supported resizing, quality, JPEG, PNG, GIF, WebP, AVIF, HEIC, and native preview modifiers.
+    - Converted Storage `/view` URLs to `/preview`, preserving custom hosts, encoded paths, access parameters, repeated query parameters, and fragments.
+    - Supported relative sources through `baseURL` and a `projectId` fallback, with source projects and explicit modifiers taking precedence.
+    - Validated dimensions from 0 to 4000, including source query parameters and responsive candidates.
+    - Rejected invalid Storage paths, missing or invalid projects, unsupported output formats, and generic fit modifiers.
+  - Added Filestack as a built-in image provider:
+    - Exposed `filestackProvider` and `FilestackProviderOptions` through the provider registry and tree-shakable subpath imports.
+    - Supported file handles, untransformed CDN URLs, custom CDN origins, external HTTP(S) images, and `src://` storage aliases.
+    - Required a public `apiKey` for external images and storage aliases, preserving their full sources through UTF-8 URL-safe Base64 encoding.
+    - Generated ordered resize and output tasks with quality, JPEG, PNG, WebP, and AVIF support.
+    - Mapped `cover` to `crop`, `contain` to `clip`, `fill` to `scale`, and `inside` or `scale-down` to `max`, with native fit values also supported.
+    - Supported default modifiers and a synchronous `signURL` callback for authorizing finalized responsive, picture, and placeholder URLs.
+    - Validated dimensions from 1 to 10000 across responsive candidates and rejected invalid quality, unsupported formats or fits, incomplete crop or scale dimensions, and transformed or signed CDN inputs.
+  - Added Appwrite and Filestack setup documentation, examples, demo listings, logos, and README provider entries.
+  - Consolidated shared image logic:
+    - Shared Angular image and picture inputs, coercion, placeholder loading, preload links, and native attribute handling.
+    - Shared width selection and development warnings between Vercel and AWS Amplify.
+    - Simplified Filestack fit validation.
+  - Expanded and consolidated test coverage:
+    - Added provider URL validation and local-server response tests for decoded dimensions, responsive candidates, placeholders, picture MIME types, and finalized URL signing.
+    - Shared image response fixtures, query-preservation assertions, and Svelte image mocks.
+    - Added Angular assertions for protected image alt attributes and picture fallback alt overrides.
+  - Reduced unit-test overhead:
+    - Used thread workers and disabled isolation for core suites except provider detection, with automatic restoration of mocks, environment variables, and globals.
+    - Defaulted React unit tests to Node, retaining jsdom for DOM suites.
+  - Updated core development and demo dependencies to stable IPX 4.0.0.
+  - Updated the demo to SvelteKit 3.1.1 and adapter-vercel 7.0.2.
+  - Updated Angular, React, Next.js, Svelte, Nuxt Image, Vite, Vitest, Playwright, linting, formatting, and supporting development dependencies.
+  - Updated workspace dependency overrides, pinned the OXC parser's compatible WASM runtime, and removed the obsolete ng-packagr override.
+  - Updated the Changesets configuration schema to 4.0.1.
+  - Upgraded pnpm to 12.16.1.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @desource/image@0.5.0
+
 ## 0.4.0
 
 ### Minor Changes
