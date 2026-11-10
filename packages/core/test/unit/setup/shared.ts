@@ -15,6 +15,7 @@ export const referenceProviderContext = {
 
 const sourceOverrides: Record<string, string> = {
   appwrite: '/v1/storage/buckets/photos/files/hero/view?project=project',
+  bytescale: 'https://upcdn.io/account/raw/photo.jpg',
   contentstack: '/v3/assets/stack/asset/version/photo.jpg?environment=production',
   cloudflareimages: 'image-id',
   filestack: 'pdn7PhZdT02GoYZCVYeF',

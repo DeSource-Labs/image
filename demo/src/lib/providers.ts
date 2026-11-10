@@ -25,6 +25,7 @@ const providerNames = {
   awsAmplify: 'AWS Amplify',
   bunny: 'Bunny',
   builderio: 'Builder.io',
+  bytescale: 'Bytescale',
   caisy: 'Caisy',
   cloudflare: 'Cloudflare Transformations',
   cloudflareimages: 'Cloudflare Images',
