@@ -1,3 +1,4 @@
+import { readdirSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import type { ImageProviderContext, ImageProviderResult } from '@src/index';
 import {
@@ -8,20 +9,17 @@ import {
 } from '@src/providers';
 import { clone, localProviderContext, providerOptionsFor, providerSourceFor } from '../setup/shared';
 
-interface ProviderModule {
-  default?: unknown;
-}
-
 interface ProviderLike {
   name?: string;
   getImage(source: string, options: Record<string, unknown>, context: ImageProviderContext): ImageProviderResult;
 }
 
-const providerModules = import.meta.glob<ProviderModule>('../../../src/providers/*.ts', { eager: true });
 const nonProviderModuleNames = new Set(['default', 'index', 'registry']);
-const providerSourceNames = Object.keys(providerModules)
-  .map((path) => path.match(/([^/]+)\.ts$/)?.[1] ?? '')
-  .filter((name) => name && !nonProviderModuleNames.has(name))
+// Read at runtime so cached test transforms cannot freeze the provider list.
+const providerSourceNames = readdirSync(new URL('../../../src/providers/', import.meta.url))
+  .filter((file) => file.endsWith('.ts'))
+  .map((file) => file.slice(0, -3))
+  .filter((name) => !nonProviderModuleNames.has(name))
   .sort();
 
 function asProvider(provider: unknown): ProviderLike {
