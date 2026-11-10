@@ -4,6 +4,7 @@ import { appwriteProvider } from './appwrite.js';
 import { awsAmplifyProvider } from './awsAmplify.js';
 import { bunnyProvider } from './bunny.js';
 import { builderioProvider } from './builderio.js';
+import { bytescaleProvider } from './bytescale.js';
 import { caisyProvider } from './caisy.js';
 import { cloudflareProvider } from './cloudflare.js';
 import { cloudflareImagesProvider } from './cloudflareimages.js';
@@ -56,6 +57,7 @@ export const BUILT_IN_PROVIDER_NAMES = [
   'awsAmplify',
   'bunny',
   'builderio',
+  'bytescale',
   'caisy',
   'cloudflare',
   'cloudflareimages',
@@ -112,6 +114,7 @@ export function createBuiltInProviders(): Record<BuiltInProviderName, ImageProvi
     awsAmplify: awsAmplifyProvider(),
     bunny: bunnyProvider(),
     builderio: builderioProvider(),
+    bytescale: bytescaleProvider(),
     caisy: caisyProvider(),
     cloudflare: cloudflareProvider(),
     cloudflareimages: cloudflareImagesProvider(),

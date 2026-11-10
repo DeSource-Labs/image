@@ -17,6 +17,45 @@ export interface ProviderDoc {
 }
 
 export const providerDocs: Record<ProviderId, ProviderDoc> = {
+  bytescale: {
+    description: 'Resize Bytescale files and configured external sources through the Image Processing API.',
+    options: [
+      {
+        name: 'baseURL',
+        value: null,
+        description:
+          'Optional delivery URL prefix for relative sources, such as https://upcdn.io/your-account/image. Absolute URLs keep their own host and path.'
+      }
+    ],
+    src: 'https://upcdn.io/W142hJk/raw/example.jpg',
+    source:
+      'Use a Bytescale delivery URL with /account/raw/file or /account/image/file, including a configured custom hostname, or a file path relative to baseURL. The provider changes the delivery /raw/ segment to /image/ and retains the account, source path, query parameters and fragment. Existing /image/ URLs are not rewritten again. Explicit modifiers replace matching query parameters.',
+    modifiers:
+      'Width, height, quality and format map to w, h, q and f. Fit maps cover to crop, contain or inside to max, outside to min, fill to stretch, and scale-down to shrink. Native Bytescale fit values and other query modifiers pass through. Formats include jpeg/jpg, png, webp, avif and gif; JPEG is sent as jpg. Unsupported formats, including auto, throw.',
+    notes: [
+      'Crop fills the requested box. Max preserves aspect ratio within it and min covers it without cropping; both may enlarge the source. Stretch changes the aspect ratio. Shrink preserves aspect ratio without enlargement.',
+      'Contain, inside, outside and no-enlargement modes can return dimensions different from the requested box. Keep responsive descriptors consistent with the decoded image; use cover with both dimensions for an exact-size crop.',
+      'An explicit format removes the f2 fallback parameter so picture sources keep their advertised MIME type.',
+      'External sources must be configured in the Bytescale account. Pass their Bytescale delivery paths, not the original external URLs.',
+      'Existing access parameters are retained. Signatures that cover the URL must be regenerated after transformation. The provider does not create credentials or signatures; generate authorized URLs on the server when required.'
+    ],
+    reference: 'https://www.bytescale.com/docs/image-processing-api',
+    factory: 'bytescaleProvider',
+    example: {
+      width: 800,
+      height: 600,
+      fit: 'cover',
+      quality: 80,
+      format: 'webp'
+    },
+    extra: [
+      {
+        title: 'Relative source paths',
+        language: 'ts',
+        code: "import { createImage } from '@desource/image';\nimport { bytescaleProvider } from '@desource/image/providers/bytescale';\n\nconst image = createImage({\n  provider: 'bytescale',\n  providers: {\n    bytescale: bytescaleProvider({\n      baseURL: 'https://upcdn.io/your-account/image'\n    })\n  }\n});\n\nconst src = image('products/hero.jpg', {\n  width: 800,\n  height: 600,\n  fit: 'cover',\n  format: 'webp'\n});"
+      }
+    ]
+  },
   filestack: {
     description: 'Resize Filestack files, remote images and storage aliases with ordered transformation tasks.',
     options: [
