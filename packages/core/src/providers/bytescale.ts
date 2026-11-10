@@ -37,7 +37,13 @@ const providerSetup = defineProvider<BytescaleProviderOptions>({
     source.pathname = source.pathname.replace(/^(\/[^/]+)\/raw\//, '$1/image/');
 
     const query = mappedModifiers(
-      { src, modifiers },
+      {
+        src,
+        // Bytescale needs explicit false values, which the shared mapper otherwise omits.
+        modifiers: Object.fromEntries(
+          Object.entries(modifiers).map(([key, value]) => [key, typeof value === 'boolean' ? String(value) : value])
+        )
+      },
       { width: 'w', height: 'h', quality: 'q', format: 'f' },
       {
         fit: (value) => {

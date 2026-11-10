@@ -135,6 +135,29 @@ describe('Bytescale provider', () => {
     expect(modifiers).toEqual({ f: 'jpeg', crop: 'smart', 'crop-x': 0, sharpen: 0, strip: true });
   });
 
+  it.each(['/document.pdf', '/document.pdf?bg-pdf=true'])(
+    'preserves an explicit false PDF background modifier: %s',
+    (src) => {
+      const modifiers = Object.freeze({ 'bg-pdf': false });
+      const url = new URL(getImage({ src, format: 'png', modifiers }, config).url);
+
+      expect(url.searchParams.getAll('bg-pdf')).toEqual(['false']);
+      expect(url.searchParams.get('f')).toBe('png');
+      expect(modifiers['bg-pdf']).toBe(false);
+    }
+  );
+
+  it('lets an ordinary image disable a forced background from its source URL', () => {
+    const url = new URL(
+      getImage({ src: '/photo.png?bg-force=true&version=2', format: 'webp', modifiers: { 'bg-force': false } }, config)
+        .url
+    );
+
+    expect(url.searchParams.getAll('bg-force')).toEqual(['false']);
+    expect(url.searchParams.get('version')).toBe('2');
+    expect(url.searchParams.get('f')).toBe('webp');
+  });
+
   it('preserves delivery context in responsive variants, placeholders, and picture sources', () => {
     const src = 'https://cdn.example.com/account/raw/external/photo.jpg?auth=public-token&version=2';
     const attrs = getImageAttrs(
