@@ -2,7 +2,7 @@ import { Buffer } from 'node:buffer';
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { createIPX, type HandlerContext } from 'ipx';
-import { expect } from 'vitest';
+import { expect, it } from 'vitest';
 import { getImageAttrs, getPictureAttrs, type ImageAttrs, type ImageConfig } from '@src/index';
 
 export const imageContentTypes: Record<string, string> = {
@@ -90,6 +90,33 @@ export async function expectDensityImageSizes(attrs: ImageAttrs, expected: { wid
     })
   );
   return variants;
+}
+
+export async function expectCroppedDensityAndPlaceholder(src: string, config: ImageConfig) {
+  const attrs = getImageAttrs(
+    { src, width: 160, height: 160, fit: 'cover', densities: [1, 2], format: 'png', placeholder: true },
+    config
+  );
+  const variants = await expectDensityImageSizes(attrs, { width: 160, height: 160 });
+  expect(await inspectImage(attrs.placeholderSrc!)).toMatchObject({ width: 10, height: 10, type: 'png' });
+  return variants;
+}
+
+export function defineImageResponseTests(getFixture: () => { src: string; config: ImageConfig }) {
+  it('returns decoded widths matching every responsive width descriptor', async () => {
+    const { src, config } = getFixture();
+    await expectResponsiveImageWidths(src, config);
+  });
+
+  it('serves cropped density variants and a correctly sized placeholder', async () => {
+    const { src, config } = getFixture();
+    await expectCroppedDensityAndPlaceholder(src, config);
+  });
+
+  it('serves each advertised picture MIME type and a decoded JPEG fallback', async () => {
+    const { src, config } = getFixture();
+    await expectPictureImageTypes(src, config);
+  });
 }
 
 export async function expectPictureImageTypes(src: string, config: ImageConfig): Promise<void> {
