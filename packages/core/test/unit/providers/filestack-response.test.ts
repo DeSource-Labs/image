@@ -2,16 +2,15 @@ import { createHmac } from 'node:crypto';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { IPXModifiers } from 'ipx';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { getImageAttrs, type ImageConfig } from '@src/index';
+import type { ImageConfig } from '@src/index';
 import { filestackProvider } from '@src/providers/filestack';
 import {
   createImageResponsePreview,
   createImageResponseServer,
-  expectDensityImageSizes,
+  expectCroppedDensityAndPlaceholder,
   expectPictureImageTypes,
   expectResponsiveImageWidths,
-  imageContentTypes,
-  inspectImage
+  imageContentTypes
 } from '../setup/image-response';
 
 const handle = 'pdn7PhZdT02GoYZCVYeF';
@@ -85,12 +84,7 @@ describe('Filestack controlled-server response contract', () => {
   });
 
   it('crops density variants and serves the separately signed placeholder', async () => {
-    const attrs = getImageAttrs(
-      { src: handle, width: 160, height: 160, fit: 'cover', densities: [1, 2], format: 'png', placeholder: true },
-      config
-    );
-    const variants = await expectDensityImageSizes(attrs, { width: 160, height: 160 });
-    expect(await inspectImage(attrs.placeholderSrc!)).toMatchObject({ width: 10, height: 10, type: 'png' });
+    const variants = await expectCroppedDensityAndPlaceholder(handle, config);
     const tampered = variants[0]!.url.replace('width:160', 'width:161');
     expect((await fetch(tampered)).status).toBe(401);
   });
