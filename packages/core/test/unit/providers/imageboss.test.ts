@@ -41,6 +41,16 @@ describe('ImageBoss provider', () => {
     );
   });
 
+  it('trims only trailing slashes from a custom endpoint', () => {
+    const customConfig = {
+      ...config,
+      providerOptions: { imageboss: { baseURL: 'https://images.example.com/proxy//images///' } }
+    };
+    const url = getImage({ src: '/photo.jpg', width: 320 }, customConfig).url;
+    expect(url).toBe('https://images.example.com/proxy//images/my-images/width/320/photo.jpg');
+    expect(getImage({ src: url, width: 320 }, customConfig).url).toBe(url);
+  });
+
   it('supports setup and registry registration with an existing delivery URL', () => {
     const src = 'https://img.imageboss.me/website/cdn/photo.jpg';
     for (const providers of [{ imageboss: imagebossSetup }, createBuiltInProviders()]) {
@@ -99,6 +109,13 @@ describe('ImageBoss provider', () => {
     expect(modifiers.background).toBe('#abc');
   });
 
+  it('orders accepted ASCII option keys independently of locale', () => {
+    const modifiers = { ab: 1, a_b: 2, aB: 3, 'a-b': 4 };
+    expect(getImage({ src: '/photo.jpg', modifiers }, config).url).toBe(
+      'https://img.imageboss.me/my-images/cdn/a-b:4,aB:3,a_b:2,ab:1/photo.jpg'
+    );
+  });
+
   it('escapes source and option delimiters while preserving encoded paths and query parameters', () => {
     const src = '/folder/café photo%2F1,2:3.jpg?token=a%2Bb%2F%3D&tag=a&tag=b#preview';
     const url = getImage({ src, width: 320, modifiers: { text: 'a,b:c/d?e#f' } }, config).url;
@@ -114,6 +131,42 @@ describe('ImageBoss provider', () => {
       'https://img.imageboss.me/my-images/width/320/my-images/width/100/format%3Apng/photo.jpg'
     );
   });
+
+  it.each(['.', '..', '%2e', '%2E%2e', '.%2E', '%2e.'])(
+    'rejects dot segment %s before URL normalization',
+    (segment) => {
+      const path = `folder/${segment}/photo.jpg`;
+      for (const src of [
+        `/${path}`,
+        `https://img.imageboss.me/my-images/cdn/${path}`,
+        `https://img.imageboss.me/my-images/cdn/${path}?bossToken=signature`
+      ]) {
+        expect(() => getImage({ src }, config)).toThrow(
+          '[desource/image] [imageboss] Image paths cannot contain dot segments.'
+        );
+      }
+    }
+  );
+
+  it('preserves dotted file names and literal percent-encoded names', () => {
+    const path = 'folder.name/.../%252e%252e/photo..jpg';
+    const url = getImage({ src: `/${path}` }, config).url;
+    expect(url).toBe(`https://img.imageboss.me/my-images/cdn/${path}`);
+    expect(getImage({ src: url }, config).url).toBe(url);
+  });
+
+  it('preserves a source directory that does not match option syntax', () => {
+    const src = 'https://img.imageboss.me/my-images/cdn/2026:archive/photo.jpg';
+    expect(getImage({ src }, config).url).toBe('https://img.imageboss.me/my-images/cdn/2026%3Aarchive/photo.jpg');
+  });
+
+  it.each(['quality:80,bad', 'quality:80,:png', 'quality:80,', 'quality:%E0%A4%A'])(
+    'rejects malformed delivery options with a provider error: %s',
+    (options) => {
+      const src = `https://img.imageboss.me/my-images/cdn/${options}/photo.jpg`;
+      expect(() => getImage({ src }, config)).toThrow('[desource/image] [imageboss] Invalid option');
+    }
+  );
 
   it.each(['https://img.imageboss.me', 'https://images.example.com', '//images.example.com'])(
     'updates an existing delivery URL without duplicating transformations: %s',
@@ -149,14 +202,18 @@ describe('ImageBoss provider', () => {
     expect(() => getImage({ src, width: 320 }, config)).toThrow('[imageboss]');
   });
 
-  it.each([{ 'text/format': 'png' }, { text: { value: 'caption' } }, { quality: Number.POSITIVE_INFINITY }])(
-    'rejects invalid option values or keys: %j',
-    (modifiers) => {
-      expect(() =>
-        imagebossSetup().getImage('/photo.jpg', { ...providerOptions, modifiers }, localProviderContext)
-      ).toThrow('[imageboss]');
-    }
-  );
+  it.each([
+    { 'text/format': 'png' },
+    { text: { value: 'caption' } },
+    { quality: Number.POSITIVE_INFINITY },
+    { compression: [false] },
+    { 'fill-color': ['abc'] },
+    { 'fill-color': { color: 'abc' } }
+  ])('rejects invalid option values or keys: %j', (modifiers) => {
+    expect(() =>
+      imagebossSetup().getImage('/photo.jpg', { ...providerOptions, modifiers }, localProviderContext)
+    ).toThrow('[imageboss]');
+  });
 
   it('preserves a signed URL only when no transformation is requested', () => {
     const src = 'https://img.imageboss.me/private/width/320/photo.jpg?bossToken=signature&expires=2000000000';
