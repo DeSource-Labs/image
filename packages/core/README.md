@@ -274,8 +274,6 @@ Provider modules:
 
 `aliyun`, `appwrite`, `awsAmplify`, `builderio`, `bunny`, `bytescale`, `caisy`, `cloudflare`, `cloudflareimages`, `cloudimage`, `cloudinary`, `contentful`, `contentstack`, `directus`, `edgeonePages`, `fastly`, `filerobot`, `filestack`, `flyimg`, `github`, `glide`, `gumlet`, `hygraph`, `imageboss`, `imageengine`, `imagekit`, `imgix`, `imgproxy`, `ipx`, `ipxStatic`, `keycdn`, `netlify`, `netlifyImageCdn`, `netlifyLargeMedia`, `none`, `picsum`, `prepr`, `prismic`, `sanity`, `shopify`, `sirv`, `storyblok`, `strapi`, `strapi5`, `supabase`, `twicpics`, `umbraco`, `unsplash`, `uploadcare`, `vercel`, `wagtail`, and `weserv`.
 
-Provider behavior is parity-tested against a pinned Nuxt Image package where comparable behavior exists. The framework integrations remain native to Angular, React, and Svelte.
-
 ## Custom providers
 
 The provider contract is DeSource Image's own shape. It is intentionally small: a provider receives a normalized source, merged options, and an image context, then returns a URL.
