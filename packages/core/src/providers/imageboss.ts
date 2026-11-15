@@ -195,7 +195,11 @@ function serializeOptions(options: Record<string, ModifierValue>): string {
     if (options.format === 'jpeg') options.format = 'jpg';
   }
   return Object.keys(options)
-    .sort()
+    .sort((a, b) => {
+      // URL option order must not depend on the runtime locale.
+      if (a < b) return -1;
+      return a > b ? 1 : 0;
+    })
     .flatMap((key) => {
       const value = options[key];
       if (value == null) return [];
