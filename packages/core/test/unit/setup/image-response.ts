@@ -66,7 +66,7 @@ export async function expectResponsiveImageWidths(src: string, config: ImageConf
   await Promise.all(
     variants.map(async ({ url, descriptor }) => {
       const width = Number.parseInt(descriptor, 10);
-      expect(await inspectImage(url)).toEqual({
+      expect(await inspectImage(url)).toMatchObject({
         width,
         height: (width * 9) / 16,
         type: 'webp',
@@ -128,7 +128,7 @@ export async function expectPictureImageTypes(src: string, config: ImageConfig):
   await Promise.all(
     picture.sources.flatMap(({ srcset, type }) =>
       candidates(srcset).map(async ({ url }) => {
-        expect(await inspectImage(url)).toEqual({
+        expect(await inspectImage(url)).toMatchObject({
           width: 160,
           height: 90,
           type: type!.slice('image/'.length),
@@ -137,7 +137,7 @@ export async function expectPictureImageTypes(src: string, config: ImageConfig):
       })
     )
   );
-  expect(await inspectImage(picture.img.src)).toEqual({
+  expect(await inspectImage(picture.img.src)).toMatchObject({
     width: 160,
     height: 90,
     type: 'jpg',

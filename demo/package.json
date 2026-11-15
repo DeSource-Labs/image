@@ -18,15 +18,15 @@
   "dependencies": {
     "@desource/image": "workspace:*",
     "@desource/image-svelte": "workspace:*",
-    "ipx": "^4.0.0",
+    "ipx": "^4.1.0",
     "ogl": "^1.0.11"
   },
   "devDependencies": {
-    "@sveltejs/adapter-vercel": "^7.0.2",
-    "@sveltejs/kit": "^3.1.1",
+    "@sveltejs/adapter-vercel": "^7.0.3",
+    "@sveltejs/kit": "^3.2.0",
     "@sveltejs/vite-plugin-svelte": "^7.3.1",
-    "sass": "^1.107.0",
+    "sass": "^1.108.2",
     "svelte": "^5.57.3",
-    "svelte-check": "^4.7.7"
+    "svelte-check": "^4.7.8"
   }
 }
