@@ -1,5 +1,37 @@
 # @desource/image-angular
 
+## 0.6.0
+
+### Minor Changes
+
+- Core | Angular | React | Svelte Upgrades:
+  - Added Bytescale as a built-in image provider:
+    - Exposed `bytescaleProvider` and `BytescaleProviderOptions` through the provider registry and tree-shakable subpath imports.
+    - Supported resizing, quality, JPEG, PNG, GIF, WebP, AVIF, and native query modifiers, including zero and false values.
+    - Converted delivery `/raw` URLs to `/image`, preserving custom hosts, encoded paths, access parameters, repeated query parameters, and fragments.
+    - Supported relative sources through `baseURL` and configured external-source delivery paths.
+    - Mapped `cover` to `crop`, `contain` or `inside` to `max`, `outside` to `min`, `fill` to `stretch`, and `scale-down` to `shrink`, with native fit values also supported.
+    - Removed the `f2` fallback when an explicit format was requested to keep picture MIME types consistent.
+    - Rejected invalid delivery paths, unsupported output formats, and unsupported fit modifiers.
+  - Added ImageBoss as a built-in image provider:
+    - Exposed `imagebossProvider` and `ImageBossProviderOptions` through the provider registry and tree-shakable subpath imports.
+    - Supported relative image paths through a configured `source`, existing delivery URLs, custom `baseURL` endpoints, and default modifiers.
+    - Generated `cdn`, `width`, `height`, and `cover` operations, with support for `cover`, `contain`, and `inside` fits.
+    - Supported crop positioning, RGB hex backgrounds, quality, JPEG, PNG, GIF, WebP, AVIF, TIFF, and automatic format negotiation.
+    - Parsed and updated existing delivery transformations while preserving source identity, encoded paths, query parameters, and fragments.
+    - Serialized native path options in stable, locale-independent order, preserving zero and false values.
+    - Preserved signed `bossToken` URLs when no transformation was requested and rejected changes that would invalidate their signatures.
+    - Rejected invalid endpoints, source names, paths, dimensions, formats, fits, crop positions, background colors, and native options.
+  - Added Bytescale and ImageBoss setup documentation, examples, demo listings, logos, and README provider entries.
+  - Updated the Angular runtime dependency `tslib` to 2.9.1.
+  - Updated core development dependencies to IPX 4.1.0.
+  - Updated Angular, Next.js, Vite, Vitest, Playwright, jsdom, Svelte tooling, linting, formatting, and supporting development dependencies.
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @desource/image@0.6.0
+
 ## 0.5.0
 
 ### Minor Changes
@@ -34,7 +66,7 @@
     - Defaulted React unit tests to Node, retaining jsdom for DOM suites.
   - Updated core development and demo dependencies to stable IPX 4.0.0.
   - Updated the demo to SvelteKit 3.1.1 and adapter-vercel 7.0.2.
-  - Updated Angular, React, Next.js, Svelte, Nuxt Image, Vite, Vitest, Playwright, linting, formatting, and supporting development dependencies.
+  - Updated Angular, React, Next.js, Svelte, Vite, Vitest, Playwright, linting, formatting, and supporting development dependencies.
   - Updated workspace dependency overrides, pinned the OXC parser's compatible WASM runtime, and removed the obsolete ng-packagr override.
   - Updated the Changesets configuration schema to 4.0.1.
   - Upgraded pnpm to 12.16.1.
