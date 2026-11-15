@@ -138,7 +138,8 @@ function encodeImagePath(path: string): string {
   return path
     .split('/')
     .map((part) => {
-      if (/^(?:\.|%2e){1,2}$/i.test(part)) invalid('Image paths cannot contain dot segments.');
+      // Encoded slashes can expose dot segments when ImageBoss decodes the path.
+      if (/(?:^|%2f)(?:\.|%2e){1,2}(?:%2f|$)/i.test(part)) invalid('Image paths cannot contain dot segments.');
       // Preserve existing escapes so they still identify the same file.
       return encodeURIComponent(part).replace(/%25([\da-f]{2})/gi, '%$1');
     })

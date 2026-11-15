@@ -132,24 +132,39 @@ describe('ImageBoss provider', () => {
     );
   });
 
-  it.each(['.', '..', '%2e', '%2E%2e', '.%2E', '%2e.'])(
-    'rejects dot segment %s before URL normalization',
-    (segment) => {
-      const path = `folder/${segment}/photo.jpg`;
-      for (const src of [
-        `/${path}`,
-        `https://img.imageboss.me/my-images/cdn/${path}`,
-        `https://img.imageboss.me/my-images/cdn/${path}?bossToken=signature`
-      ]) {
-        expect(() => getImage({ src }, config)).toThrow(
-          '[desource/image] [imageboss] Image paths cannot contain dot segments.'
-        );
-      }
+  it.each([
+    '.',
+    '..',
+    '%2e',
+    '%2E%2e',
+    '.%2E',
+    '%2e.',
+    '..%2Fphoto.jpg',
+    'folder%2f..',
+    'safe%2F..%2Fsecret.jpg',
+    'safe%2f.%2Fphoto.jpg',
+    'safe%2F%2e%2E%2fphoto.jpg',
+    'safe%2f.%2E%2Fphoto.jpg',
+    'safe%2F%2e.%2fphoto.jpg'
+  ])('rejects dot segments in path part %s before URL normalization', (part) => {
+    const path = `folder/${part}/photo.jpg`;
+    for (const src of [
+      `/${path}`,
+      `https://img.imageboss.me/my-images/cdn/${path}`,
+      `https://img.imageboss.me/my-images/cdn/${path}?bossToken=signature`
+    ]) {
+      expect(() => getImage({ src }, config)).toThrow(
+        '[desource/image] [imageboss] Image paths cannot contain dot segments.'
+      );
     }
-  );
+  });
 
-  it('preserves dotted file names and literal percent-encoded names', () => {
-    const path = 'folder.name/.../%252e%252e/photo..jpg';
+  it.each([
+    'folder.name/.../%252e%252e/photo..jpg',
+    'folder..%2F...%2f%2e%2e%2e%2F..photo.jpg',
+    'folder%252F..%252fphoto.jpg',
+    'folder%2F%252e%252e%2fphoto.jpg'
+  ])('preserves dotted file names and literal percent-encoded names: %s', (path) => {
     const url = getImage({ src: `/${path}` }, config).url;
     expect(url).toBe(`https://img.imageboss.me/my-images/cdn/${path}`);
     expect(getImage({ src: url }, config).url).toBe(url);
