@@ -43,6 +43,7 @@ const providerNames = {
   glide: 'Glide',
   gumlet: 'Gumlet',
   hygraph: 'Hygraph',
+  imageboss: 'ImageBoss',
   imageengine: 'ImageEngine',
   imagekit: 'ImageKit',
   imgix: 'Imgix',

@@ -22,6 +22,7 @@ import { githubProvider } from './github.js';
 import { glideProvider } from './glide.js';
 import { gumletProvider } from './gumlet.js';
 import { hygraphProvider } from './hygraph.js';
+import { imagebossProvider } from './imageboss.js';
 import { imageEngineProvider } from './imageengine.js';
 import { imagekitProvider } from './imagekit.js';
 import { imgixProvider } from './imgix.js';
@@ -75,6 +76,7 @@ export const BUILT_IN_PROVIDER_NAMES = [
   'glide',
   'gumlet',
   'hygraph',
+  'imageboss',
   'imageengine',
   'imagekit',
   'imgix',
@@ -132,6 +134,7 @@ export function createBuiltInProviders(): Record<BuiltInProviderName, ImageProvi
     glide: glideProvider(),
     gumlet: gumletProvider(),
     hygraph: hygraphProvider(),
+    imageboss: imagebossProvider(),
     imageengine: imageEngineProvider(),
     imagekit: imagekitProvider(),
     imgix: imgixProvider(),

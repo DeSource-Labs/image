@@ -17,6 +17,56 @@ export interface ProviderDoc {
 }
 
 export const providerDocs: Record<ProviderId, ProviderDoc> = {
+  imageboss: {
+    description: 'Resize images from a configured ImageBoss source with path-based operations.',
+    options: [
+      {
+        name: 'source',
+        value: 'boss-images',
+        description:
+          'ImageBoss source name from your dashboard. Required for relative image paths; full ImageBoss URLs provide their own source.'
+      },
+      {
+        name: 'baseURL',
+        value: null,
+        description: 'Optional HTTP(S) delivery endpoint. Defaults to https://img.imageboss.me.'
+      },
+      {
+        name: 'modifiers',
+        value: null,
+        description: 'Optional default transformations, merged with the modifiers for each image.'
+      }
+    ],
+    src: '/examples/02.jpg',
+    source:
+      'Use a path within your configured source, or a full delivery URL on img.imageboss.me or your configured endpoint. Existing ImageBoss transformation segments are parsed and updated rather than added twice. Source-path escapes, query parameters and fragments are retained; explicit modifiers replace matching transformations.',
+    modifiers:
+      'Width alone selects width, height alone selects height, and both dimensions select cover. Without dimensions, source paths use cdn. Fit supports cover, contain and inside. Position selects smart, attention, entropy, face, center or a compass direction for cropping. Quality and format become path options; background maps to fill-color and accepts RGB hexadecimal colors. Other scalar ImageBoss options pass through in stable key order, including false values.',
+    notes: [
+      'Cover crops to the requested dimensions and uses smart cropping by default. Contain adds padding to fill the box; inside fits within it without padding. Fill, outside and scale-down fits are unsupported.',
+      'Inside and withoutEnlargement can return smaller dimensions than requested. Keep responsive descriptors consistent with the decoded image. Native dpr multiplies output dimensions; avoid combining it with responsive densities unless that multiplication is intended.',
+      'Formats include auto, jpeg/jpg, png, webp, avif, tiff and gif; JPEG is sent as jpg. Auto lets ImageBoss negotiate the output format. Use explicit formats for typed picture sources. Video output such as mp4 is unsupported.',
+      'Connect your image source in the ImageBoss dashboard before using its paths. The boss-images source in this example is the public ImageBoss demo source.',
+      'Signed URLs containing bossToken can pass through unchanged, but transformations throw because changing the path invalidates the signature. For secured sources, generate each final variant URL first and sign it on the server. The provider does not create signatures.',
+      'ImageBoss performs the transformations. The provider builds delivery URLs and does not upload images or configure source access.'
+    ],
+    reference: 'https://imageboss.me/docs',
+    factory: 'imagebossProvider',
+    example: {
+      width: 800,
+      height: 600,
+      fit: 'cover',
+      quality: 80,
+      format: 'webp'
+    },
+    extra: [
+      {
+        title: 'Crop positioning and native options',
+        language: 'ts',
+        code: "import { createImage } from '@desource/image';\nimport { imagebossProvider } from '@desource/image/providers/imageboss';\n\nconst image = createImage({\n  provider: 'imageboss',\n  providers: {\n    imageboss: imagebossProvider({ source: 'your-source' })\n  }\n});\n\nconst src = image('products/hero.jpg', {\n  width: 800,\n  height: 600,\n  fit: 'cover',\n  position: 'face',\n  'face-index': 0,\n  format: 'webp'\n});"
+      }
+    ]
+  },
   bytescale: {
     description: 'Resize Bytescale files and configured external sources through the Image Processing API.',
     options: [

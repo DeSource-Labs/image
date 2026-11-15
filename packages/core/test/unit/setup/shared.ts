@@ -19,6 +19,7 @@ const sourceOverrides: Record<string, string> = {
   contentstack: '/v3/assets/stack/asset/version/photo.jpg?environment=production',
   cloudflareimages: 'image-id',
   filestack: 'pdn7PhZdT02GoYZCVYeF',
+  imageboss: 'https://img.imageboss.me/source/cdn/photo.jpg',
   github: 'u/1',
   hygraph: '/base/image-id',
   picsum: 'id/42',

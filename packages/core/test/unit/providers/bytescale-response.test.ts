@@ -1,14 +1,12 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { IPXModifiers } from 'ipx';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { getImage, getImageAttrs, type ImageConfig, type ImageFit } from '@src/index';
+import { getImage, type ImageConfig, type ImageFit } from '@src/index';
 import { bytescaleProvider } from '@src/providers/bytescale';
 import {
   createImageResponsePreview,
   createImageResponseServer,
-  expectDensityImageSizes,
-  expectPictureImageTypes,
-  expectResponsiveImageWidths,
+  defineImageResponseTests,
   imageContentTypes,
   inspectImage
 } from '../setup/image-response';
@@ -87,22 +85,7 @@ beforeAll(async () => {
 afterAll(() => server.close());
 
 describe('Bytescale controlled-server response contract', () => {
-  it('returns decoded widths matching every responsive width descriptor', async () => {
-    await expectResponsiveImageWidths(source, config);
-  });
-
-  it('preserves source parameters while serving cropped density variants and the placeholder', async () => {
-    const attrs = getImageAttrs(
-      { src: source, width: 160, height: 160, fit: 'cover', densities: [1, 2], format: 'png', placeholder: true },
-      config
-    );
-    await expectDensityImageSizes(attrs, { width: 160, height: 160 });
-    expect(await inspectImage(attrs.placeholderSrc!)).toMatchObject({ width: 10, height: 10, type: 'png' });
-  });
-
-  it('serves each advertised picture MIME type and a decoded JPEG fallback', async () => {
-    await expectPictureImageTypes(source, config);
-  });
+  defineImageResponseTests(() => ({ src: source, config }));
 
   it.each([
     ['cover', 160, 160, 160, 160],
